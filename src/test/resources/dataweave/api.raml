@@ -1,0 +1,72 @@
+#%RAML 0.8
+---
+title: DataWeave API
+baseUri: http://dataweave-api.cloudhub.io/api
+documentation: 
+  - title: DataWeave Engine API    
+    content: Interact with the Data Weave Engine.
+/exec:
+  description: "Executes a Data Weave Script with the specified inputs."
+  post: 
+    body: 
+      application/json: 
+        example: |
+          {
+            "inputs" : [{
+                "name": "in0",
+                "content": "{ \"name\":\"Martin\"}",
+                "mimeType" : "text/json"
+             }],
+            "transform" : "name: in0.name",
+            "mimeType" : "application/json"
+          }
+        schema: !include exec-body.json          
+    responses: 
+      200: 
+        description: When executed succesfully
+        body: 
+          application/json: 
+            example: |
+              {
+                "mimeType": "text/json",
+                "content": "{}"
+              }
+            schema:  !include exec-response.json
+                 
+      400:
+        description: When an error occurred while executing
+        body: 
+          application/json:
+            example: |
+              {
+                "message" : "can not coerce :string to :object",
+                "location" : "1,2",
+                "source": "name: in0.a"
+              }                
+            schema:  !include exec-reponse-error.json             
+/ast:
+  description: "Returns the AST of the specified script."
+  post:
+    body: 
+      application/json: 
+        example: |
+          {
+            "transform" : "name: in0.name",
+            "mimeType" : "application/json"
+          } 
+        schema:  !include ast-body.json
+           
+    responses: 
+      200:
+        body: 
+          application/json: 
+            example: |
+              {
+                "ast" : ""
+              }
+            schema:   !include ast-response.json
+                            
+                         
+                     
+          
+                                                                                                                                      

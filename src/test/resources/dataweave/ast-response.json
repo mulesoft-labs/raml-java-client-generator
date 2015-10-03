@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "http://jsonschema.net",
+    "type": "object",
+    "properties": {
+      "ast": {
+        "id": "http://jsonschema.net/ast",
+        "type": "string"
+      }
+    },
+    "required": [
+      "ast"
+    ]
+} 
