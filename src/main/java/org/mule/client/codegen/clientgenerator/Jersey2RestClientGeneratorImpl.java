@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import javax.ws.rs.client.*;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -104,7 +105,12 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             if (returnType.equals(cm.ref(Object.class))) {
                 body._return(responseVal.invoke("getEntity"));
             } else {
-                body._return(responseVal.invoke("readEntity").arg(JExpr.dotclass(cm.ref(returnType.fullName()))));
+                if (returnType instanceof JClass && !((JClass) returnType).getTypeParameters().isEmpty()) {
+                    final JClass narrow = cm.anonymousClass(cm.ref(GenericType.class).narrow(returnType));
+                    body._return(responseVal.invoke("readEntity").arg(JExpr._new(narrow)));
+                } else {
+                    body._return(responseVal.invoke("readEntity").arg(JExpr.dotclass(cm.ref(returnType.fullName()))));
+                }
             }
         }
     }
