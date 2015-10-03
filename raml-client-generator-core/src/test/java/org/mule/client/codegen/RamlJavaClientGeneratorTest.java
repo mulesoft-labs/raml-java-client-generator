@@ -63,6 +63,9 @@ public class RamlJavaClientGeneratorTest {
     @Test
     public void dataGateway() throws IOException, JClassAlreadyExistsException {
         final File targetFolder = new File(FileUtils.getTempDirectory(), "dataGateway");
+        if(targetFolder.exists()) {
+            FileUtils.cleanDirectory(targetFolder);
+        }
         targetFolder.mkdirs();
         new RamlJavaClientGenerator(
                 "dataGateway",

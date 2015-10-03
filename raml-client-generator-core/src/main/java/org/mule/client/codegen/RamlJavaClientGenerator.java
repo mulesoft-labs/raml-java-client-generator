@@ -18,11 +18,13 @@ import org.raml.model.parameter.Header;
 import org.raml.model.parameter.QueryParameter;
 import org.raml.parser.visitor.RamlDocumentBuilder;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RamlJavaClientGenerator {
@@ -38,21 +40,32 @@ public class RamlJavaClientGenerator {
     public static final String PRIVATE_FIELD_PREFIX = "_";
 
     public static final String GET_BASE_URI_METHOD_NAME = "getBaseUri";
+    public static final String MODEL_PACKAGE_NAME = "model";
 
 
     private String basePackage;
     private File targetFolder;
     private RestClientGenerator clientGenerator;
+
+    //This two properties hold state so maybe should be local and passthrough
     private Map<String, Pair<JDefinedClass, JMethod>> resourceClasses;
+    private Map<String, JType> globalTypes;
+
 
     public RamlJavaClientGenerator(String basePackage, File targetFolder) {
         this.basePackage = basePackage;
         this.targetFolder = targetFolder;
         this.clientGenerator = new Jersey2RestClientGeneratorImpl();
         this.resourceClasses = new HashMap<>();
+        this.globalTypes = new HashMap<>();
     }
 
+
     public void generate(URL ramlFile) throws JClassAlreadyExistsException, IOException {
+
+        globalTypes.clear();
+        resourceClasses.clear();
+
         System.out.println("Start generating for " + ramlFile);
         final Raml raml = new RamlDocumentBuilder().build(ramlFile.openStream(), ramlFile.toExternalForm());
         System.out.println("Parsed successfully " + ramlFile);
@@ -63,6 +76,14 @@ public class RamlJavaClientGenerator {
     private void generate(Raml raml) throws JClassAlreadyExistsException, IOException {
         final Map<String, Resource> resources = raml.getResources();
         final JCodeModel cm = new JCodeModel();
+        final List<Map<String, String>> schemas = raml.getSchemas();
+        for (Map<String, String> schema : schemas) {
+            for (Map.Entry<String, String> schemaEntry : schema.entrySet()) {
+                final JType schemaType = generatePojoFromSchema(cm, NameHelper.toValidClassName(schemaEntry.getKey()), basePackage + PACKAGE_SEPARATOR + MODEL_PACKAGE_NAME, schemaEntry.getValue());
+                globalTypes.put(schemaEntry.getKey(), schemaType);
+            }
+        }
+
         final JDefinedClass containerClass = cm._class(basePackage + PACKAGE_SEPARATOR + "api" + PACKAGE_SEPARATOR + NameHelper.toValidClassName(raml.getTitle()) + "Client");
         final JFieldVar baseUriField = containerClass.field(JMod.PRIVATE, String.class, "_" + BASE_URL_FIELD_NAME);
         final JMethod containerConstructor = containerClass.constructor(JMod.PUBLIC);
@@ -230,7 +251,11 @@ public class RamlJavaClientGenerator {
             final MimeType jsonMimeType = action.getBody().get(APPLICATION_JSON_MIME_TYPE);
             final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Body";
             if (StringUtils.isNotBlank(jsonMimeType.getSchema())) {
-                bodyType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), jsonMimeType.getSchema());
+                if (globalTypes.containsKey(jsonMimeType.getSchema())) {
+                    bodyType = globalTypes.get(jsonMimeType.getSchema());
+                } else {
+                    bodyType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), jsonMimeType.getSchema());
+                }
             } else if (StringUtils.isNotBlank(jsonMimeType.getExample())) {
                 bodyType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), jsonMimeType.getExample());
             }
@@ -239,7 +264,7 @@ public class RamlJavaClientGenerator {
     }
 
     private String getModelPackage(String resourcePath) {
-        return getResourcePackage(resourcePath) + PACKAGE_SEPARATOR + "model";
+        return getResourcePackage(resourcePath) + PACKAGE_SEPARATOR + MODEL_PACKAGE_NAME;
     }
 
     public JType toParametersJavaBean(JCodeModel cm, String className, Map<String, ? extends AbstractParam> paramMap, String resourcePath) throws JClassAlreadyExistsException {
@@ -294,7 +319,6 @@ public class RamlJavaClientGenerator {
             return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode));
         } catch (JsonParseException e) {
             System.out.println("Can not generate  " + className + "since :" + e.getMessage() + " :\n" + json);
-
             return null;
         }
     }
