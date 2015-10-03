@@ -37,6 +37,10 @@ public class NameHelper {
         return toValidJavaIdentifier("set" + toCamelCase(name, false));
     }
 
+    public static String getWithName(String name) {
+        return toValidJavaIdentifier("with" + toCamelCase(name, false));
+    }
+
     public static String getGetterName(String name) {
         return toValidJavaIdentifier("get" + toCamelCase(name, false));
     }

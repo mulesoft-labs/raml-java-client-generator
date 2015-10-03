@@ -253,10 +253,16 @@ public class RamlJavaClientGenerator {
                 paramsConstructor.body().assign(paramField, paramParam);
             } else {
                 //setter
-                final JMethod setterMethod = paramsClass.method(JMod.PUBLIC, cm.VOID, NameHelper.getSetterName(paramEntries.getKey()));
-                final JVar paramParam = setterMethod.param(String.class, NameHelper.toValidFieldName(paramEntries.getKey()));
-                setterMethod.body().assign(paramField, paramParam);
+                final JMethod builderMethod = paramsClass.method(JMod.PUBLIC, paramsClass, NameHelper.getWithName(paramEntries.getKey()));
+                final JVar paramParam = builderMethod.param(String.class, NameHelper.toValidFieldName(paramEntries.getKey()));
+                builderMethod.body().assign(paramField, paramParam);
+                builderMethod.body()._return(JExpr._this());
             }
+            //setter
+            final JMethod setterMethod = paramsClass.method(JMod.PUBLIC, cm.VOID, NameHelper.getSetterName(paramEntries.getKey()));
+            final JVar paramParam = setterMethod.param(String.class, NameHelper.toValidFieldName(paramEntries.getKey()));
+            setterMethod.body().assign(paramField, paramParam);
+
             //Getter
             final JMethod getterMethod = paramsClass.method(JMod.PUBLIC, String.class, NameHelper.getGetterName(paramEntries.getKey()));
             getterMethod.body()._return(paramField);
