@@ -100,6 +100,9 @@ public class RamlJavaClientGenerator {
         }
 
         buildResourceClass(cm, containerClass, containerConstructor, resources, "");
+        if(!targetFolder.exists()){
+            targetFolder.mkdirs();
+        }
         cm.build(targetFolder);
         System.out.println("Finished Generation");
     }

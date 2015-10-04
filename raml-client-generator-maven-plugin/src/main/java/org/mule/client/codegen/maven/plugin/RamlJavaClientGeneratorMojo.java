@@ -3,6 +3,7 @@ package org.mule.client.codegen.maven.plugin;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -12,10 +13,11 @@ import java.io.File;
 import java.net.URL;
 
 @Mojo(name = "generate-client", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+@Execute(goal = "generate-client")
 public class RamlJavaClientGeneratorMojo extends AbstractMojo {
 
 
-    @Parameter(defaultValue = "${project.build.sourceDirectory}/main/resources/api.raml")
+    @Parameter(defaultValue = "${project.build.resources[0].directory}/api.raml")
     private String ramlFile;
 
     @Parameter()
@@ -33,12 +35,16 @@ public class RamlJavaClientGeneratorMojo extends AbstractMojo {
             if (this.ramlURL != null && !this.ramlURL.isEmpty()) {
                 ramlURL = new URL(this.ramlURL);
             } else {
-                ramlURL = new File(this.ramlFile).toURI().toURL();
+                final File ramlFile = new File(this.ramlFile);
+                if (!ramlFile.exists()) {
+                    getLog().error("Raml file not found " + ramlFile);
+                }
+                ramlURL = ramlFile.toURI().toURL();
             }
             final RamlJavaClientGenerator ramlJavaClientGenerator = new RamlJavaClientGenerator(basePackage, new File(outputDir));
             ramlJavaClientGenerator.generate(ramlURL);
         } catch (Exception e) {
-            throw new MojoExecutionException("Exception while running push check valid parameters.", e);
+            throw new MojoExecutionException("Exception while generating client.", e);
         }
     }
 }

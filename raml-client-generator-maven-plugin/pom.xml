@@ -4,12 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    
-
-  <groupId>org.mule.raml.codegen</groupId>
-    <artifactId>raml-client-generator-maven-plugin</artifactId>    
+    <artifactId>raml-client-generator-maven-plugin</artifactId>
     <description>Raml Client Generator Maven Plugin.</description>
-    <packaging>jar</packaging>
+    <packaging>maven-plugin</packaging>
     <name>Raml Client Generator Maven Plugin.</name>
 
     <parent>
@@ -25,6 +22,12 @@
             <version>2.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.mule.raml.codegen</groupId>
+            <artifactId>raml-client-generator-core</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- dependencies to annotations -->
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
@@ -33,5 +36,34 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <goalPrefix>raml-client-generator-maven-plugin</goalPrefix>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                    <execution>
+                        <id>help-descriptor</id>
+                        <goals>
+                            <goal>helpmojo</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
