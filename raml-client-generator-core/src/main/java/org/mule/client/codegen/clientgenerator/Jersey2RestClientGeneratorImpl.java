@@ -2,7 +2,7 @@ package org.mule.client.codegen.clientgenerator;
 
 import com.sun.codemodel.*;
 import org.apache.commons.lang.StringUtils;
-import org.mule.client.codegen.RamlJavaClientGenerator;
+import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.RestClientGenerator;
 import org.mule.client.codegen.utils.NameHelper;
 import org.raml.model.Action;
@@ -97,13 +97,12 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             if (bodyParam != null) {
                 final Iterator<MimeType> iterator = action.getBody().values().iterator();
                 if (iterator.hasNext()) {
-                    final MimeType next = iterator.next();
-                    final String type = next.getType();
-                    if (type.equalsIgnoreCase(RamlJavaClientGenerator.APPLICATION_JSON_MIME_TYPE)) {
+                    final MimeType type = iterator.next();
+                    if (MimeTypeHelper.isJsonType(type)) {
                         methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("json").arg(bodyParam));
-                    } else if (type.equalsIgnoreCase(RamlJavaClientGenerator.TEXT_PLAIN_MIME_TYPE)) {
+                    } else if (MimeTypeHelper.isTextType(type)) {
                         methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("text").arg(bodyParam));
-                    } else if (type.endsWith(RamlJavaClientGenerator.BINARY_OCTET_STREAM_MIME_TYPE)) {
+                    } else if (MimeTypeHelper.isBinaryType(type)) {
                         methodInvocation.arg(JExpr._new(cm._ref(Entity.class)).arg(bodyParam).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_OCTET_STREAM_TYPE")));
                     }
                 }

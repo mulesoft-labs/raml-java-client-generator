@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jsonschema2pojo.*;
 import org.jsonschema2pojo.rules.RuleFactory;
 import org.mule.client.codegen.clientgenerator.Jersey2RestClientGeneratorImpl;
+import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
 import org.raml.model.*;
 import org.raml.model.parameter.AbstractParam;
@@ -29,10 +30,6 @@ public class RamlJavaClientGenerator {
 
 
     public static final String PACKAGE_SEPARATOR = ".";
-
-    public static final String APPLICATION_JSON_MIME_TYPE = "application/json";
-    public static final String TEXT_PLAIN_MIME_TYPE = "text/plain";
-    public static final String BINARY_OCTET_STREAM_MIME_TYPE = "/octet-stream";
 
     public static final String OK_RESPONSE = "200";
 
@@ -224,7 +221,7 @@ public class RamlJavaClientGenerator {
             if (bodies.hasNext()) {
                 final Map.Entry<String, MimeType> bodyEntry = bodies.next();
                 final MimeType mimeType = bodyEntry.getValue();
-                if (mimeType.getType().equalsIgnoreCase(APPLICATION_JSON_MIME_TYPE)) {
+                if (MimeTypeHelper.isJsonType(mimeType)) {
                     final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Response";
                     if (StringUtils.isNotBlank(mimeType.getSchema())) {
                         returnType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema());
@@ -233,9 +230,9 @@ public class RamlJavaClientGenerator {
                     } else {
                         returnType = cm.ref(String.class);
                     }
-                } else if (mimeType.getType().equalsIgnoreCase(TEXT_PLAIN_MIME_TYPE)) {
+                } else if (MimeTypeHelper.isTextType(mimeType)) {
                     returnType = cm.ref(String.class);
-                } else if (mimeType.getType().endsWith(BINARY_OCTET_STREAM_MIME_TYPE)) {
+                } else if (MimeTypeHelper.isBinaryType(mimeType)) {
                     returnType = cm.ref(InputStream.class);
                 } else {
                     returnType = cm.ref(String.class);
@@ -271,7 +268,7 @@ public class RamlJavaClientGenerator {
             final Iterator<MimeType> bodies = action.getBody().values().iterator();
             if (bodies.hasNext()) {
                 final MimeType body = bodies.next();
-                if (body.getType().equals(APPLICATION_JSON_MIME_TYPE)) {
+                if (MimeTypeHelper.isJsonType(body)) {
                     final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Body";
                     if (StringUtils.isNotBlank(body.getSchema())) {
                         if (globalTypes.containsKey(body.getSchema())) {
@@ -282,9 +279,9 @@ public class RamlJavaClientGenerator {
                     } else if (StringUtils.isNotBlank(body.getExample())) {
                         bodyType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), body.getExample());
                     }
-                } else if (body.getType().equals(TEXT_PLAIN_MIME_TYPE)) {
+                } else if (MimeTypeHelper.isTextType(body)) {
                     bodyType = cm.ref(String.class);
-                } else if (body.getType().equals(BINARY_OCTET_STREAM_MIME_TYPE)) {
+                } else if (MimeTypeHelper.isBinaryType(body)) {
                     bodyType = cm.ref(InputStream.class);
                 }
             }
