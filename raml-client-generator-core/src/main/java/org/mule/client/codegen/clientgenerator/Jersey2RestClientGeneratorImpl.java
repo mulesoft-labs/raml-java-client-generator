@@ -2,10 +2,12 @@ package org.mule.client.codegen.clientgenerator;
 
 import com.sun.codemodel.*;
 import org.apache.commons.lang.StringUtils;
+import org.mule.client.codegen.RamlJavaClientGenerator;
 import org.mule.client.codegen.RestClientGenerator;
 import org.mule.client.codegen.utils.NameHelper;
 import org.raml.model.Action;
 import org.raml.model.ActionType;
+import org.raml.model.MimeType;
 import org.raml.model.parameter.Header;
 import org.raml.model.parameter.QueryParameter;
 
@@ -20,6 +22,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -90,10 +93,23 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         }
 
         final JInvocation methodInvocation = JExpr.invoke(invocationBuilder, action.getType().name().toLowerCase());
-        if (bodyParam != null) {
-            methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("json").arg(bodyParam));
-        } else if (action.getType() != ActionType.GET && action.getType() != ActionType.OPTIONS && action.getType() != ActionType.DELETE) {
-            methodInvocation.arg(JExpr._null());
+        if (action.getType() != ActionType.GET && action.getType() != ActionType.OPTIONS && action.getType() != ActionType.DELETE) {
+            if (bodyParam != null) {
+                final Iterator<MimeType> iterator = action.getBody().values().iterator();
+                if (iterator.hasNext()) {
+                    final MimeType next = iterator.next();
+                    final String type = next.getType();
+                    if (type.equalsIgnoreCase(RamlJavaClientGenerator.APPLICATION_JSON_MIME_TYPE)) {
+                        methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("json").arg(bodyParam));
+                    } else if (type.equalsIgnoreCase(RamlJavaClientGenerator.TEXT_PLAIN_MIME_TYPE)) {
+                        methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("text").arg(bodyParam));
+                    } else if (type.endsWith(RamlJavaClientGenerator.BINARY_OCTET_STREAM_MIME_TYPE)) {
+                        methodInvocation.arg(JExpr._new(cm._ref(Entity.class)).arg(bodyParam).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_OCTET_STREAM_TYPE")));
+                    }
+                }
+            } else {
+                methodInvocation.arg(JExpr._null());
+            }
         }
 
         final JVar responseVal = body.decl(cm.ref(Response.class), "response", methodInvocation);

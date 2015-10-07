@@ -18,20 +18,22 @@ import org.raml.model.parameter.Header;
 import org.raml.model.parameter.QueryParameter;
 import org.raml.parser.visitor.RamlDocumentBuilder;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RamlJavaClientGenerator {
 
 
     public static final String PACKAGE_SEPARATOR = ".";
+
     public static final String APPLICATION_JSON_MIME_TYPE = "application/json";
+    public static final String TEXT_PLAIN_MIME_TYPE = "text/plain";
+    public static final String BINARY_OCTET_STREAM_MIME_TYPE = "/octet-stream";
+
     public static final String OK_RESPONSE = "200";
 
     public static final String BASE_URL_FIELD_NAME = "baseUrl";
@@ -41,6 +43,7 @@ public class RamlJavaClientGenerator {
 
     public static final String GET_BASE_URI_METHOD_NAME = "getBaseUri";
     public static final String MODEL_PACKAGE_NAME = "model";
+
 
 
     private String basePackage;
@@ -100,9 +103,11 @@ public class RamlJavaClientGenerator {
         }
 
         buildResourceClass(cm, containerClass, containerConstructor, resources, "");
-        if(!targetFolder.exists()){
+
+        if (!targetFolder.exists()) {
             targetFolder.mkdirs();
         }
+
         cm.build(targetFolder);
         System.out.println("Finished Generation");
     }
@@ -214,15 +219,27 @@ public class RamlJavaClientGenerator {
 
     private JType buildReturnType(JCodeModel cm, ActionType actionType, Response response, String resourcePath, String resourceName) throws IOException {
         JType returnType = cm.VOID;
-        if (response != null && response.getBody() != null && response.getBody().get(APPLICATION_JSON_MIME_TYPE) != null) {
-            final MimeType mimeType = response.getBody().get(APPLICATION_JSON_MIME_TYPE);
-            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Response";
-            if (StringUtils.isNotBlank(mimeType.getSchema())) {
-                returnType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema());
-            } else if (StringUtils.isNotBlank(mimeType.getExample())) {
-                returnType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), mimeType.getExample());
-            } else {
-                returnType = cm.ref(Object.class);
+        if (response != null && response.getBody() != null) {
+            final Iterator<Map.Entry<String, MimeType>> bodies = response.getBody().entrySet().iterator();
+            if (bodies.hasNext()) {
+                final Map.Entry<String, MimeType> bodyEntry = bodies.next();
+                final MimeType mimeType = bodyEntry.getValue();
+                if (mimeType.getType().equalsIgnoreCase(APPLICATION_JSON_MIME_TYPE)) {
+                    final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Response";
+                    if (StringUtils.isNotBlank(mimeType.getSchema())) {
+                        returnType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema());
+                    } else if (StringUtils.isNotBlank(mimeType.getExample())) {
+                        returnType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), mimeType.getExample());
+                    } else {
+                        returnType = cm.ref(String.class);
+                    }
+                } else if (mimeType.getType().equalsIgnoreCase(TEXT_PLAIN_MIME_TYPE)) {
+                    returnType = cm.ref(String.class);
+                } else if (mimeType.getType().endsWith(BINARY_OCTET_STREAM_MIME_TYPE)) {
+                    returnType = cm.ref(InputStream.class);
+                } else {
+                    returnType = cm.ref(String.class);
+                }
             }
         }
         return returnType;
@@ -250,17 +267,26 @@ public class RamlJavaClientGenerator {
 
     private JType buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName) throws IOException {
         JType bodyType = null;
-        if (action.getBody() != null && action.getBody().get(APPLICATION_JSON_MIME_TYPE) != null) {
-            final MimeType jsonMimeType = action.getBody().get(APPLICATION_JSON_MIME_TYPE);
-            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Body";
-            if (StringUtils.isNotBlank(jsonMimeType.getSchema())) {
-                if (globalTypes.containsKey(jsonMimeType.getSchema())) {
-                    bodyType = globalTypes.get(jsonMimeType.getSchema());
-                } else {
-                    bodyType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), jsonMimeType.getSchema());
+        if (action.getBody() != null) {
+            final Iterator<MimeType> bodies = action.getBody().values().iterator();
+            if (bodies.hasNext()) {
+                final MimeType body = bodies.next();
+                if (body.getType().equals(APPLICATION_JSON_MIME_TYPE)) {
+                    final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Body";
+                    if (StringUtils.isNotBlank(body.getSchema())) {
+                        if (globalTypes.containsKey(body.getSchema())) {
+                            bodyType = globalTypes.get(body.getSchema());
+                        } else {
+                            bodyType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), body.getSchema());
+                        }
+                    } else if (StringUtils.isNotBlank(body.getExample())) {
+                        bodyType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), body.getExample());
+                    }
+                } else if (body.getType().equals(TEXT_PLAIN_MIME_TYPE)) {
+                    bodyType = cm.ref(String.class);
+                } else if (body.getType().equals(BINARY_OCTET_STREAM_MIME_TYPE)) {
+                    bodyType = cm.ref(InputStream.class);
                 }
-            } else if (StringUtils.isNotBlank(jsonMimeType.getExample())) {
-                bodyType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), jsonMimeType.getExample());
             }
         }
         return bodyType;
