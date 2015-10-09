@@ -6,7 +6,7 @@ This tool generates a java rest client for a raml based api using a resource api
 
 For this api
 
-```
+```raml
 #%RAML 0.8
 title: Client API
 version: 0.1
@@ -29,7 +29,7 @@ mediaType: application/json
 
 Using the generated api 
 
-```
+```java
 final List<UsersGETResponse> result = ClientAPIClient.create().users.get();
 ```
 
@@ -37,7 +37,7 @@ final List<UsersGETResponse> result = ClientAPIClient.create().users.get();
 
 It can easily be embedded into your code just add de dependency
 
-```
+```xml
   <dependency>
             <groupId>org.mule.raml.codegen</groupId>
             <artifactId>raml-client-generator-core</artifactId>
@@ -58,7 +58,7 @@ And then call the RamlJavaClientGenerator
 For maven just add this plugin 
 
 
-```
+```xml
     <build>
         <plugins>
             <plugin>
