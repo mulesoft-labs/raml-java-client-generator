@@ -305,11 +305,15 @@ public class RamlJavaClientGenerator {
                 } else if (MimeTypeHelper.isMultiPartType(body)) {
                     //Todo research why is a list of form parameters and not just a formparamter
                     final Map<String, List<FormParameter>> formParameters = body.getFormParameters();
-                    final Map<String, FormParameter> form = new LinkedHashMap<>();
-                    for (Map.Entry<String, List<FormParameter>> stringListEntry : formParameters.entrySet()) {
-                        form.put(stringListEntry.getKey(), stringListEntry.getValue().get(0));
+                    if(formParameters != null) {
+                        final Map<String, FormParameter> form = new LinkedHashMap<>();
+                        for (Map.Entry<String, List<FormParameter>> stringListEntry : formParameters.entrySet()) {
+                            form.put(stringListEntry.getKey(), stringListEntry.getValue().get(0));
+                        }
+                        bodyType = toParametersJavaBean(cm, className, form, resourcePath);
+                    }else{
+                        System.out.println("Form does not have any parameters defined.");
                     }
-                    bodyType = toParametersJavaBean(cm, className, form, resourcePath);
                 }
             }
         }
@@ -406,7 +410,7 @@ public class RamlJavaClientGenerator {
             return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode));
         } catch (JsonParseException e) {
             System.out.println("Can not generate  " + className + " from schema since : " + e.getMessage());
-            return null;
+            return codeModel.ref(String.class);
         }
     }
 
@@ -418,7 +422,8 @@ public class RamlJavaClientGenerator {
             return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode));
         } catch (JsonParseException e) {
             System.out.println("Can not generate " + className + " from example since : " + e.getMessage());
-            return null;
+            //Lets return an object
+            return codeModel.ref(String.class);
         }
     }
 

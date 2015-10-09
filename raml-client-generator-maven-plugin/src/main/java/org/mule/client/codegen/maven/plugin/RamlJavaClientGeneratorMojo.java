@@ -12,6 +12,8 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 @Mojo(name = "generate-client", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 @Execute(goal = "generate-client")
@@ -31,25 +33,33 @@ public class RamlJavaClientGeneratorMojo extends AbstractMojo {
     private String outputDir;
 
 
-    @Parameter(required = true,readonly = true, defaultValue = "${project}")
+    @Parameter(required = true, readonly = true, defaultValue = "${project}")
     private MavenProject project;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         try {
-            final URL ramlURL;
+            final List<URL> ramlUrls = new ArrayList<>();
             if (this.ramlURL != null && !this.ramlURL.isEmpty()) {
-                ramlURL = new URL(this.ramlURL);
-            } else {
-                final File ramlFile = new File(this.ramlFile);
-                if (!ramlFile.exists()) {
-                    getLog().error("Raml file not found " + ramlFile);
+                final String[] urls = this.ramlURL.split(",");
+                for (String url : urls) {
+                    ramlUrls.add(new URL(url));
                 }
-                ramlURL = ramlFile.toURI().toURL();
+            } else {
+                final String[] paths = this.ramlFile.split(",");
+                for (String path : paths) {
+                    final File ramlFile = new File(path);
+                    if (!ramlFile.exists()) {
+                        getLog().error("Raml file not found " + ramlFile);
+                    }
+                    ramlUrls.add(ramlFile.toURI().toURL());
+                }
             }
-            final RamlJavaClientGenerator ramlJavaClientGenerator = new RamlJavaClientGenerator(basePackage, new File(outputDir));
-            ramlJavaClientGenerator.generate(ramlURL);
 
+            for (URL ramlUrl : ramlUrls) {
+                final RamlJavaClientGenerator ramlJavaClientGenerator = new RamlJavaClientGenerator(basePackage, new File(outputDir));
+                ramlJavaClientGenerator.generate(ramlUrl);
+            }
             project.addCompileSourceRoot(outputDir);
 
         } catch (Exception e) {
