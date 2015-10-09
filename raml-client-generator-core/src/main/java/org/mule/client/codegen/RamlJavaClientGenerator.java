@@ -15,6 +15,7 @@ import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
 import org.raml.model.*;
 import org.raml.model.parameter.AbstractParam;
+import org.raml.model.parameter.FormParameter;
 import org.raml.model.parameter.Header;
 import org.raml.model.parameter.QueryParameter;
 import org.raml.parser.visitor.RamlDocumentBuilder;
@@ -42,7 +43,6 @@ public class RamlJavaClientGenerator {
     public static final String MODEL_PACKAGE_NAME = "model";
 
 
-
     private String basePackage;
     private File targetFolder;
     private RestClientGenerator clientGenerator;
@@ -50,6 +50,17 @@ public class RamlJavaClientGenerator {
     //This two properties hold state so maybe should be local and passthrough
     private Map<String, Pair<JDefinedClass, JMethod>> resourceClasses;
     private Map<String, JType> globalTypes;
+    private static Map<ParamType, Class<?>> CLASS_BY_TYPE = new HashMap<>();
+
+    {
+        CLASS_BY_TYPE.put(ParamType.STRING, String.class);
+        CLASS_BY_TYPE.put(ParamType.FILE, File.class);
+        CLASS_BY_TYPE.put(ParamType.BOOLEAN, Boolean.class);
+        CLASS_BY_TYPE.put(ParamType.NUMBER, Double.class);
+        CLASS_BY_TYPE.put(ParamType.INTEGER, Integer.class);
+        CLASS_BY_TYPE.put(ParamType.DATE, Date.class);
+
+    }
 
 
     public RamlJavaClientGenerator(String basePackage, File targetFolder) {
@@ -122,7 +133,7 @@ public class RamlJavaClientGenerator {
                     final String resourceName = resourceParts[i];
                     final Resource resource = stringResourceEntry.getValue();
                     final String resourcePath = parentResource + "/" + resourceName;
-                    System.out.println("Resource -> " + resourcePath);
+                    System.out.println("-" + resourcePath);
                     final JDefinedClass resourceClass;
                     final JMethod resourceConstructor;
                     //Check if it is not already defined
@@ -199,6 +210,7 @@ public class RamlJavaClientGenerator {
         for (Map.Entry<ActionType, Action> actionTypeActionEntry : actions.entrySet()) {
             final ActionType actionType = actionTypeActionEntry.getKey();
             final Action action = actionTypeActionEntry.getValue();
+            System.out.println("  " + action.getType() + "");
             final Response response = action.getResponses().get(OK_RESPONSE);
 
             final JType returnType = buildReturnType(cm, actionType, response, resourcePath, resourceName);
@@ -262,14 +274,14 @@ public class RamlJavaClientGenerator {
         return queryParameterType;
     }
 
-    private JType buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName) throws IOException {
+    private JType buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName) throws IOException, JClassAlreadyExistsException {
         JType bodyType = null;
         if (action.getBody() != null) {
             final Iterator<MimeType> bodies = action.getBody().values().iterator();
             if (bodies.hasNext()) {
                 final MimeType body = bodies.next();
+                final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Body";
                 if (MimeTypeHelper.isJsonType(body)) {
-                    final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Body";
                     if (StringUtils.isNotBlank(body.getSchema())) {
                         if (globalTypes.containsKey(body.getSchema())) {
                             bodyType = globalTypes.get(body.getSchema());
@@ -283,6 +295,14 @@ public class RamlJavaClientGenerator {
                     bodyType = cm.ref(String.class);
                 } else if (MimeTypeHelper.isBinaryType(body)) {
                     bodyType = cm.ref(InputStream.class);
+                } else if (MimeTypeHelper.isMultiPartType(body)) {
+                    //Todo research why is a list of form parameters and not just a formparamter
+                    final Map<String, List<FormParameter>> formParameters = body.getFormParameters();
+                    final Map<String, FormParameter> form = new LinkedHashMap<>();
+                    for (Map.Entry<String, List<FormParameter>> stringListEntry : formParameters.entrySet()) {
+                        form.put(stringListEntry.getKey(), stringListEntry.getValue().get(0));
+                    }
+                    bodyType = toParametersJavaBean(cm, className, form, resourcePath);
                 }
             }
         }
@@ -297,26 +317,73 @@ public class RamlJavaClientGenerator {
         final JDefinedClass paramsClass = cm._class(getModelPackage(resourcePath) + PACKAGE_SEPARATOR + className);
         final JMethod paramsConstructor = paramsClass.constructor(JMod.PUBLIC);
         for (Map.Entry<String, ? extends AbstractParam> paramEntries : paramMap.entrySet()) {
-            final JFieldVar paramField = paramsClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + NameHelper.toValidFieldName(paramEntries.getKey()));
-            if (paramEntries.getValue().isRequired()) {
+            final AbstractParam param = paramEntries.getValue();
+            final Class<?> fieldType = param.getType() != null && CLASS_BY_TYPE.containsKey(param.getType()) ? CLASS_BY_TYPE.get(param.getType()) : String.class;
+            final JFieldVar paramField;
+            if (StringUtils.isNotBlank(param.getDefaultValue())) {
+                final JExpression defaultValue;
+                switch (param.getType()) {
+                    case STRING:
+                        defaultValue = JExpr.lit(param.getDefaultValue());
+                        break;
+                    case NUMBER:
+                        defaultValue = JExpr.lit(Double.parseDouble(param.getDefaultValue()));
+                        break;
+                    case INTEGER:
+                        defaultValue = JExpr.lit(Integer.parseInt(param.getDefaultValue()));
+                        break;
+                    case DATE:
+                        //TODO what to do here?
+                        defaultValue = JExpr._null();
+                        break;
+                    case FILE:
+                        //TODO what to do here?
+                        defaultValue = JExpr._null();
+                        break;
+                    case BOOLEAN:
+                        //TODO what to do here?
+                        defaultValue = JExpr.lit(Boolean.parseBoolean(param.getDefaultValue()));
+                        break;
+                    default:
+                        defaultValue = JExpr._null();
+                        break;
+                }
+                paramField = paramsClass.field(JMod.PRIVATE, fieldType, PRIVATE_FIELD_PREFIX + NameHelper.toValidFieldName(paramEntries.getKey()), defaultValue);
+            } else {
+                paramField = paramsClass.field(JMod.PRIVATE, fieldType, PRIVATE_FIELD_PREFIX + NameHelper.toValidFieldName(paramEntries.getKey()));
+            }
+            if (StringUtils.isNotBlank(param.getDescription())) {
+                paramField.javadoc().add(param.getDescription());
+            }
+            if (param.isRequired()) {
                 //In constructor
-                final JVar paramParam = paramsConstructor.param(String.class, NameHelper.toValidFieldName(paramEntries.getKey()));
+                final JVar paramParam = paramsConstructor.param(fieldType, NameHelper.toValidFieldName(paramEntries.getKey()));
                 paramsConstructor.body().assign(paramField, paramParam);
+                if (StringUtils.isNotBlank(param.getDescription())) {
+                    paramsConstructor.javadoc().addParam(paramParam).append(param.getDescription());
+                }
             } else {
                 //setter
                 final JMethod builderMethod = paramsClass.method(JMod.PUBLIC, paramsClass, NameHelper.getWithName(paramEntries.getKey()));
-                final JVar paramParam = builderMethod.param(String.class, NameHelper.toValidFieldName(paramEntries.getKey()));
+                final JVar paramParam = builderMethod.param(fieldType, NameHelper.toValidFieldName(paramEntries.getKey()));
+                if (StringUtils.isNotBlank(param.getDescription())) {
+                    builderMethod.javadoc().addParam(paramParam).append(param.getDescription());
+                }
                 builderMethod.body().assign(paramField, paramParam);
                 builderMethod.body()._return(JExpr._this());
             }
             //setter
             final JMethod setterMethod = paramsClass.method(JMod.PUBLIC, cm.VOID, NameHelper.getSetterName(paramEntries.getKey()));
-            final JVar paramParam = setterMethod.param(String.class, NameHelper.toValidFieldName(paramEntries.getKey()));
+            final JVar paramParam = setterMethod.param(fieldType, NameHelper.toValidFieldName(paramEntries.getKey()));
             setterMethod.body().assign(paramField, paramParam);
 
+
             //Getter
-            final JMethod getterMethod = paramsClass.method(JMod.PUBLIC, String.class, NameHelper.getGetterName(paramEntries.getKey()));
+            final JMethod getterMethod = paramsClass.method(JMod.PUBLIC, fieldType, NameHelper.getGetterName(paramEntries.getKey()));
             getterMethod.body()._return(paramField);
+            if (StringUtils.isNotBlank(param.getDescription())) {
+                getterMethod.javadoc().addReturn().append(param.getDescription());
+            }
         }
 
 
@@ -331,8 +398,7 @@ public class RamlJavaClientGenerator {
             final JsonNode schemaNode = mapper.readTree(json);
             return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode));
         } catch (JsonParseException e) {
-            System.out.println("Can not generate  " + className + "since json is not well formatted:\n" + json);
-            e.printStackTrace();
+            System.out.println("Can not generate  " + className + " from schema since : " + e.getMessage());
             return null;
         }
     }
@@ -344,7 +410,7 @@ public class RamlJavaClientGenerator {
             final JsonNode schemaNode = new SchemaGenerator().schemaFromExample(mapper.readTree(json));
             return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode));
         } catch (JsonParseException e) {
-            System.out.println("Can not generate  " + className + "since :" + e.getMessage() + " :\n" + json);
+            System.out.println("Can not generate " + className + " from example since : " + e.getMessage());
             return null;
         }
     }

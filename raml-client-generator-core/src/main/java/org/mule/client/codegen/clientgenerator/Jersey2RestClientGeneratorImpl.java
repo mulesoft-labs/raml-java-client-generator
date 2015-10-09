@@ -2,12 +2,16 @@ package org.mule.client.codegen.clientgenerator;
 
 import com.sun.codemodel.*;
 import org.apache.commons.lang.StringUtils;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.RestClientGenerator;
 import org.mule.client.codegen.utils.NameHelper;
 import org.raml.model.Action;
 import org.raml.model.ActionType;
 import org.raml.model.MimeType;
+import org.raml.model.ParamType;
+import org.raml.model.parameter.FormParameter;
 import org.raml.model.parameter.Header;
 import org.raml.model.parameter.QueryParameter;
 
@@ -23,6 +27,7 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 
@@ -104,6 +109,22 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                         methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("text").arg(bodyParam));
                     } else if (MimeTypeHelper.isBinaryType(type)) {
                         methodInvocation.arg(JExpr._new(cm._ref(Entity.class)).arg(bodyParam).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_OCTET_STREAM_TYPE")));
+                    } else if (MimeTypeHelper.isMultiPartType(type)) {
+                        final JVar multiPartVar = body.decl(cm.ref(FormDataMultiPart.class), "multiPart", JExpr._new(cm.ref(FormDataMultiPart.class)));
+                        final Map<String, List<FormParameter>> formParameters = type.getFormParameters();
+                        for (Map.Entry<String, List<FormParameter>> param : formParameters.entrySet()) {
+                            final FormParameter formParameter = param.getValue().get(0);
+                            final String paramName = param.getKey();
+                            final String paramGetterMethod = NameHelper.getGetterName(paramName);
+                            final JBlock ifBlock = body._if(bodyParam.invoke(paramGetterMethod).ne(JExpr._null()))._then();
+                            if (formParameter.getType() == ParamType.FILE) {
+                                final JInvocation newFileDataBody = JExpr._new(cm._ref(FileDataBodyPart.class)).arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod));
+                                ifBlock.invoke(multiPartVar, "bodyPart").arg(newFileDataBody);
+                            } else {
+                                ifBlock.invoke(multiPartVar, "field").arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod).invoke("toString"));
+                            }
+                        }
+                        methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiPartVar).arg(multiPartVar.invoke("getMediaType")));
                     }
                 }
             } else {

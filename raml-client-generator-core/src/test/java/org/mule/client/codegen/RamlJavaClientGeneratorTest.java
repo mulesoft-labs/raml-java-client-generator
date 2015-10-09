@@ -38,6 +38,19 @@ public class RamlJavaClientGeneratorTest {
     }
 
     @Test
+    public void formParameters() throws IOException, JClassAlreadyExistsException {
+        final File targetFolder = new File(FileUtils.getTempDirectory(), "formParameters");
+        if(targetFolder.exists()) {
+            FileUtils.cleanDirectory(targetFolder);
+        }
+        System.out.println("targetFolder = " + targetFolder);
+        targetFolder.mkdirs();
+        new RamlJavaClientGenerator(
+                "formParameters",
+                targetFolder).generate(this.getClass().getClassLoader().getResource("form-parameters/api.raml"));
+    }
+
+    @Test
     public void dataweave() throws IOException, JClassAlreadyExistsException {
         final File targetFolder = new File(FileUtils.getTempDirectory(), "dataweave");
         if(targetFolder.exists()) {
