@@ -29,27 +29,24 @@ import java.util.*;
 
 public class RamlJavaClientGenerator {
 
-
-    public static final String PACKAGE_SEPARATOR = ".";
-
     public static final String OK_RESPONSE = "200";
 
-    public static final String BASE_URL_FIELD_NAME = "baseUrl";
-    public static final String URI_PARAM_FIELD_NAME = "uriParam";
+    //Code generation constants
+    public static final String RESPONSE_CLASS_SUFFIX = "Response";
+    public static final String HEADER_CLASS_SUFFIX = "Header";
+    public static final String QUERY_PARAM_CLASS_SUFFIX = "QueryParam";
+    public static final String BODY_CLASS_SUFFIX = "Body";
+    public static final String CLIENT_CLASS_SUFFIX = "Client";
 
     public static final String PRIVATE_FIELD_PREFIX = "_";
 
-    public static final String GET_BASE_URI_METHOD_NAME = "getBaseUri";
+    public static final String PACKAGE_SEPARATOR = ".";
     public static final String MODEL_PACKAGE_NAME = "model";
+    public static final String BASE_URL_FIELD_NAME = "baseUrl";
+    public static final String URI_PARAM_FIELD_NAME = "uriParam";
+    public static final String GET_BASE_URI_METHOD_NAME = "getBaseUri";
 
-
-    private String basePackage;
-    private File targetFolder;
-    private RestClientGenerator clientGenerator;
-
-    //This two properties hold state so maybe should be local and passthrough
-    private Map<String, Pair<JDefinedClass, JMethod>> resourceClasses;
-    private Map<String, JType> globalTypes;
+    //Types
     private static Map<ParamType, Class<?>> CLASS_BY_TYPE = new HashMap<>();
 
     {
@@ -59,8 +56,16 @@ public class RamlJavaClientGenerator {
         CLASS_BY_TYPE.put(ParamType.NUMBER, Double.class);
         CLASS_BY_TYPE.put(ParamType.INTEGER, Integer.class);
         CLASS_BY_TYPE.put(ParamType.DATE, Date.class);
-
     }
+
+
+    private String basePackage;
+    private File targetFolder;
+    private RestClientGenerator clientGenerator;
+
+    //This two properties hold state so maybe should be local and pass through
+    private Map<String, Pair<JDefinedClass, JMethod>> resourceClasses;
+    private Map<String, JType> globalTypes;
 
 
     public RamlJavaClientGenerator(String basePackage, File targetFolder) {
@@ -73,10 +78,8 @@ public class RamlJavaClientGenerator {
 
 
     public void generate(URL ramlFile) throws JClassAlreadyExistsException, IOException {
-
         globalTypes.clear();
         resourceClasses.clear();
-
         System.out.println("Start generating for " + ramlFile);
         final Raml raml = new RamlDocumentBuilder().build(ramlFile.openStream(), ramlFile.toExternalForm());
         System.out.println("Parsed successfully " + ramlFile);
@@ -95,7 +98,7 @@ public class RamlJavaClientGenerator {
             }
         }
 
-        final JDefinedClass containerClass = cm._class(basePackage + PACKAGE_SEPARATOR + "api" + PACKAGE_SEPARATOR + NameHelper.toValidClassName(raml.getTitle()) + "Client");
+        final JDefinedClass containerClass = cm._class(basePackage + PACKAGE_SEPARATOR + "api" + PACKAGE_SEPARATOR + NameHelper.toValidClassName(raml.getTitle()) + CLIENT_CLASS_SUFFIX);
         final JFieldVar baseUriField = containerClass.field(JMod.PRIVATE, String.class, "_" + BASE_URL_FIELD_NAME);
         final JMethod containerConstructor = containerClass.constructor(JMod.PUBLIC);
         final JVar baseUriParam = containerConstructor.param(String.class, BASE_URL_FIELD_NAME);
@@ -148,15 +151,11 @@ public class RamlJavaClientGenerator {
                         final JFieldVar baseUrlField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + BASE_URL_FIELD_NAME);
                         resourceConstructor = resourceClass.constructor(JMod.PUBLIC);
                         final JVar baseUrlParam = resourceConstructor.param(String.class, BASE_URL_FIELD_NAME);
-                        resourceConstructor.body().assign(baseUrlField, baseUrlParam.plus(JExpr.lit("/" + resourceName)));
-
                         final JMethod getResourceMethod = resourceClass.method(JMod.PRIVATE, String.class, GET_BASE_URI_METHOD_NAME);
-                        final JMethod baseURIMethod;
                         if (isURIParameter(resourceName)) {
                             //Add constructor additional parameter for uriParam
                             final JVar uriParamConstructorParam = resourceConstructor.param(String.class, URI_PARAM_FIELD_NAME);
-                            final JFieldVar uriParamField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + URI_PARAM_FIELD_NAME);
-                            resourceConstructor.body().assign(uriParamField, uriParamConstructorParam);
+
                             //Link with parent as method
                             final String uriParameterName = resourceName.substring(1, resourceName.length() - 1);
                             final JMethod resourceFactoryMethod = parentClass.method(JMod.PUBLIC | JMod.FINAL, resourceClass, NameHelper.toValidFieldName(uriParameterName));
@@ -165,16 +164,20 @@ public class RamlJavaClientGenerator {
                             }
                             final JVar uriParam = resourceFactoryMethod.param(String.class, NameHelper.toValidFieldName(uriParameterName));
                             resourceFactoryMethod.body()._return(JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(uriParam));
-                            baseURIMethod = clientGenerator.resolveBaseURI(cm, getResourceMethod, baseUrlField, NameHelper.toValidFieldName(uriParameterName), uriParamField);
+                            resourceConstructor.body().assign(baseUrlField, baseUrlParam.plus(JExpr.lit("/").plus(uriParamConstructorParam)));
+
                         } else {
+                            resourceConstructor.body().assign(baseUrlField, baseUrlParam.plus(JExpr.lit("/" + resourceName)));
                             //Link with parent as field
                             final JFieldVar resourceField = parentClass.field(JMod.PUBLIC | JMod.FINAL, resourceClass, NameHelper.toValidFieldName(resourceName));
                             if (StringUtils.isNotEmpty(resourceDescription)) {
                                 resourceField.javadoc().add(resourceDescription);
                             }
-                            baseURIMethod = clientGenerator.resolveBaseURI(cm, getResourceMethod, baseUrlField);
+
                             parentConstructor.body().assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)));
                         }
+
+                        final JMethod baseURIMethod = clientGenerator.resolveBaseURI(cm, getResourceMethod, baseUrlField);
                         this.clientGenerator.createClient(cm, resourceClass, baseURIMethod);
                         this.resourceClasses.put(resourcePath, new ImmutablePair<>(resourceClass, resourceConstructor));
                     } else {
@@ -228,26 +231,30 @@ public class RamlJavaClientGenerator {
 
     private JType buildReturnType(JCodeModel cm, ActionType actionType, Response response, String resourcePath, String resourceName) throws IOException {
         JType returnType = cm.VOID;
-        if (response != null && response.getBody() != null) {
-            final Iterator<Map.Entry<String, MimeType>> bodies = response.getBody().entrySet().iterator();
-            if (bodies.hasNext()) {
-                final Map.Entry<String, MimeType> bodyEntry = bodies.next();
-                final MimeType mimeType = bodyEntry.getValue();
-                if (MimeTypeHelper.isJsonType(mimeType)) {
-                    final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Response";
-                    if (StringUtils.isNotBlank(mimeType.getSchema())) {
-                        returnType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema());
-                    } else if (StringUtils.isNotBlank(mimeType.getExample())) {
-                        returnType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), mimeType.getExample());
+        if (response != null) {
+            returnType = cm.ref(String.class);
+            if (response.getBody() != null) {
+                final Iterator<Map.Entry<String, MimeType>> bodies = response.getBody().entrySet().iterator();
+                if (bodies.hasNext()) {
+                    final Map.Entry<String, MimeType> bodyEntry = bodies.next();
+                    final MimeType mimeType = bodyEntry.getValue();
+                    if (MimeTypeHelper.isJsonType(mimeType)) {
+                        final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + RESPONSE_CLASS_SUFFIX;
+                        if (StringUtils.isNotBlank(mimeType.getSchema())) {
+                            returnType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema());
+                        } else if (StringUtils.isNotBlank(mimeType.getExample())) {
+                            returnType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), mimeType.getExample());
+                        } else {
+                            returnType = cm.ref(String.class);
+                        }
+                    } else if (MimeTypeHelper.isTextType(mimeType)) {
+                        returnType = cm.ref(String.class);
+                    } else if (MimeTypeHelper.isBinaryType(mimeType)) {
+                        returnType = cm.ref(InputStream.class);
                     } else {
                         returnType = cm.ref(String.class);
                     }
-                } else if (MimeTypeHelper.isTextType(mimeType)) {
-                    returnType = cm.ref(String.class);
-                } else if (MimeTypeHelper.isBinaryType(mimeType)) {
-                    returnType = cm.ref(InputStream.class);
-                } else {
-                    returnType = cm.ref(String.class);
+
                 }
             }
         }
@@ -258,7 +265,7 @@ public class RamlJavaClientGenerator {
         final Map<String, Header> headers = action.getHeaders();
         JType headerParameterType = null;
         if (headers != null && !headers.isEmpty()) {
-            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Header";
+            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + HEADER_CLASS_SUFFIX;
             headerParameterType = toParametersJavaBean(cm, className, headers, resourcePath);
         }
         return headerParameterType;
@@ -268,7 +275,7 @@ public class RamlJavaClientGenerator {
         final Map<String, QueryParameter> queryParameters = action.getQueryParameters();
         JType queryParameterType = null;
         if (queryParameters != null && !queryParameters.isEmpty()) {
-            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "QueryParam";
+            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + QUERY_PARAM_CLASS_SUFFIX;
             queryParameterType = toParametersJavaBean(cm, className, queryParameters, resourcePath);
         }
         return queryParameterType;
@@ -280,7 +287,7 @@ public class RamlJavaClientGenerator {
             final Iterator<MimeType> bodies = action.getBody().values().iterator();
             if (bodies.hasNext()) {
                 final MimeType body = bodies.next();
-                final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + "Body";
+                final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + BODY_CLASS_SUFFIX;
                 if (MimeTypeHelper.isJsonType(body)) {
                     if (StringUtils.isNotBlank(body.getSchema())) {
                         if (globalTypes.containsKey(body.getSchema())) {

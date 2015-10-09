@@ -13,7 +13,5 @@ public interface RestClientGenerator {
 
     JMethod createClient(JCodeModel cm, JDefinedClass resourceClass, JMethod baseUrlField);
 
-    JMethod resolveBaseURI(JCodeModel cm, JMethod baseUriMethod, JFieldVar baseUrlField, String uriParamName, JFieldVar uriParamField);
-
     JMethod resolveBaseURI(JCodeModel cm, JMethod baseUriMethod, JFieldVar baseUrlField);
 }

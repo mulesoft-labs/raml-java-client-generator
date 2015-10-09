@@ -134,8 +134,10 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
         final JVar responseVal = body.decl(cm.ref(Response.class), "response", methodInvocation);
 
-        body._if(responseVal.invoke("getStatusInfo").invoke("getFamily").ne(cm.directClass("javax.ws.rs.core.Response.Status.Family").staticRef("SUCCESSFUL")))._then()
-                ._throw(JExpr._new(cm._ref(RuntimeException.class)).arg(responseVal.invoke("getStatusInfo").invoke("getReasonPhrase")));
+        final JBlock ifBlock = body._if(responseVal.invoke("getStatusInfo").invoke("getFamily").ne(cm.directClass("javax.ws.rs.core.Response.Status.Family").staticRef("SUCCESSFUL")))._then();
+        final JVar statusInfo = ifBlock.decl(cm.ref(Response.StatusType.class), "statusInfo", responseVal.invoke("getStatusInfo"));
+        ifBlock._throw(JExpr._new(cm._ref(RuntimeException.class)).arg(
+                JExpr.lit("(").plus(statusInfo.invoke("getFamily")).plus(JExpr.lit(") ")).plus(statusInfo.invoke("getStatusCode")).plus(JExpr.lit(" ")).plus(statusInfo.invoke("getReasonPhrase"))));
 
         if (returnType != cm.VOID) {
             if (returnType.equals(cm.ref(Object.class))) {
@@ -162,19 +164,19 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         return clientMethod;
     }
 
-    @Override
-    public JMethod resolveBaseURI(JCodeModel cm, JMethod baseUriMethod, JFieldVar baseUrlField, String uriParamName, JFieldVar uriParamField) {
-        //UriBuilder.fromPath()
-        final JBlock baseURIBody = baseUriMethod.body();
-        final JVar parametersVar = baseURIBody.decl(JMod.FINAL, cm.ref(Map.class).narrow(String.class).narrow(String.class), "parameters", JExpr._new(cm.ref(HashMap.class).narrow(String.class).narrow(String.class)));
-        baseURIBody.invoke(parametersVar, "put").arg(JExpr.lit(uriParamName)).arg(uriParamField);
-
-        final JVar builderVar = baseURIBody.decl(JMod.FINAL, cm.ref(UriBuilder.class), "builder", cm.directClass(UriBuilder.class.getName()).staticInvoke("fromPath").arg(baseUrlField));
-        final JVar uriVar = baseURIBody.decl(JMod.FINAL, cm.ref(URI.class), "uri", builderVar.invoke("build").arg(parametersVar));
-        baseURIBody._return(uriVar.invoke("toString"));
-
-        return baseUriMethod;
-    }
+//    @Override
+//    public JMethod resolveBaseURI(JCodeModel cm, JMethod baseUriMethod, JFieldVar baseUrlField, String uriParamName, JFieldVar uriParamField) {
+//        //UriBuilder.fromPath()
+//        final JBlock baseURIBody = baseUriMethod.body();
+//        final JVar parametersVar = baseURIBody.decl(JMod.FINAL, cm.ref(Map.class).narrow(String.class).narrow(String.class), "parameters", JExpr._new(cm.ref(HashMap.class).narrow(String.class).narrow(String.class)));
+//        baseURIBody.invoke(parametersVar, "put").arg(JExpr.lit(uriParamName)).arg(uriParamField);
+//
+//        final JVar builderVar = baseURIBody.decl(JMod.FINAL, cm.ref(UriBuilder.class), "builder", cm.directClass(UriBuilder.class.getName()).staticInvoke("fromPath").arg(baseUrlField));
+//        final JVar uriVar = baseURIBody.decl(JMod.FINAL, cm.ref(URI.class), "uri", builderVar.invoke("build").arg(parametersVar));
+//        baseURIBody._return(uriVar.invoke("toString"));
+//
+//        return baseUriMethod;
+//    }
 
     @Override
     public JMethod resolveBaseURI(JCodeModel cm, JMethod baseUriMethod, JFieldVar baseUrlField) {
