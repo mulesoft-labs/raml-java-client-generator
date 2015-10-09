@@ -2,7 +2,36 @@
 
 This tool generates a java rest client for a raml based api using a resource api approach.
 
+## Example
 
+For this api
+
+```
+#%RAML 0.8
+title: Client API
+version: 0.1
+baseUri: http://mycompany.com/clientservice/api
+documentation:
+  - title : Users Platform
+    content : This api describes how to access to the users platform
+mediaType: application/json
+/users:
+  description: "Users in the platform"
+  get:
+    description: "Returns the list of all users"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+             [{"user" : "Mariano"}]
+```
+
+Using the generated api 
+
+```
+final List<UsersGETResponse> result = ClientAPIClient.create().users.get();
+```
 
 ## Using it from java
 

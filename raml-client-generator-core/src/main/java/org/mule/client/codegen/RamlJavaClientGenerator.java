@@ -105,13 +105,20 @@ public class RamlJavaClientGenerator {
         containerConstructor.body().assign(baseUriField, baseUriParam);
         containerClass.method(JMod.PROTECTED, String.class, GET_BASE_URI_METHOD_NAME).body()._return(baseUriField);
 
+        final JMethod factoryMethod = containerClass.method(JMod.PUBLIC | JMod.STATIC, containerClass, "create");
+        final JVar baseUrlFactoryParam = factoryMethod.param(cm.ref(String.class), BASE_URL_FIELD_NAME);
+        factoryMethod.body()._return(JExpr._new(containerClass).arg(baseUrlFactoryParam));
+
         if (raml.getDocumentation() != null && !raml.getDocumentation().isEmpty()) {
             containerClass.javadoc().add(raml.getDocumentation().get(0).getContent());
         }
 
         if (StringUtils.isNotBlank(raml.getBaseUri())) {
             containerClass.constructor(JMod.PUBLIC).body().invoke("this").arg(JExpr.lit(raml.getBaseUri()));
+            containerClass.method(JMod.PUBLIC | JMod.STATIC, containerClass, "create").body()._return(JExpr._new(containerClass));
         }
+
+
 
         buildResourceClass(cm, containerClass, containerConstructor, resources, "");
 
@@ -305,13 +312,13 @@ public class RamlJavaClientGenerator {
                 } else if (MimeTypeHelper.isMultiPartType(body)) {
                     //Todo research why is a list of form parameters and not just a formparamter
                     final Map<String, List<FormParameter>> formParameters = body.getFormParameters();
-                    if(formParameters != null) {
+                    if (formParameters != null) {
                         final Map<String, FormParameter> form = new LinkedHashMap<>();
                         for (Map.Entry<String, List<FormParameter>> stringListEntry : formParameters.entrySet()) {
                             form.put(stringListEntry.getKey(), stringListEntry.getValue().get(0));
                         }
                         bodyType = toParametersJavaBean(cm, className, form, resourcePath);
-                    }else{
+                    } else {
                         System.out.println("Form does not have any parameters defined.");
                     }
                 }
