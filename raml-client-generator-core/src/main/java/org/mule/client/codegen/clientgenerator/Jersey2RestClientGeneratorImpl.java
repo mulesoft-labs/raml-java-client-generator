@@ -4,8 +4,8 @@ import com.sun.codemodel.*;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.RestClientGenerator;
+import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
 import org.raml.model.Action;
 import org.raml.model.ActionType;
@@ -17,15 +17,10 @@ import org.raml.model.parameter.QueryParameter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-
-import java.net.URI;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +103,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                     } else if (MimeTypeHelper.isTextType(type)) {
                         methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("text").arg(bodyParam));
                     } else if (MimeTypeHelper.isBinaryType(type)) {
-                        methodInvocation.arg(JExpr._new(cm._ref(Entity.class)).arg(bodyParam).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_OCTET_STREAM_TYPE")));
+                        methodInvocation.arg((cm.ref(Entity.class).staticInvoke("entity").arg(bodyParam).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_OCTET_STREAM_TYPE"))));
                     } else if (MimeTypeHelper.isMultiPartType(type)) {
                         final JVar multiPartVar = body.decl(cm.ref(FormDataMultiPart.class), "multiPart", JExpr._new(cm.ref(FormDataMultiPart.class)));
                         final Map<String, List<FormParameter>> formParameters = type.getFormParameters();
