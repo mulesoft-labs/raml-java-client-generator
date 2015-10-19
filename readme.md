@@ -47,7 +47,7 @@ It can easily be embedded into your code just add de dependency
 
 And then call the RamlJavaClientGenerator
 
-```
+```java
  new RamlJavaClientGenerator(
                 "com.acme",
                 targetFolder).generate(this.getClass().getClassLoader().getResource("simple/basic.raml"));

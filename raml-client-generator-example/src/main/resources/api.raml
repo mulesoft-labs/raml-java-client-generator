@@ -16,3 +16,12 @@ mediaType: application/json
           application/json:
             example: |
              [{"user" : "Mariano"}]
+  /{userId}:
+    get:
+      description: "Returns the list of all users"
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+               {"user" : "Mariano"}

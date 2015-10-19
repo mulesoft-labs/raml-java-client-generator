@@ -3,86 +3,72 @@ package org.mule.client.codegen;
 
 import com.sun.codemodel.JClassAlreadyExistsException;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.text.IsEqualIgnoringWhiteSpace;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
 
+@RunWith(value = Parameterized.class)
 public class RamlJavaClientGeneratorTest {
 
+    private String projectName;
+
+    public RamlJavaClientGeneratorTest(String projectName) {
+        this.projectName = projectName;
+    }
+
+    @Parameterized.Parameters(name = "{index}: {0}/api.raml")
+    public static Iterable<Object[]> folders() {
+        return Arrays.asList(new Object[][]{{"simple"}, {"form-parameters"}, {"list"}, {"global-type"}});
+    }
+
     @Test
-    public void simple() throws IOException, JClassAlreadyExistsException {
-        final File targetFolder = new File(FileUtils.getTempDirectory(), "simple");
-        if(targetFolder.exists()) {
+    public void runTest() throws IOException, JClassAlreadyExistsException, URISyntaxException {
+        runGenerator(projectName);
+
+    }
+
+    private void runGenerator(String projectName) throws IOException, JClassAlreadyExistsException, URISyntaxException {
+        final File targetFolder = new File(FileUtils.getTempDirectory(), projectName);
+        if (targetFolder.exists()) {
             FileUtils.cleanDirectory(targetFolder);
         }
         System.out.println("targetFolder = " + targetFolder);
         targetFolder.mkdirs();
-        new RamlJavaClientGenerator(
-                "simple",
-                targetFolder).generate(this.getClass().getClassLoader().getResource("simple/basic.raml"));
+        final URL resource = this.getClass().getClassLoader().getResource(projectName + "/" + "api.raml");
+        new RamlJavaClientGenerator(projectName, targetFolder).generate(resource);
+        assert resource != null;
+        final File parentFile = new File(resource.toURI()).getParentFile();
+        final File outputFolder = new File(parentFile, "output");
+        compareDir(targetFolder, outputFolder);
     }
 
-
-    @Test
-    public void list() throws IOException, JClassAlreadyExistsException {
-        final File targetFolder = new File(FileUtils.getTempDirectory(), "list");
-        if(targetFolder.exists()) {
-            FileUtils.cleanDirectory(targetFolder);
+    public void compareDir(File actual, File expected) throws IOException {
+        final File[] files = expected.listFiles();
+        if (files == null) {
+            Assert.fail("No expected files specified");
+        } else {
+            for (File expectedInnerFile : files) {
+                final File actualInnerFile = new File(actual, expectedInnerFile.getName());
+                Assert.assertTrue("File was not created " + actualInnerFile.getAbsolutePath(), actualInnerFile.exists());
+                if (expectedInnerFile.isDirectory() && actualInnerFile.isDirectory()) {
+                    compareDir(expectedInnerFile, actualInnerFile);
+                } else if (expectedInnerFile.isFile() && actualInnerFile.isFile()) {
+                    final String expectedContent = FileUtils.readFileToString(expectedInnerFile);
+                    final String actualContent = FileUtils.readFileToString(actualInnerFile);
+                    Assert.assertThat("Files " + expectedInnerFile.getPath() + " did not match " + actualInnerFile.getPath(), expectedContent, new IsEqualIgnoringWhiteSpace(actualContent));
+                } else {
+                    Assert.fail("Expected isDirectory " + expectedInnerFile.isDirectory() + " but actual isDirectory " + actualInnerFile.isDirectory());
+                }
+            }
         }
-        System.out.println("targetFolder = " + targetFolder);
-        targetFolder.mkdirs();
-        new RamlJavaClientGenerator(
-                "list",
-                targetFolder).generate(this.getClass().getClassLoader().getResource("list/api.raml"));
-    }
-
-    @Test
-    public void formParameters() throws IOException, JClassAlreadyExistsException {
-        final File targetFolder = new File(FileUtils.getTempDirectory(), "formParameters");
-        if(targetFolder.exists()) {
-            FileUtils.cleanDirectory(targetFolder);
-        }
-        System.out.println("targetFolder = " + targetFolder);
-        targetFolder.mkdirs();
-        new RamlJavaClientGenerator(
-                "formParameters",
-                targetFolder).generate(this.getClass().getClassLoader().getResource("form-parameters/api.raml"));
-    }
-
-    @Test
-    public void dataweave() throws IOException, JClassAlreadyExistsException {
-        final File targetFolder = new File(FileUtils.getTempDirectory(), "dataweave");
-        if(targetFolder.exists()) {
-            FileUtils.cleanDirectory(targetFolder);
-        }
-        System.out.println("targetFolder = " + targetFolder);
-        targetFolder.mkdirs();
-        new RamlJavaClientGenerator(
-                "dataweave",
-                targetFolder).generate(this.getClass().getClassLoader().getResource("dataweave/api.raml"));
-    }
-
-    @Test
-    public void apiplatform() throws IOException, JClassAlreadyExistsException {
-        final File targetFolder = new File(FileUtils.getTempDirectory(), "apiplatform");
-        targetFolder.mkdirs();
-        new RamlJavaClientGenerator(
-                "apiplatform",
-                targetFolder).generate(this.getClass().getClassLoader().getResource("apiplatform/api.raml"));
-    }
-
-
-    @Test
-    public void dataGateway() throws IOException, JClassAlreadyExistsException {
-        final File targetFolder = new File(FileUtils.getTempDirectory(), "dataGateway");
-        if(targetFolder.exists()) {
-            FileUtils.cleanDirectory(targetFolder);
-        }
-        targetFolder.mkdirs();
-        new RamlJavaClientGenerator(
-                "dataGateway",
-                targetFolder).generate(this.getClass().getClassLoader().getResource("datagateway/api.raml"));
     }
 
 
