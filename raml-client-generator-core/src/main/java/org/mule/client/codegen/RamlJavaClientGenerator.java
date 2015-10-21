@@ -119,7 +119,6 @@ public class RamlJavaClientGenerator {
         }
 
 
-
         buildResourceClass(cm, containerClass, containerConstructor, resources, "");
 
         if (!targetFolder.exists()) {
@@ -222,17 +221,17 @@ public class RamlJavaClientGenerator {
             final Action action = actionTypeActionEntry.getValue();
             System.out.println("  " + action.getType() + "");
             final Response response = action.getResponses().get(OK_RESPONSE);
-
+            final List<JType> bodiesType = buildBodyType(cm, actionType, action, resourcePath, resourceName);
             final JType returnType = buildReturnType(cm, actionType, response, resourcePath, resourceName);
-
-            final JType bodyType = buildBodyType(cm, actionType, action, resourcePath, resourceName);
-
             final JType queryParameterType = buildQueryParametersType(cm, actionType, action, resourcePath, resourceName);
-
             final JType headerParameterType = buildHeaderType(cm, resourcePath, resourceName, actionType, action);
-
-            clientGenerator.callHttpMethod(cm, resourceClass, returnType, bodyType, queryParameterType, headerParameterType, action);
-
+            if (bodiesType.isEmpty()) {
+                clientGenerator.callHttpMethod(cm, resourceClass, returnType, null, queryParameterType, headerParameterType, action);
+            } else {
+                for (JType bodyType : bodiesType) {
+                    clientGenerator.callHttpMethod(cm, resourceClass, returnType, bodyType, queryParameterType, headerParameterType, action);
+                }
+            }
         }
     }
 
@@ -288,12 +287,13 @@ public class RamlJavaClientGenerator {
         return queryParameterType;
     }
 
-    private JType buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName) throws IOException, JClassAlreadyExistsException {
-        JType bodyType = null;
+    private List<JType> buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName) throws IOException, JClassAlreadyExistsException {
+        final List<JType> result = new ArrayList<>();
+
         if (action.getBody() != null) {
-            final Iterator<MimeType> bodies = action.getBody().values().iterator();
-            if (bodies.hasNext()) {
-                final MimeType body = bodies.next();
+            for (MimeType mimeType : action.getBody().values()) {
+                JType bodyType = null;
+                final MimeType body = mimeType;
                 final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + BODY_CLASS_SUFFIX;
                 if (MimeTypeHelper.isJsonType(body)) {
                     if (StringUtils.isNotBlank(body.getSchema())) {
@@ -310,7 +310,6 @@ public class RamlJavaClientGenerator {
                 } else if (MimeTypeHelper.isBinaryType(body)) {
                     bodyType = cm.ref(InputStream.class);
                 } else if (MimeTypeHelper.isMultiPartType(body)) {
-                    //Todo research why is a list of form parameters and not just a formparamter
                     final Map<String, List<FormParameter>> formParameters = body.getFormParameters();
                     if (formParameters != null) {
                         final Map<String, FormParameter> form = new LinkedHashMap<>();
@@ -322,9 +321,10 @@ public class RamlJavaClientGenerator {
                         System.out.println("Form does not have any parameters defined.");
                     }
                 }
+                result.add(bodyType);
             }
         }
-        return bodyType;
+        return result;
     }
 
     private String getModelPackage(String resourcePath) {
