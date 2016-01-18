@@ -68,7 +68,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         }
 
         final JBlock body = actionMethod.body();
-        final JVar targetVal = body.decl(cm.ref(WebTarget.class), "target", JExpr.invoke("getClient"));
+        final JVar targetVal = body.decl(cm.ref(WebTarget.class), "target", JExpr._this().ref("client").invoke("target").arg(JExpr.invoke("getBaseUri")));
 
         if (queryParameterParam != null && action.getQueryParameters() != null && !action.getQueryParameters().isEmpty()) {
             final Map<String, QueryParameter> queryParameters = action.getQueryParameters();
@@ -158,20 +158,6 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         methodBody._return(target);
         return clientMethod;
     }
-
-//    @Override
-//    public JMethod resolveBaseURI(JCodeModel cm, JMethod baseUriMethod, JFieldVar baseUrlField, String uriParamName, JFieldVar uriParamField) {
-//        //UriBuilder.fromPath()
-//        final JBlock baseURIBody = baseUriMethod.body();
-//        final JVar parametersVar = baseURIBody.decl(JMod.FINAL, cm.ref(Map.class).narrow(String.class).narrow(String.class), "parameters", JExpr._new(cm.ref(HashMap.class).narrow(String.class).narrow(String.class)));
-//        baseURIBody.invoke(parametersVar, "put").arg(JExpr.lit(uriParamName)).arg(uriParamField);
-//
-//        final JVar builderVar = baseURIBody.decl(JMod.FINAL, cm.ref(UriBuilder.class), "builder", cm.directClass(UriBuilder.class.getName()).staticInvoke("fromPath").arg(baseUrlField));
-//        final JVar uriVar = baseURIBody.decl(JMod.FINAL, cm.ref(URI.class), "uri", builderVar.invoke("build").arg(parametersVar));
-//        baseURIBody._return(uriVar.invoke("toString"));
-//
-//        return baseUriMethod;
-//    }
 
     @Override
     public JMethod resolveBaseURI(JCodeModel cm, JMethod baseUriMethod, JFieldVar baseUrlField) {
