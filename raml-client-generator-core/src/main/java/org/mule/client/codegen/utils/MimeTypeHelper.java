@@ -16,7 +16,11 @@ public class MimeTypeHelper {
     }
 
     public static boolean isMultiPartType(MimeType mimeType) {
-        return mimeType.getType().equalsIgnoreCase(MULTIPART_FORM_DATA_MIME_TYPE) || mimeType.getType().equalsIgnoreCase(X_WWWW_FORM_URL_ENCODED_MIME_TYPE);
+        return mimeType.getType().equalsIgnoreCase(MULTIPART_FORM_DATA_MIME_TYPE);
+    }
+
+    public static boolean isFormUrlEncodedType(MimeType mimeType) {
+        return mimeType.getType().equalsIgnoreCase(X_WWWW_FORM_URL_ENCODED_MIME_TYPE);
     }
 
     public static boolean isTextType(MimeType mimeType) {

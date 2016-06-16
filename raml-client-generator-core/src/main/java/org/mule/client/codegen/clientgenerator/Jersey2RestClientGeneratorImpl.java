@@ -20,6 +20,8 @@ import javax.annotation.Nullable;
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.Iterator;
 import java.util.List;
@@ -120,6 +122,16 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                             }
                         }
                         methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiPartVar).arg(multiPartVar.invoke("getMediaType")));
+                    } else if (MimeTypeHelper.isFormUrlEncodedType(type)) {
+                        final JVar multiValuedMapVar = body.decl(cm.ref(MultivaluedMap.class), "multiValuedMap", JExpr._new(cm.ref(MultivaluedHashMap.class)));
+                        final Map<String, List<FormParameter>> formParameters = type.getFormParameters();
+                        for (Map.Entry<String, List<FormParameter>> param : formParameters.entrySet()) {
+                            final String paramName = param.getKey();
+                            final String paramGetterMethod = NameHelper.getGetterName(paramName);
+                            final JBlock ifBlock = body._if(bodyParam.invoke(paramGetterMethod).ne(JExpr._null()))._then();
+                            ifBlock.invoke(multiValuedMapVar, "add").arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod).invoke("toString"));
+                        }
+                        methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiValuedMapVar).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_FORM_URLENCODED_TYPE")));
                     }
                 }
             } else {
