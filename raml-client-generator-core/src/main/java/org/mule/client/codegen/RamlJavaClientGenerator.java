@@ -379,7 +379,7 @@ public class RamlJavaClientGenerator {
                     bodyType = cm.ref(String.class);
                 } else if (MimeTypeHelper.isBinaryType(body)) {
                     bodyType = cm.ref(InputStream.class);
-                } else if (MimeTypeHelper.isMultiPartType(body) || MimeTypeHelper.isFormUrlEncoded(body)) {
+                } else if (MimeTypeHelper.isMultiPartType(body) || MimeTypeHelper.isFormUrlEncodedType(body)) {
                     final Map<String, List<FormParameter>> formParameters = body.getFormParameters();
                     if (formParameters != null) {
                         final Map<String, FormParameter> form = new LinkedHashMap<>();

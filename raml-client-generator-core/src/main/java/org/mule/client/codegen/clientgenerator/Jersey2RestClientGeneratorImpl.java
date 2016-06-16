@@ -122,7 +122,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                             }
                         }
                         methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiPartVar).arg(multiPartVar.invoke("getMediaType")));
-                    } else if (MimeTypeHelper.isFormUrlEncoded(type)) {
+                    } else if (MimeTypeHelper.isFormUrlEncodedType(type)) {
                         final JVar multiValuedMapVar = body.decl(cm.ref(MultivaluedMap.class), "multiValuedMap", JExpr._new(cm.ref(MultivaluedHashMap.class)));
                         final Map<String, List<FormParameter>> formParameters = type.getFormParameters();
                         for (Map.Entry<String, List<FormParameter>> param : formParameters.entrySet()) {
