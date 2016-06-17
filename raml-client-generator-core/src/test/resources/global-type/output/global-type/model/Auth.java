@@ -48,8 +48,8 @@ public class Auth {
 
     /**
      * 
-     * @param tokenType
      * @param accessToken
+     * @param tokenType
      */
     public Auth(String accessToken, String tokenType) {
         this.accessToken = accessToken;

@@ -48,8 +48,8 @@ public class LoginPOSTBody {
 
     /**
      * 
-     * @param tokenType
      * @param accessToken
+     * @param tokenType
      */
     public LoginPOSTBody(String accessToken, String tokenType) {
         this.accessToken = accessToken;

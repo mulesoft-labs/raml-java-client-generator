@@ -2,7 +2,6 @@
 package global-type.resource.cs.login;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -13,23 +12,23 @@ import global-type.model.Auth;
 public class Login {
 
     private String _baseUrl;
+    private Client client;
 
-    public Login(String baseUrl) {
+    public Login(String baseUrl, Client client) {
         _baseUrl = (baseUrl +"/login");
+        this.client = client;
+    }
+
+    private Client getClient() {
+        return this.client;
     }
 
     private String getBaseUri() {
         return _baseUrl;
     }
 
-    private WebTarget getClient() {
-        final Client client = ClientBuilder.newClient();
-        final WebTarget target = client.target(getBaseUri());
-        return target;
-    }
-
     public String post(Auth body) {
-        WebTarget target = getClient();
+        WebTarget target = this.client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.post(Entity.json(body));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {

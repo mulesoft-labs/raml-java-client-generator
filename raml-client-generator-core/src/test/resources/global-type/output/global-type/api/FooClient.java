@@ -1,6 +1,8 @@
 
 package global-type.api;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import global-type.resource.cs.Cs;
 
 
@@ -15,7 +17,11 @@ public class FooClient {
 
     public FooClient(String baseUrl) {
         _baseUrl = baseUrl;
-        cs = new Cs(getBaseUri());
+        cs = new Cs(getBaseUri(), getClient());
+    }
+
+    private Client getClient() {
+        return ClientBuilder.newClient();
     }
 
     protected String getBaseUri() {

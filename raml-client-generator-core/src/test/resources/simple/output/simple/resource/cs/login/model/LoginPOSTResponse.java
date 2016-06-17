@@ -48,8 +48,8 @@ public class LoginPOSTResponse {
 
     /**
      * 
-     * @param username
      * @param password
+     * @param username
      */
     public LoginPOSTResponse(String username, String password) {
         this.username = username;

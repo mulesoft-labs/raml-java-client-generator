@@ -1,6 +1,8 @@
 
 package multi_body.api;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import multi_body.resource.cs.Cs;
 
 
@@ -15,7 +17,11 @@ public class MultiBodyClient {
 
     public MultiBodyClient(String baseUrl) {
         _baseUrl = baseUrl;
-        cs = new Cs(getBaseUri());
+        cs = new Cs(getBaseUri(), getClient());
+    }
+
+    private Client getClient() {
+        return ClientBuilder.newClient();
     }
 
     protected String getBaseUri() {

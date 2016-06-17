@@ -1,6 +1,8 @@
 
 package form-parameters.api;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import form-parameters.resource.exec.Exec;
 
 
@@ -19,11 +21,15 @@ public class DataWeaveAPIClient {
 
     public DataWeaveAPIClient(String baseUrl) {
         _baseUrl = baseUrl;
-        exec = new Exec(getBaseUri());
+        exec = new Exec(getBaseUri(), getClient());
     }
 
     public DataWeaveAPIClient() {
         this("http://dataweave-api.cloudhub.io/api");
+    }
+
+    private Client getClient() {
+        return ClientBuilder.newClient();
     }
 
     protected String getBaseUri() {

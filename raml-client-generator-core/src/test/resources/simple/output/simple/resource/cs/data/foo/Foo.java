@@ -2,7 +2,6 @@
 package simple.resource.cs.data.foo;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -13,23 +12,23 @@ import simple.resource.cs.data.foo.model.FooGETQueryParam;
 public class Foo {
 
     private String _baseUrl;
+    private Client client;
 
-    public Foo(String baseUrl) {
+    public Foo(String baseUrl, Client client) {
         _baseUrl = (baseUrl +"/foo");
+        this.client = client;
+    }
+
+    private Client getClient() {
+        return this.client;
     }
 
     private String getBaseUri() {
         return _baseUrl;
     }
 
-    private WebTarget getClient() {
-        final Client client = ClientBuilder.newClient();
-        final WebTarget target = client.target(getBaseUri());
-        return target;
-    }
-
     public void get(FooGETQueryParam queryParameters, FooGETHeader headers) {
-        WebTarget target = getClient();
+        WebTarget target = this.client.target(getBaseUri());
         if (queryParameters.getQ()!= null) {
             target = target.queryParam("q", queryParameters.getQ());
         }

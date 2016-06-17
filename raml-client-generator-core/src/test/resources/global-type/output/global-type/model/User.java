@@ -48,8 +48,8 @@ public class User {
 
     /**
      * 
-     * @param username
      * @param password
+     * @param username
      */
     public User(String username, String password) {
         this.username = username;

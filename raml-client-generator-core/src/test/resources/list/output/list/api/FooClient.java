@@ -1,6 +1,8 @@
 
 package list.api;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import list.resource.users.Users;
 
 
@@ -19,7 +21,11 @@ public class FooClient {
 
     public FooClient(String baseUrl) {
         _baseUrl = baseUrl;
-        users = new Users(getBaseUri());
+        users = new Users(getBaseUri(), getClient());
+    }
+
+    private Client getClient() {
+        return ClientBuilder.newClient();
     }
 
     protected String getBaseUri() {
