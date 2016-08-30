@@ -4,16 +4,14 @@ import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMod;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.mule.raml.model.ApiModel;
+import org.mule.raml.model.SecurityScheme;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-import org.raml.model.Raml;
-import org.raml.model.SecurityScheme;
 
 public class SecuritySchemesHelper
 {
@@ -22,17 +20,14 @@ public class SecuritySchemesHelper
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
 
-    public static List<Pair<String, SecurityScheme>> getSupportedSecuritySchemes(Raml raml)
+    public static List<Pair<String, SecurityScheme>> getSupportedSecuritySchemes(ApiModel raml)
     {
         List<Pair<String, SecurityScheme>> supportedSecuritySchemes = new ArrayList<>();
-        for (Map<String, SecurityScheme> schemeMap : raml.getSecuritySchemes())
+        for (SecurityScheme schemeMap : raml.getSecuritySchemes())
         {
-            for (Map.Entry<String, SecurityScheme> schemeEntry : schemeMap.entrySet())
+            if (schemeMap.getType().equals("Basic Authentication"))
             {
-                if (schemeEntry.getValue().getType().equals("Basic Authentication"))
-                {
-                    supportedSecuritySchemes.add(new ImmutablePair<>(schemeEntry.getKey(), schemeEntry.getValue()));
-                }
+                supportedSecuritySchemes.add(new ImmutablePair<>(schemeMap.getType(), schemeMap));
             }
         }
 

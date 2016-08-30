@@ -21,8 +21,8 @@
     <dependencies>
         <dependency>
             <groupId>org.raml</groupId>
-            <artifactId>raml-parser</artifactId>
-            <version>0.8.12</version>
+            <artifactId>raml-parser-2</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <!--All this are dependencies from raml-parser don't know why are not being taken automatically-->

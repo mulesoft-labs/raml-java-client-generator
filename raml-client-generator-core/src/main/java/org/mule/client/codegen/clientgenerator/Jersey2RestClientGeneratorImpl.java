@@ -1,23 +1,34 @@
 package org.mule.client.codegen.clientgenerator;
 
-import com.sun.codemodel.*;
+import com.sun.codemodel.JBlock;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
+import com.sun.codemodel.JVar;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.mule.client.codegen.RestClientGenerator;
 import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
-import org.raml.model.Action;
-import org.raml.model.ActionType;
-import org.raml.model.MimeType;
-import org.raml.model.ParamType;
-import org.raml.model.parameter.FormParameter;
-import org.raml.model.parameter.Header;
-import org.raml.model.parameter.QueryParameter;
+import org.mule.raml.model.Action;
+import org.mule.raml.model.ActionType;
+import org.mule.raml.model.MimeType;
+import org.mule.raml.model.parameter.Parameter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.ws.rs.client.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -73,8 +84,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         final JVar targetVal = body.decl(cm.ref(WebTarget.class), "target", JExpr._this().ref("client").invoke("target").arg(JExpr.invoke("getBaseUri")));
 
         if (queryParameterParam != null && action.getQueryParameters() != null && !action.getQueryParameters().isEmpty()) {
-            final Map<String, QueryParameter> queryParameters = action.getQueryParameters();
-            for (Map.Entry<String, QueryParameter> stringQueryParameterEntry : queryParameters.entrySet()) {
+            final Map<String, Parameter> queryParameters = action.getQueryParameters();
+            for (Map.Entry<String, Parameter> stringQueryParameterEntry : queryParameters.entrySet()) {
                 final String queryParameter = stringQueryParameterEntry.getKey();
                 body._if(queryParameterParam.invoke(NameHelper.getGetterName(queryParameter)).ne(JExpr._null()))._then()
                         .assign(targetVal,
@@ -86,8 +97,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         final JVar invocationBuilder = body.decl(JMod.FINAL, cm.ref(Invocation.Builder.class), "invocationBuilder", targetVal.invoke("request").arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_JSON_TYPE")));
 
         if (headerParameterParam != null && action.getHeaders() != null && !action.getHeaders().isEmpty()) {
-            final Map<String, Header> headers = action.getHeaders();
-            for (Map.Entry<String, Header> headerEntry : headers.entrySet()) {
+            final Map<String, Parameter> headers = action.getHeaders();
+            for (Map.Entry<String, Parameter> headerEntry : headers.entrySet()) {
                 final String headerParameter = headerEntry.getKey();
                 body._if(headerParameterParam.invoke(NameHelper.getGetterName(headerParameter)).ne(JExpr._null()))._then()
                         .invoke(invocationBuilder, "header").arg(headerParameter).arg(headerParameterParam.invoke(NameHelper.getGetterName(headerParameter)));
@@ -108,24 +119,24 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                         methodInvocation.arg((cm.ref(Entity.class).staticInvoke("entity").arg(bodyParam).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_OCTET_STREAM_TYPE"))));
                     } else if (MimeTypeHelper.isMultiPartType(type)) {
                         final JVar multiPartVar = body.decl(cm.ref(FormDataMultiPart.class), "multiPart", JExpr._new(cm.ref(FormDataMultiPart.class)));
-                        final Map<String, List<FormParameter>> formParameters = type.getFormParameters();
-                        for (Map.Entry<String, List<FormParameter>> param : formParameters.entrySet()) {
-                            final FormParameter formParameter = param.getValue().get(0);
+                        final Map<String, Parameter> formParameters = type.getFormParameters();
+                        for (Map.Entry<String, Parameter> param : formParameters.entrySet()) {
+                            final Parameter formParameter = param.getValue();
                             final String paramName = param.getKey();
                             final String paramGetterMethod = NameHelper.getGetterName(paramName);
                             final JBlock ifBlock = body._if(bodyParam.invoke(paramGetterMethod).ne(JExpr._null()))._then();
-                            if (formParameter.getType() == ParamType.FILE) {
-                                final JInvocation newFileDataBody = JExpr._new(cm._ref(FileDataBodyPart.class)).arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod));
-                                ifBlock.invoke(multiPartVar, "bodyPart").arg(newFileDataBody);
-                            } else {
+//                            if (formParameter.getType() == ParamType.FILE) {
+//                                final JInvocation newFileDataBody = JExpr._new(cm._ref(FileDataBodyPart.class)).arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod));
+//                                ifBlock.invoke(multiPartVar, "bodyPart").arg(newFileDataBody);
+//                            } else {
                                 ifBlock.invoke(multiPartVar, "field").arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod).invoke("toString"));
-                            }
+//                            }
                         }
                         methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiPartVar).arg(multiPartVar.invoke("getMediaType")));
                     } else if (MimeTypeHelper.isFormUrlEncodedType(type)) {
                         final JVar multiValuedMapVar = body.decl(cm.ref(MultivaluedMap.class), "multiValuedMap", JExpr._new(cm.ref(MultivaluedHashMap.class)));
-                        final Map<String, List<FormParameter>> formParameters = type.getFormParameters();
-                        for (Map.Entry<String, List<FormParameter>> param : formParameters.entrySet()) {
+                        final Map<String, Parameter> formParameters = type.getFormParameters();
+                        for (Map.Entry<String, Parameter> param : formParameters.entrySet()) {
                             final String paramName = param.getKey();
                             final String paramGetterMethod = NameHelper.getGetterName(paramName);
                             final JBlock ifBlock = body._if(bodyParam.invoke(paramGetterMethod).ne(JExpr._null()))._then();

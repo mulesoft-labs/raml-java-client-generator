@@ -2,7 +2,8 @@ package org.mule.client.codegen;
 
 
 import com.sun.codemodel.*;
-import org.raml.model.Action;
+import org.mule.raml.model.Action;
+
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
