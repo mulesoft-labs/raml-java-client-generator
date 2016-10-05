@@ -6,9 +6,6 @@
  */
 package org.mule.raml.model;
 
-import org.mule.raml.model.parameter.Parameter;
-
-import java.util.List;
 import java.util.Map;
 
 public interface MimeType
@@ -16,7 +13,7 @@ public interface MimeType
 
     String getSchema();
 
-    Map<String, Parameter> getFormParameters();
+    Map<String, TypeFieldDefinition> getFormParameters();
 
     /**
      * @return the mime type name (e.g: application/json)

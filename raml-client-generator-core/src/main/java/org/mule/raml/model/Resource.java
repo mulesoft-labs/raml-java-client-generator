@@ -6,9 +6,6 @@
  */
 package org.mule.raml.model;
 
-import org.mule.raml.model.parameter.Parameter;
-
-import java.util.List;
 import java.util.Map;
 
 public interface Resource
@@ -21,13 +18,7 @@ public interface Resource
 
     Map<ActionType, Action> getActions();
 
-    Map<String, List<Parameter>> getBaseUriParameters();
-
-    Map<String, Parameter> getResolvedUriParameters();
-
     String getDisplayName();
-
-    String getRelativeUri();
 
     String getDescription();
 }

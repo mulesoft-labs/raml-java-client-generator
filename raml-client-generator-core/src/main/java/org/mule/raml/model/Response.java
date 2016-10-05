@@ -6,18 +6,12 @@
  */
 package org.mule.raml.model;
 
-import org.mule.raml.model.parameter.Parameter;
-
 import java.util.Map;
 
 public interface Response
 {
     Map<String, MimeType> getBody();
 
-    boolean hasBody();
-
-    Map<String, Parameter> getHeaders();
-
-    void setBody(Map<String, MimeType> body);
+    Map<String, TypeFieldDefinition> getHeaders();
 
 }

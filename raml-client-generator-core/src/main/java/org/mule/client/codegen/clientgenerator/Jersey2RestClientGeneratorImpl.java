@@ -13,14 +13,13 @@ import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.mule.client.codegen.RestClientGenerator;
 import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
 import org.mule.raml.model.Action;
 import org.mule.raml.model.ActionType;
 import org.mule.raml.model.MimeType;
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,7 +34,6 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 
@@ -84,8 +82,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         final JVar targetVal = body.decl(cm.ref(WebTarget.class), "target", JExpr._this().ref("client").invoke("target").arg(JExpr.invoke("getBaseUri")));
 
         if (queryParameterParam != null && action.getQueryParameters() != null && !action.getQueryParameters().isEmpty()) {
-            final Map<String, Parameter> queryParameters = action.getQueryParameters();
-            for (Map.Entry<String, Parameter> stringQueryParameterEntry : queryParameters.entrySet()) {
+            final Map<String, TypeFieldDefinition> queryParameters = action.getQueryParameters();
+            for (Map.Entry<String, TypeFieldDefinition> stringQueryParameterEntry : queryParameters.entrySet()) {
                 final String queryParameter = stringQueryParameterEntry.getKey();
                 body._if(queryParameterParam.invoke(NameHelper.getGetterName(queryParameter)).ne(JExpr._null()))._then()
                         .assign(targetVal,
@@ -97,8 +95,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         final JVar invocationBuilder = body.decl(JMod.FINAL, cm.ref(Invocation.Builder.class), "invocationBuilder", targetVal.invoke("request").arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_JSON_TYPE")));
 
         if (headerParameterParam != null && action.getHeaders() != null && !action.getHeaders().isEmpty()) {
-            final Map<String, Parameter> headers = action.getHeaders();
-            for (Map.Entry<String, Parameter> headerEntry : headers.entrySet()) {
+            final Map<String, TypeFieldDefinition> headers = action.getHeaders();
+            for (Map.Entry<String, TypeFieldDefinition> headerEntry : headers.entrySet()) {
                 final String headerParameter = headerEntry.getKey();
                 body._if(headerParameterParam.invoke(NameHelper.getGetterName(headerParameter)).ne(JExpr._null()))._then()
                         .invoke(invocationBuilder, "header").arg(headerParameter).arg(headerParameterParam.invoke(NameHelper.getGetterName(headerParameter)));
@@ -119,9 +117,9 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                         methodInvocation.arg((cm.ref(Entity.class).staticInvoke("entity").arg(bodyParam).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_OCTET_STREAM_TYPE"))));
                     } else if (MimeTypeHelper.isMultiPartType(type)) {
                         final JVar multiPartVar = body.decl(cm.ref(FormDataMultiPart.class), "multiPart", JExpr._new(cm.ref(FormDataMultiPart.class)));
-                        final Map<String, Parameter> formParameters = type.getFormParameters();
-                        for (Map.Entry<String, Parameter> param : formParameters.entrySet()) {
-                            final Parameter formParameter = param.getValue();
+                        final Map<String, TypeFieldDefinition> formParameters = type.getFormParameters();
+                        for (Map.Entry<String, TypeFieldDefinition> param : formParameters.entrySet()) {
+                            final TypeFieldDefinition formParameter = param.getValue();
                             final String paramName = param.getKey();
                             final String paramGetterMethod = NameHelper.getGetterName(paramName);
                             final JBlock ifBlock = body._if(bodyParam.invoke(paramGetterMethod).ne(JExpr._null()))._then();
@@ -135,8 +133,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                         methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiPartVar).arg(multiPartVar.invoke("getMediaType")));
                     } else if (MimeTypeHelper.isFormUrlEncodedType(type)) {
                         final JVar multiValuedMapVar = body.decl(cm.ref(MultivaluedMap.class), "multiValuedMap", JExpr._new(cm.ref(MultivaluedHashMap.class)));
-                        final Map<String, Parameter> formParameters = type.getFormParameters();
-                        for (Map.Entry<String, Parameter> param : formParameters.entrySet()) {
+                        final Map<String, TypeFieldDefinition> formParameters = type.getFormParameters();
+                        for (Map.Entry<String, TypeFieldDefinition> param : formParameters.entrySet()) {
                             final String paramName = param.getKey();
                             final String paramGetterMethod = NameHelper.getGetterName(paramName);
                             final JBlock ifBlock = body._if(bodyParam.invoke(paramGetterMethod).ne(JExpr._null()))._then();

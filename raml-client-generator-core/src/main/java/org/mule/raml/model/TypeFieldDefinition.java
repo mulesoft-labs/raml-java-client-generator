@@ -4,11 +4,11 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.raml.model.parameter;
+package org.mule.raml.model;
 
 import java.util.Map;
 
-public interface Parameter
+public interface TypeFieldDefinition
 {
     boolean isRequired();
 

@@ -6,13 +6,13 @@
  */
 package org.mule.raml.impl.v08.model;
 
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 import org.raml.v2.api.model.v08.system.types.MarkdownString;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ParameterImpl implements Parameter
+public class ParameterImpl implements TypeFieldDefinition
 {
 
     private org.raml.v2.api.model.v08.parameters.Parameter parameter;

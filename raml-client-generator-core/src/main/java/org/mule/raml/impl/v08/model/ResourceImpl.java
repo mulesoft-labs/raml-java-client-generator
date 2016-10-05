@@ -9,11 +9,9 @@ package org.mule.raml.impl.v08.model;
 import org.mule.raml.model.Action;
 import org.mule.raml.model.ActionType;
 import org.mule.raml.model.Resource;
-import org.mule.raml.model.parameter.Parameter;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.raml.v2.api.model.v08.methods.Method;
@@ -26,12 +24,6 @@ public class ResourceImpl implements Resource
     public ResourceImpl(org.raml.v2.api.model.v08.resources.Resource resource)
     {
         this.resource = resource;
-    }
-
-    @Override
-    public String getRelativeUri()
-    {
-        return resource.relativeUri().value();
     }
 
     @Override public String getDescription()
@@ -84,28 +76,6 @@ public class ResourceImpl implements Resource
     public String getDisplayName()
     {
         return resource.displayName();
-    }
-
-    @Override
-    public Map<String, Parameter> getResolvedUriParameters()
-    {
-        Map<String, Parameter> result = new HashMap<>();
-        org.raml.v2.api.model.v08.resources.Resource current = resource;
-        while (current != null)
-        {
-            for (org.raml.v2.api.model.v08.parameters.Parameter parameter : current.uriParameters())
-            {
-                result.put(parameter.name(), new ParameterImpl(parameter));
-            }
-            current = current.parentResource();
-        }
-        return result;
-    }
-
-    @Override
-    public Map<String, List<Parameter>> getBaseUriParameters()
-    {
-        throw new UnsupportedOperationException();
     }
 
 }

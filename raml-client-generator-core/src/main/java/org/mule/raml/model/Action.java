@@ -6,9 +6,6 @@
  */
 package org.mule.raml.model;
 
-import org.mule.raml.model.parameter.Parameter;
-
-import java.util.List;
 import java.util.Map;
 
 public interface Action
@@ -19,15 +16,11 @@ public interface Action
 
     Map<String, MimeType> getBody();
 
-    Map<String, List<Parameter>> getBaseUriParameters();
-
-    Map<String, Parameter> getQueryParameters();
-
-    boolean hasBody();
+    Map<String, TypeFieldDefinition> getQueryParameters();
 
     Map<String, Response> getResponses();
 
-    Map<String, Parameter> getHeaders();
+    Map<String, TypeFieldDefinition> getHeaders();
 
     String getDescription();
 }

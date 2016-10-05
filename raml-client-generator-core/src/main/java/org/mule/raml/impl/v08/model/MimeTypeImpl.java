@@ -10,11 +10,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.mule.raml.model.MimeType;
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.raml.v2.api.model.v08.bodies.BodyLike;
@@ -50,21 +47,21 @@ public class MimeTypeImpl implements MimeType
     }
 
     @Override
-    public Map<String, Parameter> getFormParameters()
+    public Map<String, TypeFieldDefinition> getFormParameters()
     {
 
         return Maps.uniqueIndex(Lists.transform(bodyLike.formParameters(),
-                new Function<org.raml.v2.api.model.v08.parameters.Parameter, Parameter>()
+                new Function<org.raml.v2.api.model.v08.parameters.Parameter, TypeFieldDefinition>()
                 {
                     @Nullable
                     @Override
-                    public Parameter apply(@Nullable org.raml.v2.api.model.v08.parameters.Parameter input)
+                    public TypeFieldDefinition apply(@Nullable org.raml.v2.api.model.v08.parameters.Parameter input)
                     {
                         return new ParameterImpl(input);
                     }
-                }), new Function<Parameter, String>()
+                }), new Function<TypeFieldDefinition, String>()
         {
-            @Nullable @Override public String apply(@Nullable Parameter input)
+            @Nullable @Override public String apply(@Nullable TypeFieldDefinition input)
             {
                 return input.getName();
             }

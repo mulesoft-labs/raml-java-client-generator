@@ -38,7 +38,7 @@ import org.mule.raml.model.MimeType;
 import org.mule.raml.model.Resource;
 import org.mule.raml.model.Response;
 import org.mule.raml.model.SecurityScheme;
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 
 import javax.ws.rs.client.Client;
 import java.io.File;
@@ -418,7 +418,7 @@ public class RamlJavaClientGenerator
 
     private JType buildHeaderType(JCodeModel cm, String resourcePath, String resourceName, ActionType actionType, Action action) throws JClassAlreadyExistsException
     {
-        final Map<String, Parameter> headers = action.getHeaders();
+        final Map<String, TypeFieldDefinition> headers = action.getHeaders();
         JType headerParameterType = null;
         if (headers != null && !headers.isEmpty())
         {
@@ -430,7 +430,7 @@ public class RamlJavaClientGenerator
 
     private JType buildQueryParametersType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName) throws JClassAlreadyExistsException
     {
-        final Map<String, Parameter> queryParameters = action.getQueryParameters();
+        final Map<String, TypeFieldDefinition> queryParameters = action.getQueryParameters();
         JType queryParameterType = null;
         if (queryParameters != null && !queryParameters.isEmpty())
         {
@@ -480,7 +480,7 @@ public class RamlJavaClientGenerator
                 }
                 else if (MimeTypeHelper.isMultiPartType(body) || MimeTypeHelper.isFormUrlEncodedType(body))
                 {
-                    final Map<String, Parameter> formParameters = body.getFormParameters();
+                    final Map<String, TypeFieldDefinition> formParameters = body.getFormParameters();
                     bodyType = toParametersJavaBean(cm, className, formParameters, resourcePath);
                 }
                 result.add(bodyType);
@@ -494,7 +494,7 @@ public class RamlJavaClientGenerator
         return getResourcePackage(resourcePath) + PACKAGE_SEPARATOR + MODEL_PACKAGE_NAME;
     }
 
-    public JType toParametersJavaBean(JCodeModel cm, String className, Map<String, Parameter> paramMap, String resourcePath) throws JClassAlreadyExistsException
+    public JType toParametersJavaBean(JCodeModel cm, String className, Map<String, TypeFieldDefinition> paramMap, String resourcePath) throws JClassAlreadyExistsException
     {
         final JDefinedClass paramsClass = cm._class(getModelPackage(resourcePath) + PACKAGE_SEPARATOR + className);
         final JMethod paramsConstructor = paramsClass.constructor(JMod.PUBLIC);

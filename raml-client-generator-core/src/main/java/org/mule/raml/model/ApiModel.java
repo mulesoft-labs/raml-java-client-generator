@@ -6,15 +6,12 @@
  */
 package org.mule.raml.model;
 
-import org.mule.raml.model.parameter.Parameter;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 public interface ApiModel extends Serializable
 {
-    Resource getResource(String path);
 
     String getBaseUri();
 
@@ -22,11 +19,9 @@ public interface ApiModel extends Serializable
 
     String getVersion();
 
-    Map<String, Parameter> getBaseUriParameters();
+    Map<String, TypeFieldDefinition> getBaseUriParameters();
 
     List<SecurityScheme> getSecuritySchemes();
-
-    String getUri();
 
     List<Map<String, String>> getSchemas();
 

@@ -9,13 +9,12 @@ package org.mule.raml.impl.v10.model;
 import static org.mule.raml.impl.v10.model.ApiModelImpl.getTypeAsString;
 
 import org.mule.raml.model.MimeType;
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.raml.v2.api.model.common.ValidationResult;
 import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 
@@ -61,7 +60,7 @@ public class MimeTypeImpl implements MimeType
     }
 
     @Override
-    public Map<String, Parameter> getFormParameters()
+    public Map<String, TypeFieldDefinition> getFormParameters()
     {
         // no longer supported in RAML 1.0
         return new HashMap<>();

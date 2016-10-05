@@ -14,7 +14,7 @@ import org.mule.raml.model.ApiModel;
 import org.mule.raml.model.DocumentationItem;
 import org.mule.raml.model.Resource;
 import org.mule.raml.model.SecurityScheme;
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -26,7 +26,6 @@ import org.raml.v2.api.model.v10.datamodel.AnyTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ExternalTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.api.model.v10.system.types.AnnotableSimpleType;
-import org.raml.v2.api.model.v10.system.types.FullUriTemplateString;
 
 import javax.annotation.Nullable;
 
@@ -109,13 +108,7 @@ public class ApiModelImpl implements ApiModel
     }
 
     @Override
-    public Resource getResource(String path)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, Parameter> getBaseUriParameters()
+    public Map<String, TypeFieldDefinition> getBaseUriParameters()
     {
         throw new UnsupportedOperationException();
     }
@@ -131,13 +124,6 @@ public class ApiModelImpl implements ApiModel
             }
         });
 
-    }
-
-    @Override
-    public String getUri()
-    {
-        final FullUriTemplateString fullUriTemplateString = api.baseUri();
-        return fullUriTemplateString != null ? fullUriTemplateString.value() : null;
     }
 
     @Override

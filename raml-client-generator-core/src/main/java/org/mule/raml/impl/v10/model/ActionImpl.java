@@ -11,11 +11,10 @@ import org.mule.raml.model.ActionType;
 import org.mule.raml.model.MimeType;
 import org.mule.raml.model.Resource;
 import org.mule.raml.model.Response;
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
@@ -36,12 +35,6 @@ public class ActionImpl implements Action
     public ActionType getType()
     {
         return ActionType.valueOf(method.method().toUpperCase());
-    }
-
-    @Override
-    public boolean hasBody()
-    {
-        return !method.body().isEmpty();
     }
 
     @Override
@@ -73,9 +66,9 @@ public class ActionImpl implements Action
     }
 
     @Override
-    public Map<String, Parameter> getQueryParameters()
+    public Map<String, TypeFieldDefinition> getQueryParameters()
     {
-        Map<String, Parameter> result = new HashMap<>();
+        Map<String, TypeFieldDefinition> result = new HashMap<>();
         for (TypeDeclaration typeDeclaration : method.queryParameters())
         {
             result.put(typeDeclaration.name(), new ParameterImpl(typeDeclaration));
@@ -84,15 +77,9 @@ public class ActionImpl implements Action
     }
 
     @Override
-    public Map<String, List<Parameter>> getBaseUriParameters()
+    public Map<String, TypeFieldDefinition> getHeaders()
     {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, Parameter> getHeaders()
-    {
-        Map<String, Parameter> result = new HashMap<>();
+        Map<String, TypeFieldDefinition> result = new HashMap<>();
         for (TypeDeclaration typeDeclaration : method.headers())
         {
             result.put(typeDeclaration.name(), new ParameterImpl(typeDeclaration));

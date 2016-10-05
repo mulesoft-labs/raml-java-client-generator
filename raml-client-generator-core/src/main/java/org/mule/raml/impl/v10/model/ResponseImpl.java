@@ -8,7 +8,7 @@ package org.mule.raml.impl.v10.model;
 
 import org.mule.raml.model.MimeType;
 import org.mule.raml.model.Response;
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,12 +26,6 @@ public class ResponseImpl implements Response
     }
 
     @Override
-    public boolean hasBody()
-    {
-        return !response.body().isEmpty();
-    }
-
-    @Override
     public Map<String, MimeType> getBody()
     {
         Map<String, MimeType> result = new LinkedHashMap<>();
@@ -43,13 +37,7 @@ public class ResponseImpl implements Response
     }
 
     @Override
-    public Map<String, Parameter> getHeaders()
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setBody(Map<String, MimeType> body)
+    public Map<String, TypeFieldDefinition> getHeaders()
     {
         throw new UnsupportedOperationException();
     }

@@ -11,14 +11,11 @@ import static org.mule.raml.ApiModelLoader.nullSafe;
 import org.mule.raml.model.Action;
 import org.mule.raml.model.ActionType;
 import org.mule.raml.model.Resource;
-import org.mule.raml.model.parameter.Parameter;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 import org.raml.v2.api.model.v10.methods.Method;
 import org.raml.v2.api.model.v10.system.types.MarkdownString;
 
@@ -30,12 +27,6 @@ public class ResourceImpl implements Resource
     public ResourceImpl(org.raml.v2.api.model.v10.resources.Resource resource)
     {
         this.resource = resource;
-    }
-
-    @Override
-    public String getRelativeUri()
-    {
-        return resource.relativeUri().value();
     }
 
     @Override public String getDescription()
@@ -89,28 +80,6 @@ public class ResourceImpl implements Resource
     public String getDisplayName()
     {
         return nullSafe(resource.displayName());
-    }
-
-    @Override
-    public Map<String, Parameter> getResolvedUriParameters()
-    {
-        Map<String, Parameter> result = new HashMap<>();
-        org.raml.v2.api.model.v10.resources.Resource current = resource;
-        while (current != null)
-        {
-            for (TypeDeclaration typeDeclaration : current.uriParameters())
-            {
-                result.put(typeDeclaration.name(), new ParameterImpl(typeDeclaration));
-            }
-            current = current.parentResource();
-        }
-        return result;
-    }
-
-    @Override
-    public Map<String, List<Parameter>> getBaseUriParameters()
-    {
-        throw new UnsupportedOperationException();
     }
 
 }

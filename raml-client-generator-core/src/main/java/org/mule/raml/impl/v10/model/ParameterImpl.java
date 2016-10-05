@@ -6,15 +6,17 @@
  */
 package org.mule.raml.impl.v10.model;
 
-import org.mule.raml.model.parameter.Parameter;
+import org.mule.raml.model.TypeFieldDefinition;
 import org.raml.v2.api.model.v10.datamodel.ArrayTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import org.raml.v2.api.model.v10.system.types.AnnotableSimpleType;
+import org.raml.v2.api.model.v10.system.types.MarkdownString;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ParameterImpl implements Parameter
+public class ParameterImpl implements TypeFieldDefinition
 {
 
     private TypeDeclaration typeDeclaration;
@@ -52,13 +54,19 @@ public class ParameterImpl implements Parameter
     @Override
     public String getDisplayName()
     {
-        throw new UnsupportedOperationException();
+        return getValue(typeDeclaration.displayName());
     }
 
     @Override
     public String getDescription()
     {
-        throw new UnsupportedOperationException();
+        final MarkdownString description = typeDeclaration.description();
+        return getValue(description);
+    }
+
+    public static String getValue(AnnotableSimpleType<String> description)
+    {
+        return description != null ? description.value() : null;
     }
 
     @Override
