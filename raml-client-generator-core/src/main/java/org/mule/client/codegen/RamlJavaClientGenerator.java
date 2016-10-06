@@ -198,7 +198,7 @@ public class RamlJavaClientGenerator
         {
             JMethod constructor = containerClass.constructor(JMod.PUBLIC);
             JInvocation thisInvocation = JExpr.invoke("this");
-            thisInvocation.arg(JExpr.lit(raml.getBaseUri()));
+            thisInvocation.arg(JExpr.lit(raml.getBaseUri().replaceAll("/$", "")));
             for (JVar var : generatedRequiredField)
             {
                 JVar param = constructor.param(var.type(), var.name());
