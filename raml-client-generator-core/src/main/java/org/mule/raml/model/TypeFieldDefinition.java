@@ -27,4 +27,6 @@ public interface TypeFieldDefinition
     Map<String, String> getExamples();
 
     String getName();
+
+    String getType();
 }

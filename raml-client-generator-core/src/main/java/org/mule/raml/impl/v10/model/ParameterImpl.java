@@ -23,6 +23,7 @@ public class ParameterImpl implements TypeFieldDefinition
 
     public ParameterImpl(TypeDeclaration typeDeclaration)
     {
+
         this.typeDeclaration = typeDeclaration;
     }
 
@@ -95,4 +96,8 @@ public class ParameterImpl implements TypeFieldDefinition
         return null;
     }
 
+    @Override
+    public String getType() {
+        return typeDeclaration.type();
+    }
 }

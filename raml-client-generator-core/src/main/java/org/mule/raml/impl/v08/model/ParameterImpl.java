@@ -19,6 +19,7 @@ public class ParameterImpl implements TypeFieldDefinition
 
     public ParameterImpl(org.raml.v2.api.model.v08.parameters.Parameter parameter)
     {
+
         this.parameter = parameter;
     }
 
@@ -83,4 +84,8 @@ public class ParameterImpl implements TypeFieldDefinition
         return new HashMap<>();
     }
 
+    @Override
+    public String getType() {
+        return parameter.type();
+    }
 }
