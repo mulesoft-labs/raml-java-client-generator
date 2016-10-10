@@ -485,7 +485,7 @@ public class RamlJavaClientGenerator {
             final JPackage jpackage = codeModel._package(packageName);
             final ObjectMapper mapper = new ObjectMapper();
             final JsonNode schemaNode = mapper.readTree(json);
-            return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode));
+            return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode, null));
         } catch (JsonParseException e) {
             System.out.println("Can not generate  " + className + " from schema since : " + e.getMessage());
             return codeModel.ref(String.class);
@@ -497,7 +497,7 @@ public class RamlJavaClientGenerator {
             final JPackage jpackage = codeModel._package(packageName);
             final ObjectMapper mapper = new ObjectMapper();
             final JsonNode schemaNode = new SchemaGenerator().schemaFromExample(mapper.readTree(json));
-            return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode));
+            return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode, null));
         } catch (JsonParseException e) {
             System.out.println("Can not generate " + className + " from example since : " + e.getMessage());
             //Lets return an object
