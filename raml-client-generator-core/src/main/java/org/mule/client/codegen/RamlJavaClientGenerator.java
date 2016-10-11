@@ -107,6 +107,8 @@ public class RamlJavaClientGenerator {
             }
         }
 
+        this.clientGenerator.buildCustomException(cm, basePackage, raml.getTitle());
+
         final JDefinedClass containerClass = cm
                 ._class(basePackage + PACKAGE_SEPARATOR + "api" + PACKAGE_SEPARATOR + NameHelper.toValidClassName(raml.getTitle()) + CLIENT_CLASS_SUFFIX);
 

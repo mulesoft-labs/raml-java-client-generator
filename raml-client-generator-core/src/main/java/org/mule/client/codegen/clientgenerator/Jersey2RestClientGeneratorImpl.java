@@ -21,20 +21,20 @@ import java.util.Map;
 
 public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
-    public static final String QUERY_PARAMETERS_PARAM_NAME = "queryParameters";
-    public static final String BODY_PARAM_NAME = "body";
-    public static final String HEADERS_PARAM_NAME = "headers";
+    private static final String BODY_PARAM_NAME = "body";
+    private static final String HEADERS_PARAM_NAME = "headers";
+    private static final String QUERY_PARAMETERS_PARAM_NAME = "queryParameters";
+
+    private static JClass exceptionClass;
 
     @Override
     public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action) {
-
         if (action.getType() == ActionType.PATCH) {
             System.out.println("Patch is not supported");
             return;
         }
 
-        //Declare the method with the required inputs
-
+        // Declare the method with the required inputs
         final JMethod actionMethod = resourceClass.method(JMod.PUBLIC, returnType, action.getType().name().toLowerCase());
         if (StringUtils.isNotBlank(action.getDescription())) {
             actionMethod.javadoc().add(action.getDescription());
@@ -72,7 +72,6 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                                 targetVal.invoke("queryParam").arg(queryParameter).arg(queryParameterParam.invoke(NameHelper.getGetterName(queryParameter))));
             }
         }
-
 
         final JVar invocationBuilder = body.decl(JMod.FINAL, cm.ref(Invocation.Builder.class), "invocationBuilder", targetVal.invoke("request").arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_JSON_TYPE")));
 
@@ -132,8 +131,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
         final JBlock ifBlock = body._if(responseVal.invoke("getStatusInfo").invoke("getFamily").ne(cm.directClass("javax.ws.rs.core.Response.Status.Family").staticRef("SUCCESSFUL")))._then();
         final JVar statusInfo = ifBlock.decl(cm.ref(Response.StatusType.class), "statusInfo", responseVal.invoke("getStatusInfo"));
-        ifBlock._throw(JExpr._new(cm._ref(RuntimeException.class)).arg(
-                JExpr.lit("(").plus(statusInfo.invoke("getFamily")).plus(JExpr.lit(") ")).plus(statusInfo.invoke("getStatusCode")).plus(JExpr.lit(" ")).plus(statusInfo.invoke("getReasonPhrase"))));
+
+        ifBlock._throw(JExpr._new(exceptionClass).arg(statusInfo.invoke("getStatusCode")).arg(statusInfo.invoke("getReasonPhrase")));
 
         if (returnType != cm.VOID) {
             if (returnType.equals(cm.ref(Object.class))) {
@@ -166,4 +165,33 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         return baseUriMethod;
     }
 
+    @Override
+    public JClass buildCustomException(JCodeModel cm, String basePackage, String apiName) {
+        try {
+            JDefinedClass customExceptionClass = cm._class(basePackage + "." + "exceptions" + "." + NameHelper.toValidClassName(apiName) + "Exception");
+            customExceptionClass._extends(RuntimeException.class);
+
+            JFieldVar statusCodeField = customExceptionClass.field(JMod.PRIVATE, Integer.TYPE, "statusCode");
+            JFieldVar reasonField = customExceptionClass.field(JMod.PRIVATE, String.class, "reason");
+
+            JMethod containerConstructor = customExceptionClass.constructor(JMod.PUBLIC);
+
+            JVar statusCodeParameter = containerConstructor.param(Integer.TYPE, "statusCode");
+            JVar reasonParameter = containerConstructor.param(String.class, "reason");
+
+            containerConstructor.body().assign(JExpr._this().ref(statusCodeField), statusCodeParameter);
+            containerConstructor.body().assign(JExpr._this().ref(reasonField), reasonParameter);
+
+            JMethod statusCodeGetterMethod = customExceptionClass.method(JMod.PRIVATE, Integer.TYPE, "getStatusCode");
+            JMethod reasonGetterMethod = customExceptionClass.method(JMod.PRIVATE, Integer.TYPE, "getReason");
+
+            statusCodeGetterMethod.body()._return(JExpr._this().ref(statusCodeField));
+            reasonGetterMethod.body()._return(JExpr._this().ref(reasonField));
+
+            exceptionClass = customExceptionClass;
+        } catch (JClassAlreadyExistsException e) {
+            exceptionClass = cm.ref(RuntimeException.class);
+        }
+        return exceptionClass;
+    }
 }
