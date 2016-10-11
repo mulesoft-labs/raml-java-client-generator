@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jsonschema2pojo.*;
 import org.jsonschema2pojo.rules.RuleFactory;
 import org.mule.client.codegen.clientgenerator.Jersey2RestClientGeneratorImpl;
+import org.mule.client.codegen.model.JBodyType;
 import org.mule.client.codegen.security.BasicAuthClientGenerator;
 import org.mule.client.codegen.security.NoSecuredClientGenerator;
 import org.mule.client.codegen.security.SecurityClientGenerator;
@@ -291,14 +292,14 @@ public class RamlJavaClientGenerator {
             System.out.println("  " + action.getType() + "");
 
             final Response response = action.getResponses().get(OK_RESPONSE);
-            final List<JType> bodiesType = buildBodyType(cm, actionType, action, resourcePath, resourceName);
+            final List<JBodyType> bodiesType = buildBodyType(cm, actionType, action, resourcePath, resourceName);
             final JType returnType = buildReturnType(cm, actionType, response, resourcePath, resourceName);
             final JType queryParameterType = buildQueryParametersType(cm, actionType, action, resourcePath, resourceName);
             final JType headerParameterType = buildHeaderType(cm, resourcePath, resourceName, actionType, action);
             if (bodiesType.isEmpty()) {
                 clientGenerator.callHttpMethod(cm, resourceClass, returnType, null, queryParameterType, headerParameterType, action);
             } else {
-                for (JType bodyType : bodiesType) {
+                for (JBodyType bodyType : bodiesType) {
                     clientGenerator.callHttpMethod(cm, resourceClass, returnType, bodyType, queryParameterType, headerParameterType, action);
                 }
             }
@@ -357,9 +358,9 @@ public class RamlJavaClientGenerator {
         return queryParameterType;
     }
 
-    private List<JType> buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName)
+    private List<JBodyType> buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName)
             throws IOException, JClassAlreadyExistsException {
-        final List<JType> result = new ArrayList<>();
+        final List<JBodyType> result = new ArrayList<>();
 
         if (action.getBody() != null) {
             for (MimeType mimeType : action.getBody().values()) {
@@ -384,7 +385,7 @@ public class RamlJavaClientGenerator {
                     final Map<String, TypeFieldDefinition> formParameters = body.getFormParameters();
                     bodyType = toParametersJavaBean(cm, className, formParameters, resourcePath);
                 }
-                result.add(bodyType);
+                result.add(new JBodyType(bodyType, mimeType));
             }
         }
         return result;
