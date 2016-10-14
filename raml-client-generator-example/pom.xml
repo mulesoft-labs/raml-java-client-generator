@@ -12,11 +12,10 @@
     <parent>
         <groupId>org.mule.raml.codegen</groupId>
         <artifactId>raml-client-generator-parent</artifactId>
-        <version>0.1</version>
+        <version>0.2-SNAPSHOT</version>
     </parent>
 
     <dependencies>
-        <!--Jersey client-->
         <!--Jersey client-->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
@@ -35,7 +34,6 @@
             <version>2.17</version>
         </dependency>
 
-
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
@@ -48,7 +46,6 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -70,5 +67,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
