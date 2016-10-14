@@ -3,10 +3,12 @@ package org.mule.client.codegen.clientgenerator;
 import com.sun.codemodel.*;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.mule.client.codegen.model.JBodyType;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.mule.client.codegen.RestClientGenerator;
+import org.mule.client.codegen.model.JBodyType;
 import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
+import org.mule.client.codegen.utils.TypeConstants;
 import org.mule.raml.model.Action;
 import org.mule.raml.model.ActionType;
 import org.mule.raml.model.MimeType;
@@ -102,12 +104,12 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                         final String paramName = param.getKey();
                         final String paramGetterMethod = NameHelper.getGetterName(paramName);
                         final JBlock ifBlock = body._if(bodyParam.invoke(paramGetterMethod).ne(JExpr._null()))._then();
-//                            if (formParameter.getType() == ParamType.FILE) {
-//                                final JInvocation newFileDataBody = JExpr._new(cm._ref(FileDataBodyPart.class)).arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod));
-//                                ifBlock.invoke(multiPartVar, "bodyPart").arg(newFileDataBody);
-//                            } else {
-                        ifBlock.invoke(multiPartVar, "field").arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod).invoke("toString"));
-//                            }
+                        if (TypeConstants.FILE.equals(formParameter.getType())) {
+                            final JInvocation newFileDataBody = JExpr._new(cm._ref(FileDataBodyPart.class)).arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod));
+                            ifBlock.invoke(multiPartVar, "bodyPart").arg(newFileDataBody);
+                        } else {
+                            ifBlock.invoke(multiPartVar, "field").arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod).invoke("toString"));
+                        }
                     }
                     methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiPartVar).arg(multiPartVar.invoke("getMediaType")));
                 } else if (MimeTypeHelper.isFormUrlEncodedType(type)) {

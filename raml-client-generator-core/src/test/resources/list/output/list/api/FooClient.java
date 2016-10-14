@@ -13,10 +13,6 @@ import list.resource.users.Users;
 public class FooClient {
 
     private String _baseUrl;
-    /**
-     * Users in the platform
-     * 
-     */
     public final Users users;
 
     public FooClient(String baseUrl) {

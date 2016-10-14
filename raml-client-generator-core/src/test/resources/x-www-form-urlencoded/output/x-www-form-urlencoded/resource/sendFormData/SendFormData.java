@@ -8,6 +8,7 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
+import x-www-form-urlencoded.exceptions.TestsendformdataException;
 import x-www-form-urlencoded.resource.sendFormData.model.SendFormDataPOSTBody;
 
 public class SendFormData {
@@ -41,7 +42,7 @@ public class SendFormData {
         Response response = invocationBuilder.post(Entity.entity(multiValuedMap, javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new RuntimeException(((((("("+ statusInfo.getFamily())+") ")+ statusInfo.getStatusCode())+" ")+ statusInfo.getReasonPhrase()));
+            throw new TestsendformdataException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
     }
 

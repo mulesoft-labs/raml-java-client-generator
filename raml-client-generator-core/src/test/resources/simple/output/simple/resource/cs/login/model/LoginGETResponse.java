@@ -3,7 +3,6 @@ package simple.resource.cs.login.model;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,7 +14,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "userId"
 })
@@ -38,6 +36,7 @@ public class LoginGETResponse {
      * @param userId
      */
     public LoginGETResponse(String userId) {
+        super();
         this.userId = userId;
     }
 

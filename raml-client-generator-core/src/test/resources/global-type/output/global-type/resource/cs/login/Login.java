@@ -7,6 +7,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
+import global-type.exceptions.FooException;
 import global-type.model.Auth;
 
 public class Login {
@@ -33,7 +34,7 @@ public class Login {
         Response response = invocationBuilder.post(Entity.json(body));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new RuntimeException(((((("("+ statusInfo.getFamily())+") ")+ statusInfo.getStatusCode())+" ")+ statusInfo.getReasonPhrase()));
+            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
         return response.readEntity(String.class);
     }

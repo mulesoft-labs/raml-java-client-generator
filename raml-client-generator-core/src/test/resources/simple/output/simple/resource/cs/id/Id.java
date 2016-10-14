@@ -6,6 +6,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
+import simple.exceptions.FooException;
 import simple.resource.cs.id.bar.Bar;
 
 public class Id {
@@ -34,7 +35,7 @@ public class Id {
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new RuntimeException(((((("("+ statusInfo.getFamily())+") ")+ statusInfo.getStatusCode())+" ")+ statusInfo.getReasonPhrase()));
+            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
     }
 

@@ -8,13 +8,9 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
+import list.exceptions.FooException;
 import list.resource.users.model.UsersGETResponse;
 
-
-/**
- * Users in the platform
- * 
- */
 public class Users {
 
     private String _baseUrl;
@@ -43,7 +39,7 @@ public class Users {
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new RuntimeException(((((("("+ statusInfo.getFamily())+") ")+ statusInfo.getStatusCode())+" ")+ statusInfo.getReasonPhrase()));
+            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
         return response.readEntity(new GenericType<List<UsersGETResponse>>() {
 

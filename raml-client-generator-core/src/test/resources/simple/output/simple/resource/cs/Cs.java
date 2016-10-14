@@ -10,14 +10,14 @@ public class Cs {
 
     private String _baseUrl;
     private Client client;
-    public final Login login;
     public final Data data;
+    public final Login login;
 
     public Cs(String baseUrl, Client client) {
         _baseUrl = (baseUrl +"/cs");
         this.client = client;
-        login = new Login(getBaseUri(), getClient());
         data = new Data(getBaseUri(), getClient());
+        login = new Login(getBaseUri(), getClient());
     }
 
     private Client getClient() {

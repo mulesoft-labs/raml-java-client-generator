@@ -7,15 +7,11 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
+import form-parameters.exceptions.DataWeaveAPIException;
 import form-parameters.resource.exec.model.ExecPOSTBody;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
-
-/**
- * Executes a Data Weave Script with the specified inputs.
- * 
- */
 public class Exec {
 
     private String _baseUrl;
@@ -47,7 +43,7 @@ public class Exec {
         Response response = invocationBuilder.post(Entity.entity(multiPart, multiPart.getMediaType()));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new RuntimeException(((((("("+ statusInfo.getFamily())+") ")+ statusInfo.getStatusCode())+" ")+ statusInfo.getReasonPhrase()));
+            throw new DataWeaveAPIException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
     }
 

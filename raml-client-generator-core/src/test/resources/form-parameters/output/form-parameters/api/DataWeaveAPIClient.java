@@ -13,10 +13,6 @@ import form-parameters.resource.exec.Exec;
 public class DataWeaveAPIClient {
 
     private String _baseUrl;
-    /**
-     * Executes a Data Weave Script with the specified inputs.
-     * 
-     */
     public final Exec exec;
 
     public DataWeaveAPIClient(String baseUrl) {
