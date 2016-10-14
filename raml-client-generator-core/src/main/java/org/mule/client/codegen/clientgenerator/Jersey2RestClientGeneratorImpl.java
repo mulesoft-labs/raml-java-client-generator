@@ -182,8 +182,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             containerConstructor.body().assign(JExpr._this().ref(statusCodeField), statusCodeParameter);
             containerConstructor.body().assign(JExpr._this().ref(reasonField), reasonParameter);
 
-            JMethod statusCodeGetterMethod = customExceptionClass.method(JMod.PRIVATE, Integer.TYPE, "getStatusCode");
-            JMethod reasonGetterMethod = customExceptionClass.method(JMod.PRIVATE, String.class, "getReason");
+            JMethod statusCodeGetterMethod = customExceptionClass.method(JMod.PUBLIC, Integer.TYPE, "getStatusCode");
+            JMethod reasonGetterMethod = customExceptionClass.method(JMod.PUBLIC, String.class, "getReason");
 
             statusCodeGetterMethod.body()._return(JExpr._this().ref(statusCodeField));
             reasonGetterMethod.body()._return(JExpr._this().ref(reasonField));
