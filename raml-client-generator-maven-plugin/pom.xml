@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.mule.raml.codegen</groupId>
         <artifactId>raml-client-generator-parent</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.1.1</version>
     </parent>
 
     <dependencies>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.mule.raml.codegen</groupId>
             <artifactId>raml-client-generator-core</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.1.1</version>
         </dependency>
 
         <!-- dependencies to annotations -->
