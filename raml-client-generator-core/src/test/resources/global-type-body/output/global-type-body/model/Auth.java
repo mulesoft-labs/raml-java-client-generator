@@ -1,5 +1,5 @@
 
-package global-type.model;
+package global-type-body.model;
 
 import java.util.HashMap;
 import java.util.Map;

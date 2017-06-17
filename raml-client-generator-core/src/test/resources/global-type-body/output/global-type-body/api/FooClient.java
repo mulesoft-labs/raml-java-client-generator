@@ -1,9 +1,9 @@
 
-package global-type.api;
+package global-type-body.api;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import global-type.resource.cs.Cs;
+import global-type-body.resource.cs.Cs;
 
 
 /**

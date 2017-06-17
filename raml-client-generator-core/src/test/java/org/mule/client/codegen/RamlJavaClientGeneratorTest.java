@@ -28,7 +28,7 @@ public class RamlJavaClientGeneratorTest {
 
     @Parameterized.Parameters(name = "{index}: {0}/api.raml")
     public static Iterable<Object[]> folders() {
-        return Arrays.asList(new Object[][]{{"simple"}, {"form-parameters"}, {"list"}, {"global-type"}, {"multi_body"}, {"x-www-form-urlencoded"}});
+        return Arrays.asList(new Object[][]{{"simple"}, {"form-parameters"}, {"list"}, {"global-type-body"}, {"global-type-return"}, {"multi_body"}, {"x-www-form-urlencoded"}});
     }
 
     @Test

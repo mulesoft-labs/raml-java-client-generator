@@ -319,11 +319,8 @@ public class RamlJavaClientGenerator {
                     final MimeType mimeType = bodyEntry.getValue();
                     if (MimeTypeHelper.isJsonType(mimeType)) {
                         final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + RESPONSE_CLASS_SUFFIX;
-                        if (StringUtils.isNotBlank(mimeType.getSchema())) {
-                            returnType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema());
-                        } else if (StringUtils.isNotBlank(mimeType.getExample())) {
-                            returnType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), mimeType.getExample());
-                        } else {
+                        returnType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, mimeType, className);
+                        if (returnType == null) {
                             returnType = cm.ref(String.class);
                         }
                     } else if (MimeTypeHelper.isTextType(mimeType)) {
@@ -370,15 +367,7 @@ public class RamlJavaClientGenerator {
                 final MimeType body = mimeType;
                 final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + BODY_CLASS_SUFFIX;
                 if (MimeTypeHelper.isJsonType(body)) {
-                    if (StringUtils.isNotBlank(body.getSchema())) {
-                        if (globalTypes.containsKey(body.getSchema())) {
-                            bodyType = globalTypes.get(body.getSchema());
-                        } else {
-                            bodyType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), body.getSchema());
-                        }
-                    } else if (StringUtils.isNotBlank(body.getExample())) {
-                        bodyType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), body.getExample());
-                    }
+                    bodyType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, body, className);
                 } else if (MimeTypeHelper.isTextType(body)) {
                     bodyType = cm.ref(String.class);
                 } else if (MimeTypeHelper.isBinaryType(body)) {
@@ -391,6 +380,21 @@ public class RamlJavaClientGenerator {
             }
         }
         return result;
+    }
+
+    private JType getOrGeneratePojoFromJsonSchema(JCodeModel cm, String resourcePath, MimeType mimeType, String className) throws IOException {
+        JType type = null;
+
+        if (StringUtils.isNotBlank(mimeType.getSchema())) {
+            if (globalTypes.containsKey(mimeType.getSchema())) {
+                type = globalTypes.get(mimeType.getSchema());
+            } else {
+                type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema());
+            }
+        } else if (StringUtils.isNotBlank(mimeType.getExample())) {
+            type = generatePojoFromExample(cm, className, getModelPackage(resourcePath), mimeType.getExample());
+        }
+        return type;
     }
 
     private String getModelPackage(String resourcePath) {

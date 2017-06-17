@@ -1,8 +1,8 @@
 
-package global-type.resource.cs;
+package global-type-return.resource.cs;
 
 import javax.ws.rs.client.Client;
-import global-type.resource.cs.login.Login;
+import global-type-return.resource.cs.login.Login;
 
 public class Cs {
 
