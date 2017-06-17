@@ -1,5 +1,5 @@
 
-package global-type.model;
+package global-type-body.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,25 +15,25 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "username",
-    "password"
+    "access_token",
+    "token_type"
 })
-public class User {
+public class Auth {
 
     /**
      * 
      * (Required)
      * 
      */
-    @JsonProperty("username")
-    private String username;
+    @JsonProperty("access_token")
+    private String accessToken;
     /**
      * 
      * (Required)
      * 
      */
-    @JsonProperty("password")
-    private String password;
+    @JsonProperty("token_type")
+    private String tokenType;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -41,18 +41,18 @@ public class User {
      * No args constructor for use in serialization
      * 
      */
-    public User() {
+    public Auth() {
     }
 
     /**
      * 
-     * @param password
-     * @param username
+     * @param accessToken
+     * @param tokenType
      */
-    public User(String username, String password) {
+    public Auth(String accessToken, String tokenType) {
         super();
-        this.username = username;
-        this.password = password;
+        this.accessToken = accessToken;
+        this.tokenType = tokenType;
     }
 
     /**
@@ -60,27 +60,27 @@ public class User {
      * (Required)
      * 
      * @return
-     *     The username
+     *     The accessToken
      */
-    @JsonProperty("username")
-    public String getUsername() {
-        return username;
+    @JsonProperty("access_token")
+    public String getAccessToken() {
+        return accessToken;
     }
 
     /**
      * 
      * (Required)
      * 
-     * @param username
-     *     The username
+     * @param accessToken
+     *     The access_token
      */
-    @JsonProperty("username")
-    public void setUsername(String username) {
-        this.username = username;
+    @JsonProperty("access_token")
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
-    public User withUsername(String username) {
-        this.username = username;
+    public Auth withAccessToken(String accessToken) {
+        this.accessToken = accessToken;
         return this;
     }
 
@@ -89,27 +89,27 @@ public class User {
      * (Required)
      * 
      * @return
-     *     The password
+     *     The tokenType
      */
-    @JsonProperty("password")
-    public String getPassword() {
-        return password;
+    @JsonProperty("token_type")
+    public String getTokenType() {
+        return tokenType;
     }
 
     /**
      * 
      * (Required)
      * 
-     * @param password
-     *     The password
+     * @param tokenType
+     *     The token_type
      */
-    @JsonProperty("password")
-    public void setPassword(String password) {
-        this.password = password;
+    @JsonProperty("token_type")
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
     }
 
-    public User withPassword(String password) {
-        this.password = password;
+    public Auth withTokenType(String tokenType) {
+        this.tokenType = tokenType;
         return this;
     }
 
@@ -128,14 +128,14 @@ public class User {
         this.additionalProperties.put(name, value);
     }
 
-    public User withAdditionalProperty(String name, Object value) {
+    public Auth withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(username).append(password).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(accessToken).append(tokenType).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -143,11 +143,11 @@ public class User {
         if (other == this) {
             return true;
         }
-        if ((other instanceof User) == false) {
+        if ((other instanceof Auth) == false) {
             return false;
         }
-        User rhs = ((User) other);
-        return new EqualsBuilder().append(username, rhs.username).append(password, rhs.password).append(additionalProperties, rhs.additionalProperties).isEquals();
+        Auth rhs = ((Auth) other);
+        return new EqualsBuilder().append(accessToken, rhs.accessToken).append(tokenType, rhs.tokenType).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

@@ -1,5 +1,5 @@
 
-package global-type.resource.cs.login;
+package global-type-body.resource.cs.login;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -7,8 +7,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-import global-type.exceptions.FooException;
-import global-type.model.Auth;
+import global-type-body.exceptions.FooException;
+import global-type-body.model.Auth;
 
 public class Login {
 

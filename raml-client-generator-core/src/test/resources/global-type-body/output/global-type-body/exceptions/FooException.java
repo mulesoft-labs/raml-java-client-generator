@@ -1,5 +1,5 @@
 
-package global-type.exceptions;
+package global-type-body.exceptions;
 
 
 public class FooException
