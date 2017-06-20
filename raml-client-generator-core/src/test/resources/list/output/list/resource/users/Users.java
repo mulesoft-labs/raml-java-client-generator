@@ -21,7 +21,7 @@ public class Users {
         this.client = client;
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return this.client;
     }
 

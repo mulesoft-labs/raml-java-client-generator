@@ -153,7 +153,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
     @Override
     public JMethod createClient(JCodeModel cm, JDefinedClass resourceClass, JMethod baseUrlMethod) {
-        final JMethod clientMethod = resourceClass.method(JMod.PRIVATE, WebTarget.class, "getClient");
+        final JMethod clientMethod = resourceClass.method(JMod.PROTECTED, WebTarget.class, "getClient");
         final JBlock methodBody = clientMethod.body();
         final JVar client = methodBody.decl(JMod.FINAL, cm.ref(Client.class), "client", cm.directClass(ClientBuilder.class.getName()).staticInvoke("newClient"));
         final JVar target = methodBody.decl(JMod.FINAL, cm.ref(WebTarget.class), "target", client.invoke("target").arg(JExpr.invoke(baseUrlMethod)));

@@ -19,7 +19,7 @@ public class BasicAuthClientGenerator implements SecurityClientGenerator {
     @Override
     public JMethod createClient(JDefinedClass containerClass) {
         JCodeModel cm = new JCodeModel();
-        JMethod getClient = containerClass.method(JMod.PRIVATE, Client.class, "getClient");
+        JMethod getClient = containerClass.method(JMod.PROTECTED, Client.class, "getClient");
         JBlock body = getClient.body();
 
         JVar decl = body.decl(JMod.FINAL, cm._ref(Client.class), "client", cm.anonymousClass(ClientBuilder.class).staticInvoke("newClient"));

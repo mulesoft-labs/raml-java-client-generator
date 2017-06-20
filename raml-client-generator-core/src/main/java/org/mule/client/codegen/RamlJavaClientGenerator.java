@@ -217,7 +217,7 @@ public class RamlJavaClientGenerator {
                             resourceClass.javadoc().add(resourceDescription);
                         }
 
-                        final JMethod getClient = resourceClass.method(JMod.PRIVATE, Client.class, "getClient");
+                        final JMethod getClient = resourceClass.method(JMod.PROTECTED, Client.class, "getClient");
                         getClient.body()._return(JExpr._this().ref("client"));
 
                         final JFieldVar baseUrlField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + BASE_URL_FIELD_NAME);
