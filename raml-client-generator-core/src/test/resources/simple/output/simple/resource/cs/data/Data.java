@@ -16,7 +16,7 @@ public class Data {
         foo = new Foo(getBaseUri(), getClient());
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return this.client;
     }
 

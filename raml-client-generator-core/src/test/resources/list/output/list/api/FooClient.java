@@ -20,7 +20,7 @@ public class FooClient {
         users = new Users(getBaseUri(), getClient());
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return ClientBuilder.newClient();
     }
 

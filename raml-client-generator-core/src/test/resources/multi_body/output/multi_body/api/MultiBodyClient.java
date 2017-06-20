@@ -20,7 +20,7 @@ public class MultiBodyClient {
         cs = new Cs(getBaseUri(), getClient());
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return ClientBuilder.newClient();
     }
 

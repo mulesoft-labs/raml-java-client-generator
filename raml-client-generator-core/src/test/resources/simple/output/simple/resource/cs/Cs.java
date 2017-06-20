@@ -20,7 +20,7 @@ public class Cs {
         login = new Login(getBaseUri(), getClient());
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return this.client;
     }
 

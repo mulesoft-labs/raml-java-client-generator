@@ -21,7 +21,7 @@ public class Id {
         bar = new Bar(getBaseUri(), getClient());
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return this.client;
     }
 

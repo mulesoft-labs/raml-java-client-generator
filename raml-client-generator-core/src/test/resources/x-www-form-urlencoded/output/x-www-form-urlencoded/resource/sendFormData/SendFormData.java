@@ -21,7 +21,7 @@ public class SendFormData {
         this.client = client;
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return this.client;
     }
 

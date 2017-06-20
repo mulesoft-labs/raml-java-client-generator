@@ -13,7 +13,7 @@ public class NoSecuredClientGenerator implements SecurityClientGenerator {
     @Override
     public JMethod createClient(JDefinedClass containerClass) {
         JCodeModel cm = new JCodeModel();
-        JMethod getClient = containerClass.method(JMod.PRIVATE, Client.class, "getClient");
+        JMethod getClient = containerClass.method(JMod.PROTECTED, Client.class, "getClient");
         getClient.body()._return(cm.anonymousClass(ClientBuilder.class).staticInvoke("newClient"));
         return getClient;
     }
