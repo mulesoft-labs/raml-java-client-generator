@@ -14,6 +14,7 @@ import org.mule.raml.model.SecurityScheme;
 import org.mule.raml.model.TypeFieldDefinition;
 import org.raml.v2.api.model.v08.api.Api;
 import org.raml.v2.api.model.v08.api.GlobalSchema;
+import org.raml.v2.api.model.v08.security.SecuritySchemeRef;
 import org.raml.v2.api.model.v08.system.types.FullUriTemplateString;
 
 import javax.annotation.Nullable;
@@ -107,6 +108,16 @@ public class ApiModelImpl implements ApiModel
     public String getTitle()
     {
         return api.title();
+    }
+
+    @Override
+    public List<SecurityScheme> getSecuredBy() {
+        List<SecuritySchemeRef> securitySchemeRefs = api.securedBy();
+        List<SecurityScheme> result = new ArrayList<>();
+        for (SecuritySchemeRef securitySchemeRef : securitySchemeRefs) {
+            result.add(new SecuritySchemeImpl(securitySchemeRef.securityScheme()));
+        }
+        return result;
     }
 
 }

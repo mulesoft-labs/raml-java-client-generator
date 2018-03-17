@@ -50,6 +50,7 @@ public class RamlJavaClientGenerator {
     public static final String BASE_URL_FIELD_NAME = "baseUrl";
     public static final String URI_PARAM_FIELD_NAME = "uriParam";
     public static final String GET_BASE_URI_METHOD_NAME = "getBaseUri";
+    public static final String CLIENT_FIELD_NAME = "_client";
 
     // Types
     private static Map<String, Class<?>> CLASS_BY_TYPE = new HashMap<>();
@@ -180,7 +181,7 @@ public class RamlJavaClientGenerator {
 
         }
 
-        buildResourceClass(cm, containerClass, containerConstructor, resources, "", getClientMethod);
+        buildResourceClass(cm, containerClass, containerConstructor, resources, "", getClientMethod, raml);
 
         if (!targetFolder.exists()) {
             targetFolder.mkdirs();
@@ -191,7 +192,7 @@ public class RamlJavaClientGenerator {
     }
 
     private void buildResourceClass(JCodeModel cm, JDefinedClass containerClass, JMethod containerConstructor, Map<String, Resource> resources, String containerResource,
-                                    JMethod getClientMethod) throws JClassAlreadyExistsException, IOException {
+                                    JMethod getClientMethod, ApiModel apiModel) throws JClassAlreadyExistsException, IOException {
 
         for (Map.Entry<String, Resource> stringResourceEntry : resources.entrySet()) {
             JDefinedClass parentClass = containerClass;
@@ -218,13 +219,13 @@ public class RamlJavaClientGenerator {
                         }
 
                         final JMethod getClient = resourceClass.method(JMod.PROTECTED, Client.class, "getClient");
-                        getClient.body()._return(JExpr._this().ref("client"));
+                        getClient.body()._return(JExpr._this().ref(CLIENT_FIELD_NAME));
 
                         final JFieldVar baseUrlField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + BASE_URL_FIELD_NAME);
-                        final JFieldVar clientField = resourceClass.field(JMod.PRIVATE, Client.class, "client");
+                        final JFieldVar clientField = resourceClass.field(JMod.PRIVATE, Client.class, CLIENT_FIELD_NAME);
                         resourceConstructor = resourceClass.constructor(JMod.PUBLIC);
                         final JVar baseUrlParam = resourceConstructor.param(String.class, BASE_URL_FIELD_NAME);
-                        final JVar clientParam = resourceConstructor.param(Client.class, "client");
+                        final JVar clientParam = resourceConstructor.param(Client.class, CLIENT_FIELD_NAME);
                         final JMethod getResourceMethod = resourceClass.method(JMod.PRIVATE, String.class, GET_BASE_URI_METHOD_NAME);
                         if (isURIParameter(resourceName)) {
                             //Add constructor additional parameter for uriParam
@@ -269,8 +270,8 @@ public class RamlJavaClientGenerator {
 
                     //Only last resource should trigger children and actions
                     if (i == resourceParts.length - 1) {
-                        buildActionMethods(cm, resourceClass, resource, resourcePath, resourceName);
-                        buildResourceClass(cm, resourceClass, resourceConstructor, resource.getResources(), resourcePath, getClientMethod);
+                        buildActionMethods(cm, resourceClass, resource, resourcePath, resourceName, apiModel);
+                        buildResourceClass(cm, resourceClass, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, apiModel);
                     }
                 }
             }
@@ -285,7 +286,7 @@ public class RamlJavaClientGenerator {
         return resourceName.startsWith("{") && resourceName.endsWith("}");
     }
 
-    private void buildActionMethods(JCodeModel cm, JDefinedClass resourceClass, Resource resource, String resourcePath, String resourceName)
+    private void buildActionMethods(JCodeModel cm, JDefinedClass resourceClass, Resource resource, String resourcePath, String resourceName, ApiModel apiModel)
             throws IOException, JClassAlreadyExistsException {
         final Map<ActionType, Action> actions = resource.getActions();
         for (Map.Entry<ActionType, Action> actionTypeActionEntry : actions.entrySet()) {
@@ -299,10 +300,10 @@ public class RamlJavaClientGenerator {
             final JType queryParameterType = buildQueryParametersType(cm, actionType, action, resourcePath, resourceName);
             final JType headerParameterType = buildHeaderType(cm, resourcePath, resourceName, actionType, action);
             if (bodiesType.isEmpty()) {
-                clientGenerator.callHttpMethod(cm, resourceClass, returnType, null, queryParameterType, headerParameterType, action);
+                clientGenerator.callHttpMethod(cm, resourceClass, returnType, null, queryParameterType, headerParameterType, action,apiModel);
             } else {
                 for (JBodyType bodyType : bodiesType) {
-                    clientGenerator.callHttpMethod(cm, resourceClass, returnType, bodyType, queryParameterType, headerParameterType, action);
+                    clientGenerator.callHttpMethod(cm, resourceClass, returnType, bodyType, queryParameterType, headerParameterType, action, apiModel);
                 }
             }
         }

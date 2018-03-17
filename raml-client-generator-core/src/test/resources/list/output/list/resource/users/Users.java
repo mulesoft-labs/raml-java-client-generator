@@ -14,15 +14,15 @@ import list.resource.users.model.UsersGETResponse;
 public class Users {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
 
-    public Users(String baseUrl, Client client) {
+    public Users(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/users");
-        this.client = client;
+        this._client = _client;
     }
 
     protected Client getClient() {
-        return this.client;
+        return this._client;
     }
 
     private String getBaseUri() {
@@ -34,7 +34,7 @@ public class Users {
      * 
      */
     public List<UsersGETResponse> get() {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {

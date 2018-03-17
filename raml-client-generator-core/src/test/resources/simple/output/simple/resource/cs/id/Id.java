@@ -12,17 +12,17 @@ import simple.resource.cs.id.bar.Bar;
 public class Id {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
     public final Bar bar;
 
-    public Id(String baseUrl, Client client, String uriParam) {
+    public Id(String baseUrl, Client _client, String uriParam) {
         _baseUrl = (baseUrl +("/"+ uriParam));
-        this.client = client;
+        this._client = _client;
         bar = new Bar(getBaseUri(), getClient());
     }
 
     protected Client getClient() {
-        return this.client;
+        return this._client;
     }
 
     private String getBaseUri() {
@@ -30,7 +30,7 @@ public class Id {
     }
 
     public void get() {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {

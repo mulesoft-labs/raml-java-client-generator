@@ -13,15 +13,15 @@ import global-type-body.model.Auth;
 public class Login {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
 
-    public Login(String baseUrl, Client client) {
+    public Login(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/login");
-        this.client = client;
+        this._client = _client;
     }
 
     protected Client getClient() {
-        return this.client;
+        return this._client;
     }
 
     private String getBaseUri() {
@@ -29,7 +29,7 @@ public class Login {
     }
 
     public String post(Auth body) {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.post(Entity.json(body));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {

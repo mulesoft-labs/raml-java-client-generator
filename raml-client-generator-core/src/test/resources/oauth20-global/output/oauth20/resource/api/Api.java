@@ -1,20 +1,23 @@
 
-package global-type-return.resource.cs.login;
+package oauth20.resource.api;
 
+import java.util.List;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-import global-type-return.exceptions.FooException;
+import oauth20.exceptions.CoreServicesAPIReferenceException;
+import oauth20.resource.api.model.ApiGETResponse;
 
-public class Login {
+public class Api {
 
     private String _baseUrl;
     private Client _client;
 
-    public Login(String baseUrl, Client _client) {
-        _baseUrl = (baseUrl +"/login");
+    public Api(String baseUrl, Client _client) {
+        _baseUrl = (baseUrl +"/api");
         this._client = _client;
     }
 
@@ -26,15 +29,24 @@ public class Login {
         return _baseUrl;
     }
 
-    public global-type-return.model.User post() {
+    /**
+     * Returns the list of all users
+     * 
+     */
+    public List<ApiGETResponse> get(String token) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.post(null);
+        invocationBuilder.header("Authorization", ("Bearer "+ token));
+        Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new CoreServicesAPIReferenceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
-        return response.readEntity(global-type-return.model.User.class);
+        return response.readEntity(new GenericType<List<ApiGETResponse>>() {
+
+
+        }
+        );
     }
 
 }

@@ -15,15 +15,15 @@ import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 public class Exec {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
 
-    public Exec(String baseUrl, Client client) {
+    public Exec(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/exec");
-        this.client = client;
+        this._client = _client;
     }
 
     protected Client getClient() {
-        return this.client;
+        return this._client;
     }
 
     private String getBaseUri() {
@@ -31,7 +31,7 @@ public class Exec {
     }
 
     public void post(ExecPOSTBody body) {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         FormDataMultiPart multiPart = new FormDataMultiPart();
         if (body.getFile()!= null) {

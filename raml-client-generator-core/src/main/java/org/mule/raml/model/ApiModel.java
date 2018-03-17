@@ -28,4 +28,6 @@ public interface ApiModel extends Serializable
     List<DocumentationItem> getDocumentation();
 
     String getTitle();
+
+    List<SecurityScheme> getSecuredBy();
 }

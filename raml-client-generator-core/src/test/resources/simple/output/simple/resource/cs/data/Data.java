@@ -7,17 +7,17 @@ import simple.resource.cs.data.foo.Foo;
 public class Data {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
     public final Foo foo;
 
-    public Data(String baseUrl, Client client) {
+    public Data(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/data");
-        this.client = client;
+        this._client = _client;
         foo = new Foo(getBaseUri(), getClient());
     }
 
     protected Client getClient() {
-        return this.client;
+        return this._client;
     }
 
     private String getBaseUri() {

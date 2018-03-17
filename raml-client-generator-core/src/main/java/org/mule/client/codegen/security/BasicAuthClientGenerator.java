@@ -2,6 +2,7 @@ package org.mule.client.codegen.security;
 
 import com.sun.codemodel.*;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.mule.client.codegen.RamlJavaClientGenerator;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -12,7 +13,6 @@ public class BasicAuthClientGenerator implements SecurityClientGenerator {
     private List<JFieldVar> generatedRequiredField;
 
     public BasicAuthClientGenerator(List<JFieldVar> generatedRequiredField) {
-
         this.generatedRequiredField = generatedRequiredField;
     }
 
@@ -22,7 +22,7 @@ public class BasicAuthClientGenerator implements SecurityClientGenerator {
         JMethod getClient = containerClass.method(JMod.PROTECTED, Client.class, "getClient");
         JBlock body = getClient.body();
 
-        JVar decl = body.decl(JMod.FINAL, cm._ref(Client.class), "client", cm.anonymousClass(ClientBuilder.class).staticInvoke("newClient"));
+        JVar decl = body.decl(JMod.FINAL, cm._ref(Client.class), RamlJavaClientGenerator.CLIENT_FIELD_NAME, cm.anonymousClass(ClientBuilder.class).staticInvoke("newClient"));
         JInvocation invoke = cm.ref(HttpAuthenticationFeature.class).staticInvoke("basic");
 
         for (JFieldVar var : generatedRequiredField) {
