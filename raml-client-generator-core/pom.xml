@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.raml</groupId>
             <artifactId>raml-parser-2</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.19</version>
             <scope>compile</scope>
         </dependency>
         <!--All this are dependencies from raml-parser don't know why are not being taken automatically-->
