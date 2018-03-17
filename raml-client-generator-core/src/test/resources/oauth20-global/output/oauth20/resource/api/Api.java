@@ -33,10 +33,10 @@ public class Api {
      * Returns the list of all users
      * 
      */
-    public List<ApiGETResponse> get(String token) {
+    public List<ApiGETResponse> get(String authorizationToken) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
-        invocationBuilder.header("Authorization", ("Bearer "+ token));
+        invocationBuilder.header("Authorization", ("Bearer "+ authorizationToken));
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();

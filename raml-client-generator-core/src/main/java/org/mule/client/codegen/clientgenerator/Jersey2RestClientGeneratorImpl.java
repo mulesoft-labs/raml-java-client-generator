@@ -27,7 +27,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
     private static final String BODY_PARAM_NAME = "body";
     private static final String HEADERS_PARAM_NAME = "headers";
-    private static final String TOKEN_PARAM_NAME = "token";
+    private static final String TOKEN_PARAM_NAME = "authorizationToken";
     private static final String QUERY_PARAMETERS_PARAM_NAME = "queryParameters";
 
     private static JClass exceptionClass;
