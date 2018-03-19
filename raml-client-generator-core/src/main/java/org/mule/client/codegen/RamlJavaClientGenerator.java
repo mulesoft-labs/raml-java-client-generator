@@ -501,37 +501,22 @@ public class RamlJavaClientGenerator {
 
 
     private RuleFactory getRuleFactory(final SourceType sourceType) {
-        final DefaultGenerationConfig generationConfig = new DefaultGenerationConfig() {
-            @Override
-            public boolean isGenerateBuilders() {
-                return true;
-            }
+        final DefaultGenerationConfig generationConfig = new JsonSchemaGeneratorConfiguration(sourceType);
 
-            @Override
-            public boolean isIncludeHashcodeAndEquals() {
-                return true;
-            }
-
-            @Override
-            public boolean isIncludeToString() {
-                return true;
-            }
-
-            @Override
-            public boolean isInitializeCollections() {
-                return true;
-            }
-
-            @Override
-            public SourceType getSourceType() {
-                return sourceType;
-            }
-        };
-
-        return new RuleFactory(new JsonSchemaGeneratorConfiguration(), new Jackson2Annotator(generationConfig), new SchemaStore());
+        return new RuleFactory(generationConfig, new Jackson2Annotator(generationConfig), new SchemaStore());
     }
 
     private static class JsonSchemaGeneratorConfiguration extends DefaultGenerationConfig {
+        private SourceType sourceType;
+
+        public JsonSchemaGeneratorConfiguration(SourceType sourceType) {
+            this.sourceType = sourceType;
+        }
+
+        @Override
+        public SourceType getSourceType() {
+            return this.sourceType;
+        }
 
         @Override
         public boolean isUseLongIntegers() {
