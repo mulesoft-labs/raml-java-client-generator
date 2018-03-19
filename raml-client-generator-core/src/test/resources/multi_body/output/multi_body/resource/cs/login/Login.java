@@ -48,7 +48,7 @@ public class Login {
         return response.readEntity(multi_body.resource.cs.login.model.LoginPOSTResponse.class);
     }
 
-    public Object get() {
+    public multi_body.resource.cs.login.model.LoginGETResponse get() {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.get();
@@ -56,7 +56,7 @@ public class Login {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new MultiBodyException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
-        return response.getEntity();
+        return response.readEntity(multi_body.resource.cs.login.model.LoginGETResponse.class);
     }
 
 }

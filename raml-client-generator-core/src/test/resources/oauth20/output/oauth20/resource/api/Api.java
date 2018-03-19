@@ -1,12 +1,15 @@
 
 package oauth20.resource.api;
 
+import java.util.List;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 import oauth20.exceptions.CoreServicesAPIReferenceException;
+import oauth20.resource.api.model.ApiGETResponse;
 
 public class Api {
 
@@ -30,7 +33,7 @@ public class Api {
      * Returns the list of all users
      * 
      */
-    public Object get(String authorizationToken) {
+    public List<ApiGETResponse> get(String authorizationToken) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         invocationBuilder.header("Authorization", ("Bearer "+ authorizationToken));
@@ -39,7 +42,11 @@ public class Api {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new CoreServicesAPIReferenceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
-        return response.getEntity();
+        return response.readEntity(new GenericType<List<ApiGETResponse>>() {
+
+
+        }
+        );
     }
 
 }
