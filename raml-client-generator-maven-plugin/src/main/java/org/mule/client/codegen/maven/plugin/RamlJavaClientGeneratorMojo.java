@@ -20,16 +20,16 @@ import java.util.List;
 public class RamlJavaClientGeneratorMojo extends AbstractMojo {
 
 
-    @Parameter(defaultValue = "${project.build.resources[0].directory}/api.raml")
+    @Parameter(defaultValue = "${project.build.resources[0].directory}/api.raml", property="RamlJavaClientGeneratorMojo.ramlFile")
     private String ramlFile;
 
-    @Parameter()
+    @Parameter(property="RamlJavaClientGeneratorMojo.ramlURL")
     private String ramlURL;
 
-    @Parameter(required = true)
+    @Parameter(required = true, property="RamlJavaClientGeneratorMojo.basePackage")
     private String basePackage;
 
-    @Parameter(defaultValue = "${project.build.directory}/generated-sources")
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources", property="RamlJavaClientGeneratorMojo.outputDir")
     private String outputDir;
 
 
