@@ -1,15 +1,12 @@
 
 package list.resource.users;
 
-import java.util.List;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 import list.exceptions.FooException;
-import list.resource.users.model.UsersGETResponse;
 
 public class Users {
 
@@ -33,7 +30,7 @@ public class Users {
      * Returns the list of all users
      * 
      */
-    public List<UsersGETResponse> get() {
+    public Object get() {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.get();
@@ -41,11 +38,7 @@ public class Users {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
-        return response.readEntity(new GenericType<List<UsersGETResponse>>() {
-
-
-        }
-        );
+        return response.getEntity();
     }
 
 }

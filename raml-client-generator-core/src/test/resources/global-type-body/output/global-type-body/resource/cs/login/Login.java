@@ -8,7 +8,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 import global-type-body.exceptions.FooException;
-import global-type-body.model.Auth;
 
 public class Login {
 
@@ -28,7 +27,7 @@ public class Login {
         return _baseUrl;
     }
 
-    public String post(Auth body) {
+    public String post(String body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.post(Entity.json(body));

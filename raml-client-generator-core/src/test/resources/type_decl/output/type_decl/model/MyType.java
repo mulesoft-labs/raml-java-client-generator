@@ -1,5 +1,5 @@
 
-package simple.resource.cs.login.model;
+package type_decl.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,12 +15,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-    "userId"
+    "name"
 })
-public class LoginGETResponse {
+public class MyType {
 
-    @JsonProperty("userId")
-    private String userId;
+    @JsonProperty("name")
+    private String name;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -28,46 +28,31 @@ public class LoginGETResponse {
      * No args constructor for use in serialization
      * 
      */
-    public LoginGETResponse() {
+    public MyType() {
     }
 
     /**
      * 
-     * @param userId
+     * @param name
      */
-    public LoginGETResponse(String userId) {
+    public MyType(String name) {
         super();
-        this.userId = userId;
+        this.name = name;
     }
 
-    /**
-     * 
-     * @return
-     *     The userId
-     */
-    @JsonProperty("userId")
-    public String getUserId() {
-        return userId;
+    @JsonProperty("name")
+    public String getName() {
+        return name;
     }
 
-    /**
-     * 
-     * @param userId
-     *     The userId
-     */
-    @JsonProperty("userId")
-    public void setUserId(String userId) {
-        this.userId = userId;
+    @JsonProperty("name")
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public LoginGETResponse withUserId(String userId) {
-        this.userId = userId;
+    public MyType withName(String name) {
+        this.name = name;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter
@@ -80,14 +65,19 @@ public class LoginGETResponse {
         this.additionalProperties.put(name, value);
     }
 
-    public LoginGETResponse withAdditionalProperty(String name, Object value) {
+    public MyType withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
     }
 
     @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("name", name).append("additionalProperties", additionalProperties).toString();
+    }
+
+    @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(userId).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(name).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -95,11 +85,11 @@ public class LoginGETResponse {
         if (other == this) {
             return true;
         }
-        if ((other instanceof LoginGETResponse) == false) {
+        if ((other instanceof MyType) == false) {
             return false;
         }
-        LoginGETResponse rhs = ((LoginGETResponse) other);
-        return new EqualsBuilder().append(userId, rhs.userId).append(additionalProperties, rhs.additionalProperties).isEquals();
+        MyType rhs = ((MyType) other);
+        return new EqualsBuilder().append(name, rhs.name).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

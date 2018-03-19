@@ -59,8 +59,6 @@ public class Auth {
      * 
      * (Required)
      * 
-     * @return
-     *     The accessToken
      */
     @JsonProperty("access_token")
     public String getAccessToken() {
@@ -71,8 +69,6 @@ public class Auth {
      * 
      * (Required)
      * 
-     * @param accessToken
-     *     The access_token
      */
     @JsonProperty("access_token")
     public void setAccessToken(String accessToken) {
@@ -88,8 +84,6 @@ public class Auth {
      * 
      * (Required)
      * 
-     * @return
-     *     The tokenType
      */
     @JsonProperty("token_type")
     public String getTokenType() {
@@ -100,8 +94,6 @@ public class Auth {
      * 
      * (Required)
      * 
-     * @param tokenType
-     *     The token_type
      */
     @JsonProperty("token_type")
     public void setTokenType(String tokenType) {
@@ -111,11 +103,6 @@ public class Auth {
     public Auth withTokenType(String tokenType) {
         this.tokenType = tokenType;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter
@@ -134,8 +121,13 @@ public class Auth {
     }
 
     @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("accessToken", accessToken).append("tokenType", tokenType).append("additionalProperties", additionalProperties).toString();
+    }
+
+    @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(accessToken).append(tokenType).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(additionalProperties).append(accessToken).append(tokenType).toHashCode();
     }
 
     @Override
@@ -147,7 +139,7 @@ public class Auth {
             return false;
         }
         Auth rhs = ((Auth) other);
-        return new EqualsBuilder().append(accessToken, rhs.accessToken).append(tokenType, rhs.tokenType).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(additionalProperties, rhs.additionalProperties).append(accessToken, rhs.accessToken).append(tokenType, rhs.tokenType).isEquals();
     }
 
 }
