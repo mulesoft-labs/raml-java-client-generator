@@ -24,7 +24,7 @@ public class DataWeaveAPIClient {
         this("http://dataweave-api.cloudhub.io/api");
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return ClientBuilder.newClient();
     }
 

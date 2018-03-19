@@ -14,15 +14,15 @@ import x-www-form-urlencoded.resource.sendFormData.model.SendFormDataPOSTBody;
 public class SendFormData {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
 
-    public SendFormData(String baseUrl, Client client) {
+    public SendFormData(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/sendFormData");
-        this.client = client;
+        this._client = _client;
     }
 
-    private Client getClient() {
-        return this.client;
+    protected Client getClient() {
+        return this._client;
     }
 
     private String getBaseUri() {
@@ -30,7 +30,7 @@ public class SendFormData {
     }
 
     public void post(SendFormDataPOSTBody body) {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
         MultivaluedMap multiValuedMap = new MultivaluedHashMap();
         if (body.getParam1()!= null) {

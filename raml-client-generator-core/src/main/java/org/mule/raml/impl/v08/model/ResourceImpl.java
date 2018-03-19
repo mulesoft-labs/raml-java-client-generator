@@ -10,40 +10,44 @@ import org.mule.raml.model.Action;
 import org.mule.raml.model.ActionType;
 import org.mule.raml.model.Resource;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
+import org.mule.raml.model.SecurityScheme;
 import org.raml.v2.api.model.v08.methods.Method;
+import org.raml.v2.api.model.v08.security.SecuritySchemeRef;
 
-public class ResourceImpl implements Resource
-{
+public class ResourceImpl implements Resource {
 
     private org.raml.v2.api.model.v08.resources.Resource resource;
 
-    public ResourceImpl(org.raml.v2.api.model.v08.resources.Resource resource)
-    {
+    public ResourceImpl(org.raml.v2.api.model.v08.resources.Resource resource) {
         this.resource = resource;
     }
 
-    @Override public String getDescription()
-    {
+    @Override
+    public String getDescription() {
         return null;
     }
 
     @Override
-    public String getUri()
-    {
+    public List<SecurityScheme> getSecuredBy() {
+        List<SecuritySchemeRef> securitySchemeRefs = resource.securedBy();
+        List<SecurityScheme> result = new ArrayList<>();
+        for (SecuritySchemeRef securitySchemeRef : securitySchemeRefs) {
+            result.add(new SecuritySchemeImpl(securitySchemeRef.securityScheme()));
+        }
+        return result;
+    }
+
+    @Override
+    public String getUri() {
         return resource.resourcePath();
     }
 
     @Override
-    public Action getAction(String name)
-    {
-        for (Method method : resource.methods())
-        {
-            if (method.method().equals(name))
-            {
+    public Action getAction(String name) {
+        for (Method method : resource.methods()) {
+            if (method.method().equals(name)) {
                 return new ActionImpl(method);
             }
         }
@@ -51,30 +55,25 @@ public class ResourceImpl implements Resource
     }
 
     @Override
-    public Map<ActionType, Action> getActions()
-    {
+    public Map<ActionType, Action> getActions() {
         Map<ActionType, Action> map = new LinkedHashMap<>();
-        for (Method method : resource.methods())
-        {
+        for (Method method : resource.methods()) {
             map.put(ActionType.valueOf(method.method().toUpperCase()), new ActionImpl(method));
         }
         return map;
     }
 
     @Override
-    public Map<String, Resource> getResources()
-    {
+    public Map<String, Resource> getResources() {
         Map<String, Resource> result = new HashMap<>();
-        for (org.raml.v2.api.model.v08.resources.Resource item : resource.resources())
-        {
+        for (org.raml.v2.api.model.v08.resources.Resource item : resource.resources()) {
             result.put(item.relativeUri().value(), new ResourceImpl(item));
         }
         return result;
     }
 
     @Override
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return resource.displayName();
     }
 

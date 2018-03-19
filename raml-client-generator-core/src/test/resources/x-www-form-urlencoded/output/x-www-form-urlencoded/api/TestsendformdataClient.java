@@ -20,7 +20,7 @@ public class TestsendformdataClient {
         sendFormData = new SendFormData(getBaseUri(), getClient());
     }
 
-    private Client getClient() {
+    protected Client getClient() {
         return ClientBuilder.newClient();
     }
 

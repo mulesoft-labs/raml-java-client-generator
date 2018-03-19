@@ -4,33 +4,36 @@ import com.sun.codemodel.*;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import org.mule.client.codegen.RamlJavaClientGenerator;
 import org.mule.client.codegen.RestClientGenerator;
 import org.mule.client.codegen.model.JBodyType;
 import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
+import org.mule.client.codegen.utils.SecuritySchemesHelper;
 import org.mule.client.codegen.utils.TypeConstants;
-import org.mule.raml.model.Action;
-import org.mule.raml.model.ActionType;
-import org.mule.raml.model.MimeType;
-import org.mule.raml.model.TypeFieldDefinition;
+import org.mule.raml.model.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response;
 import java.util.Map;
+
+import static org.mule.client.codegen.utils.SecuritySchemesHelper.isOauth20SecuredBy;
 
 
 public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
     private static final String BODY_PARAM_NAME = "body";
     private static final String HEADERS_PARAM_NAME = "headers";
+    private static final String TOKEN_PARAM_NAME = "authorizationToken";
     private static final String QUERY_PARAMETERS_PARAM_NAME = "queryParameters";
 
     private static JClass exceptionClass;
 
     @Override
-    public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action) {
+    public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action, ApiModel apiModel) {
         if (action.getType() == ActionType.PATCH) {
             System.out.println("Patch is not supported");
             return;
@@ -62,8 +65,15 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             headerParameterParam = null;
         }
 
+        final JVar authenticationParam;
+        if (isOauth20SecuredBy(action.getResource()) || isOauth20SecuredBy(apiModel)) {
+            authenticationParam = actionMethod.param(String.class, TOKEN_PARAM_NAME);
+        } else {
+            authenticationParam = null;
+        }
+
         final JBlock body = actionMethod.body();
-        final JVar targetVal = body.decl(cm.ref(WebTarget.class), "target", JExpr._this().ref("client").invoke("target").arg(JExpr.invoke("getBaseUri")));
+        final JVar targetVal = body.decl(cm.ref(WebTarget.class), "target", JExpr._this().ref(RamlJavaClientGenerator.CLIENT_FIELD_NAME).invoke("target").arg(JExpr.invoke("getBaseUri")));
 
         if (queryParameterParam != null && action.getQueryParameters() != null && !action.getQueryParameters().isEmpty()) {
             final Map<String, TypeFieldDefinition> queryParameters = action.getQueryParameters();
@@ -84,6 +94,10 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                 body._if(headerParameterParam.invoke(NameHelper.getGetterName(headerParameter)).ne(JExpr._null()))._then()
                         .invoke(invocationBuilder, "header").arg(headerParameter).arg(headerParameterParam.invoke(NameHelper.getGetterName(headerParameter)));
             }
+        }
+
+        if (authenticationParam != null) {
+            body.add(invocationBuilder.invoke("header").arg("Authorization").arg(JExpr.lit("Bearer ").plus(authenticationParam)));
         }
 
         final JInvocation methodInvocation = JExpr.invoke(invocationBuilder, action.getType().name().toLowerCase());
@@ -153,9 +167,9 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
     @Override
     public JMethod createClient(JCodeModel cm, JDefinedClass resourceClass, JMethod baseUrlMethod) {
-        final JMethod clientMethod = resourceClass.method(JMod.PRIVATE, WebTarget.class, "getClient");
+        final JMethod clientMethod = resourceClass.method(JMod.PROTECTED, WebTarget.class, "getClient");
         final JBlock methodBody = clientMethod.body();
-        final JVar client = methodBody.decl(JMod.FINAL, cm.ref(Client.class), "client", cm.directClass(ClientBuilder.class.getName()).staticInvoke("newClient"));
+        final JVar client = methodBody.decl(JMod.FINAL, cm.ref(Client.class), RamlJavaClientGenerator.CLIENT_FIELD_NAME, cm.directClass(ClientBuilder.class.getName()).staticInvoke("newClient"));
         final JVar target = methodBody.decl(JMod.FINAL, cm.ref(WebTarget.class), "target", client.invoke("target").arg(JExpr.invoke(baseUrlMethod)));
         methodBody._return(target);
         return clientMethod;

@@ -59,8 +59,6 @@ public class LoginPOSTResponse {
      * 
      * (Required)
      * 
-     * @return
-     *     The username
      */
     @JsonProperty("username")
     public String getUsername() {
@@ -71,8 +69,6 @@ public class LoginPOSTResponse {
      * 
      * (Required)
      * 
-     * @param username
-     *     The username
      */
     @JsonProperty("username")
     public void setUsername(String username) {
@@ -88,8 +84,6 @@ public class LoginPOSTResponse {
      * 
      * (Required)
      * 
-     * @return
-     *     The password
      */
     @JsonProperty("password")
     public String getPassword() {
@@ -100,8 +94,6 @@ public class LoginPOSTResponse {
      * 
      * (Required)
      * 
-     * @param password
-     *     The password
      */
     @JsonProperty("password")
     public void setPassword(String password) {
@@ -111,11 +103,6 @@ public class LoginPOSTResponse {
     public LoginPOSTResponse withPassword(String password) {
         this.password = password;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter
@@ -134,8 +121,13 @@ public class LoginPOSTResponse {
     }
 
     @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("username", username).append("password", password).append("additionalProperties", additionalProperties).toString();
+    }
+
+    @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(username).append(password).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(password).append(additionalProperties).append(username).toHashCode();
     }
 
     @Override
@@ -147,7 +139,7 @@ public class LoginPOSTResponse {
             return false;
         }
         LoginPOSTResponse rhs = ((LoginPOSTResponse) other);
-        return new EqualsBuilder().append(username, rhs.username).append(password, rhs.password).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(password, rhs.password).append(additionalProperties, rhs.additionalProperties).append(username, rhs.username).isEquals();
     }
 
 }

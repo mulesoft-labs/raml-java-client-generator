@@ -6,6 +6,7 @@
  */
 package org.mule.raml.model;
 
+import java.util.List;
 import java.util.Map;
 
 public interface Resource
@@ -21,4 +22,6 @@ public interface Resource
     String getDisplayName();
 
     String getDescription();
+
+    List<SecurityScheme> getSecuredBy();
 }

@@ -25,6 +25,7 @@ import org.raml.v2.api.model.v10.api.Api;
 import org.raml.v2.api.model.v10.datamodel.AnyTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.ExternalTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
+import org.raml.v2.api.model.v10.security.SecuritySchemeRef;
 import org.raml.v2.api.model.v10.system.types.AnnotableSimpleType;
 
 import javax.annotation.Nullable;
@@ -99,12 +100,7 @@ public class ApiModelImpl implements ApiModel
         {
             return ((ExternalTypeDeclaration) typeDeclaration).schemaContent();
         }
-        if (typeDeclaration instanceof AnyTypeDeclaration)
-        {
-            return null;
-        }
-        //return non-null value in order to detect that a schema was defined
-        return "[yaml-type-flag]";
+        return typeDeclaration.toJsonSchema();
     }
 
     @Override
@@ -131,6 +127,16 @@ public class ApiModelImpl implements ApiModel
     {
         final AnnotableSimpleType<String> title = api.title();
         return title != null ? title.value() : null;
+    }
+
+    @Override
+    public List<SecurityScheme> getSecuredBy() {
+        List<SecuritySchemeRef> securitySchemeRefs = api.securedBy();
+        List<SecurityScheme> result = new ArrayList<>();
+        for (SecuritySchemeRef securitySchemeRef : securitySchemeRefs) {
+            result.add(new SecuritySchemeImpl(securitySchemeRef.securityScheme()));
+        }
+        return result;
     }
 
 }

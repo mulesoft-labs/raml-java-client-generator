@@ -13,15 +13,15 @@ import simple.resource.cs.data.foo.model.FooGETQueryParam;
 public class Foo {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
 
-    public Foo(String baseUrl, Client client) {
+    public Foo(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/foo");
-        this.client = client;
+        this._client = _client;
     }
 
-    private Client getClient() {
-        return this.client;
+    protected Client getClient() {
+        return this._client;
     }
 
     private String getBaseUri() {
@@ -29,7 +29,7 @@ public class Foo {
     }
 
     public void get(FooGETQueryParam queryParameters, FooGETHeader headers) {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         if (queryParameters.getQ()!= null) {
             target = target.queryParam("q", queryParameters.getQ());
         }

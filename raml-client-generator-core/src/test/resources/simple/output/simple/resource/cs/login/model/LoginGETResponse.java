@@ -40,21 +40,11 @@ public class LoginGETResponse {
         this.userId = userId;
     }
 
-    /**
-     * 
-     * @return
-     *     The userId
-     */
     @JsonProperty("userId")
     public String getUserId() {
         return userId;
     }
 
-    /**
-     * 
-     * @param userId
-     *     The userId
-     */
     @JsonProperty("userId")
     public void setUserId(String userId) {
         this.userId = userId;
@@ -63,11 +53,6 @@ public class LoginGETResponse {
     public LoginGETResponse withUserId(String userId) {
         this.userId = userId;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter
@@ -83,6 +68,11 @@ public class LoginGETResponse {
     public LoginGETResponse withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("userId", userId).append("additionalProperties", additionalProperties).toString();
     }
 
     @Override

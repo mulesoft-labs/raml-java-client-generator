@@ -8,6 +8,7 @@ package org.mule.raml.impl.v10.model;
 
 import static org.mule.raml.impl.v10.model.ApiModelImpl.getTypeAsString;
 
+import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.raml.model.MimeType;
 import org.mule.raml.model.TypeFieldDefinition;
 
@@ -16,37 +17,31 @@ import java.util.List;
 import java.util.Map;
 
 import org.raml.v2.api.model.v10.datamodel.ExampleSpec;
+import org.raml.v2.api.model.v10.datamodel.ExternalTypeDeclaration;
 import org.raml.v2.api.model.v10.datamodel.TypeDeclaration;
 
-public class MimeTypeImpl implements MimeType
-{
+public class MimeTypeImpl implements MimeType {
 
     private TypeDeclaration typeDeclaration;
 
-    public MimeTypeImpl(TypeDeclaration typeDeclaration)
-    {
+    public MimeTypeImpl(TypeDeclaration typeDeclaration) {
         this.typeDeclaration = typeDeclaration;
     }
 
     @Override
-    public String getType()
-    {
+    public String getType() {
         return typeDeclaration.name();
     }
 
     @Override
-    public String getExample()
-    {
+    public String getExample() {
         ExampleSpec example = typeDeclaration.example();
-        if (example != null && example.value() != null)
-        {
+        if (example != null && example.value() != null) {
             return example.value();
         }
         List<ExampleSpec> examples = typeDeclaration.examples();
-        if (examples != null && !examples.isEmpty())
-        {
-            if (examples.get(0).value() != null)
-            {
+        if (examples != null && !examples.isEmpty()) {
+            if (examples.get(0).value() != null) {
                 return examples.get(0).value();
             }
         }
@@ -54,14 +49,19 @@ public class MimeTypeImpl implements MimeType
     }
 
     @Override
-    public String getSchema()
-    {
-        return getTypeAsString(typeDeclaration);
+    public String getSchema() {
+        if (typeDeclaration instanceof ExternalTypeDeclaration) {
+            return ((ExternalTypeDeclaration) typeDeclaration).schemaContent();
+        }
+        if (MimeTypeHelper.isJsonType(this)) {
+            return typeDeclaration.toJsonSchema();
+        }
+        return null;
+
     }
 
     @Override
-    public Map<String, TypeFieldDefinition> getFormParameters()
-    {
+    public Map<String, TypeFieldDefinition> getFormParameters() {
         // no longer supported in RAML 1.0
         return new HashMap<>();
     }

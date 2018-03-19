@@ -9,19 +9,19 @@ import simple.resource.cs.login.Login;
 public class Cs {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
     public final Data data;
     public final Login login;
 
-    public Cs(String baseUrl, Client client) {
+    public Cs(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/cs");
-        this.client = client;
+        this._client = _client;
         data = new Data(getBaseUri(), getClient());
         login = new Login(getBaseUri(), getClient());
     }
 
-    private Client getClient() {
-        return this.client;
+    protected Client getClient() {
+        return this._client;
     }
 
     private String getBaseUri() {

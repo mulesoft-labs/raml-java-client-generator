@@ -1,0 +1,270 @@
+#%RAML 1.0 Library
+
+usage: Type definitions for supported external IdPs
+
+types:
+  GrantType:
+    type: object
+    properties:
+      name: string
+      label: string
+      required: boolean
+      exclude: string[]
+      depends: string[]
+
+  IdentityProviderTypes:
+    type: object
+    properties:
+      type:
+        type: object
+        properties:
+          description: string
+          name:
+            enum:
+              - openam
+              - ping
+              - ldap
+              - saml
+              - openid
+          version?: string
+
+  ClientProviderTypes:
+    type: object
+    properties:
+      type:
+        type: object
+        properties:
+          description: string
+          name:
+            enum:
+              - openam
+              - ping
+              - openid-dynamic-client
+          version?: string
+
+  AllProviderTypes:
+    type: object
+    properties:
+      type:
+        type: object
+        properties:
+          description: string
+          name:
+            enum:
+              - openam
+              - ping
+              - ldap
+              - saml
+              - openid
+              - openid-dynamic-client
+          version?: string
+
+
+  SAMLProvider:
+    type: object
+    properties:
+      service_provider:
+        type: object
+        properties:
+          name: string
+          url?: string
+          urls?:
+            type: object
+            properties:
+              sign_on: string
+              sign_out: string
+      saml:
+        type: object
+        properties:
+          audience: string
+          bypass_expiration: boolean
+          group_attribute?: string
+          issuer: string
+          name: string
+          public_key: string
+
+  LDAPProvider:
+    type: object
+    properties:
+      connection:
+        type: object
+        properties:
+          binddn: string
+          connectTimeoutSeconds: number
+          host: string
+          operationTimeoutMs: number
+          password: string
+          port: number
+      search_bases:
+        type: object
+        properties:
+          group: string
+          user: string
+      dns:
+        type: object
+        properties:
+          group: string
+          user: string
+      filters:
+        type: object
+        properties:
+          groupByGroupName: string
+          groupsByUsername: string
+          userByEmail: string
+          userByUsername: string
+      user_mapping:
+        type: object
+        properties:
+          email: string
+          firstName: string
+          id: string
+          lastName: string
+          username: string
+      group_mapping:
+        type: object
+        properties:
+          groupName: string
+          id: string
+
+  OpenIDProvider:
+    type: object
+    properties:
+      oidc_provider:
+        type: object
+        properties:
+          client:
+            type: object
+            properties:
+              credentials:
+                type: object
+                properties:
+                  id: string
+                  secret: string
+              urls:
+                type: object
+                properties:
+                  registery: string
+          urls:
+            type: object
+            properties:
+              authorize: string
+              token: string
+              userinfo: string
+
+  OAuthProvider:
+    type: object
+    properties:
+      oauth2_authorization_provider:
+        type: object
+        properties:
+          name: string
+          urls:
+            type: object
+            properties:
+              authorize: string
+          url: string
+      oauth2_client_provider:
+        type: object
+        properties:
+          name: string
+          urls:
+            type: object
+            properties:
+              create: string
+              delete: string
+          url: string
+          scopes: string[]
+          default_scopes: string[]
+          allowed_client_types:
+            type: object
+            properties:
+              Confidential: string[]
+              Public: string[]
+          grant_types: GrantType[]
+          username: string
+          password: string
+          bypass_approval_page: boolean
+      oauth2_token_provider:
+        type: object
+        properties:
+          name: string
+          urls:
+            type: object
+            properties:
+              create: string
+          url: string
+      oauth2_token_validation_provider:
+        type: object
+        properties:
+          name: string
+          urls:
+            type: object
+            properties:
+              validate: string
+          url: string
+          client_id: string
+          client_secret: string
+          token_mapping:
+            type: object
+            properties:
+              email: string
+              firstName: string
+              lastName: string
+              user: string
+              username: string
+
+  OIDCDynamicClientProvider:
+    type: object
+    properties:
+      oidc_dynamic_client:
+        type: object
+        properties:
+          client:
+            type: object
+            properties:
+              registration:
+                type: object
+                properties:
+                  authorization: string
+              urls:
+                type: object
+                properties:
+                  authorize: string
+                  introspect: string
+                  toke: string
+              supported_grant_types: GrantType[]
+
+  PingFederateProvider:
+    type: OAuthProvider
+
+  OpenAMProvider:
+    type: OAuthProvider
+    properties:
+      admin_token:
+        type: object
+        properties:
+          name: string
+          urls:
+            type: object
+            properties:
+              create: string
+          url: string
+          username: string
+          password: string
+
+  ExternalAuthProvider:
+    type: object
+    properties:
+      identity_management: SAMLProvider | LDAPProvider | OpenIDProvider
+      client_management:
+        type: OpenAMProvider | PingFederateProvider | OIDCDynamicClientProvider
+        required: false
+
+  ExternalClientProvider:
+    type: [ClientProviderTypes, OpenAMProvider | PingFederateProvider | OIDCDynamicClientProvider]
+
+  ExternalIdentityProvider:
+    type: [IdentityProviderTypes, SAMLProvider | LDAPProvider | OpenIDProvider]
+
+  ExternalAuthProviderUnion:
+    type: [ AllProviderTypes, SAMLProvider | LDAPProvider | OpenIDProvider | OpenAMProvider | PingFederateProvider | OIDCDynamicClientProvider]

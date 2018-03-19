@@ -11,15 +11,15 @@ import simple.exceptions.FooException;
 public class Bar {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
 
-    public Bar(String baseUrl, Client client) {
+    public Bar(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/bar");
-        this.client = client;
+        this._client = _client;
     }
 
-    private Client getClient() {
-        return this.client;
+    protected Client getClient() {
+        return this._client;
     }
 
     private String getBaseUri() {
@@ -27,7 +27,7 @@ public class Bar {
     }
 
     public String post() {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.post(null);
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {

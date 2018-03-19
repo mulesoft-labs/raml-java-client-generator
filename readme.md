@@ -33,6 +33,21 @@ Using the generated api
 final List<UsersGETResponse> result = ClientAPIClient.create().users.get();
 ```
 
+Customizing the client 
+
+```java
+final ClientAPIClient client = new ClientAPIClient() {
+    @Override
+    protected Client getClient() {
+        final Client client = ClientBuilder.newClient();
+        client.property(ClientProperties.CONNECT_TIMEOUT, 1000);
+        client.property(ClientProperties.READ_TIMEOUT, 1000);
+        return client;
+    }
+};
+client.users.userId("luis").get();
+```
+
 ## Using it from java
 
 It can easily be embedded into your code just add de dependency

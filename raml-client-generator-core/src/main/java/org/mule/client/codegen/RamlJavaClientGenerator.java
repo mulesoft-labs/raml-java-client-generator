@@ -1,8 +1,6 @@
 package org.mule.client.codegen;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.codemodel.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -26,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
@@ -50,6 +47,7 @@ public class RamlJavaClientGenerator {
     public static final String BASE_URL_FIELD_NAME = "baseUrl";
     public static final String URI_PARAM_FIELD_NAME = "uriParam";
     public static final String GET_BASE_URI_METHOD_NAME = "getBaseUri";
+    public static final String CLIENT_FIELD_NAME = "_client";
 
     // Types
     private static Map<String, Class<?>> CLASS_BY_TYPE = new HashMap<>();
@@ -80,6 +78,9 @@ public class RamlJavaClientGenerator {
     }
 
     public void generate(URL ramlFile) throws JClassAlreadyExistsException, IOException {
+        if (ramlFile == null) {
+            throw new IllegalArgumentException("Url can not be null ");
+        }
         globalTypes.clear();
         resourceClasses.clear();
         System.out.println("Start generating for " + ramlFile);
@@ -101,9 +102,10 @@ public class RamlJavaClientGenerator {
 
         for (Map<String, String> schema : schemas) {
             for (Map.Entry<String, String> schemaEntry : schema.entrySet()) {
-                final JType schemaType = generatePojoFromSchema(cm, NameHelper.toValidClassName(schemaEntry.getKey()), basePackage + PACKAGE_SEPARATOR + MODEL_PACKAGE_NAME,
-                        schemaEntry.getValue());
-                globalTypes.put(schemaEntry.getKey(), schemaType);
+                String packageName = basePackage + PACKAGE_SEPARATOR + MODEL_PACKAGE_NAME;
+                String value = schemaEntry.getValue();
+                final JType schemaType = generatePojoFromSchema(cm, NameHelper.toValidClassName(schemaEntry.getKey()), packageName, value, SourceType.JSONSCHEMA);
+                globalTypes.put(value, schemaType);
             }
         }
 
@@ -180,7 +182,7 @@ public class RamlJavaClientGenerator {
 
         }
 
-        buildResourceClass(cm, containerClass, containerConstructor, resources, "", getClientMethod);
+        buildResourceClass(cm, containerClass, containerConstructor, resources, "", getClientMethod, raml);
 
         if (!targetFolder.exists()) {
             targetFolder.mkdirs();
@@ -191,7 +193,7 @@ public class RamlJavaClientGenerator {
     }
 
     private void buildResourceClass(JCodeModel cm, JDefinedClass containerClass, JMethod containerConstructor, Map<String, Resource> resources, String containerResource,
-                                    JMethod getClientMethod) throws JClassAlreadyExistsException, IOException {
+                                    JMethod getClientMethod, ApiModel apiModel) throws JClassAlreadyExistsException, IOException {
 
         for (Map.Entry<String, Resource> stringResourceEntry : resources.entrySet()) {
             JDefinedClass parentClass = containerClass;
@@ -217,14 +219,14 @@ public class RamlJavaClientGenerator {
                             resourceClass.javadoc().add(resourceDescription);
                         }
 
-                        final JMethod getClient = resourceClass.method(JMod.PRIVATE, Client.class, "getClient");
-                        getClient.body()._return(JExpr._this().ref("client"));
+                        final JMethod getClient = resourceClass.method(JMod.PROTECTED, Client.class, "getClient");
+                        getClient.body()._return(JExpr._this().ref(CLIENT_FIELD_NAME));
 
                         final JFieldVar baseUrlField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + BASE_URL_FIELD_NAME);
-                        final JFieldVar clientField = resourceClass.field(JMod.PRIVATE, Client.class, "client");
+                        final JFieldVar clientField = resourceClass.field(JMod.PRIVATE, Client.class, CLIENT_FIELD_NAME);
                         resourceConstructor = resourceClass.constructor(JMod.PUBLIC);
                         final JVar baseUrlParam = resourceConstructor.param(String.class, BASE_URL_FIELD_NAME);
-                        final JVar clientParam = resourceConstructor.param(Client.class, "client");
+                        final JVar clientParam = resourceConstructor.param(Client.class, CLIENT_FIELD_NAME);
                         final JMethod getResourceMethod = resourceClass.method(JMod.PRIVATE, String.class, GET_BASE_URI_METHOD_NAME);
                         if (isURIParameter(resourceName)) {
                             //Add constructor additional parameter for uriParam
@@ -254,7 +256,7 @@ public class RamlJavaClientGenerator {
                                     .assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClientMethod)));
                         }
 
-                        final JMethod baseURIMethod = clientGenerator.resolveBaseURI(cm, getResourceMethod, baseUrlField);
+                        clientGenerator.resolveBaseURI(cm, getResourceMethod, baseUrlField);
                         //this.clientGenerator.createClient(cm, resourceClass, baseURIMethod);
                         this.resourceClasses.put(resourcePath, new ImmutablePair<>(resourceClass, resourceConstructor));
                     } else {
@@ -269,8 +271,8 @@ public class RamlJavaClientGenerator {
 
                     //Only last resource should trigger children and actions
                     if (i == resourceParts.length - 1) {
-                        buildActionMethods(cm, resourceClass, resource, resourcePath, resourceName);
-                        buildResourceClass(cm, resourceClass, resourceConstructor, resource.getResources(), resourcePath, getClientMethod);
+                        buildActionMethods(cm, resourceClass, resource, resourcePath, resourceName, apiModel);
+                        buildResourceClass(cm, resourceClass, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, apiModel);
                     }
                 }
             }
@@ -285,7 +287,7 @@ public class RamlJavaClientGenerator {
         return resourceName.startsWith("{") && resourceName.endsWith("}");
     }
 
-    private void buildActionMethods(JCodeModel cm, JDefinedClass resourceClass, Resource resource, String resourcePath, String resourceName)
+    private void buildActionMethods(JCodeModel cm, JDefinedClass resourceClass, Resource resource, String resourcePath, String resourceName, ApiModel apiModel)
             throws IOException, JClassAlreadyExistsException {
         final Map<ActionType, Action> actions = resource.getActions();
         for (Map.Entry<ActionType, Action> actionTypeActionEntry : actions.entrySet()) {
@@ -299,10 +301,10 @@ public class RamlJavaClientGenerator {
             final JType queryParameterType = buildQueryParametersType(cm, actionType, action, resourcePath, resourceName);
             final JType headerParameterType = buildHeaderType(cm, resourcePath, resourceName, actionType, action);
             if (bodiesType.isEmpty()) {
-                clientGenerator.callHttpMethod(cm, resourceClass, returnType, null, queryParameterType, headerParameterType, action);
+                clientGenerator.callHttpMethod(cm, resourceClass, returnType, null, queryParameterType, headerParameterType, action, apiModel);
             } else {
                 for (JBodyType bodyType : bodiesType) {
-                    clientGenerator.callHttpMethod(cm, resourceClass, returnType, bodyType, queryParameterType, headerParameterType, action);
+                    clientGenerator.callHttpMethod(cm, resourceClass, returnType, bodyType, queryParameterType, headerParameterType, action, apiModel);
                 }
             }
         }
@@ -319,11 +321,8 @@ public class RamlJavaClientGenerator {
                     final MimeType mimeType = bodyEntry.getValue();
                     if (MimeTypeHelper.isJsonType(mimeType)) {
                         final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + RESPONSE_CLASS_SUFFIX;
-                        if (StringUtils.isNotBlank(mimeType.getSchema())) {
-                            returnType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema());
-                        } else if (StringUtils.isNotBlank(mimeType.getExample())) {
-                            returnType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), mimeType.getExample());
-                        } else {
+                        returnType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, mimeType, className);
+                        if (returnType == null) {
                             returnType = cm.ref(String.class);
                         }
                     } else if (MimeTypeHelper.isTextType(mimeType)) {
@@ -370,15 +369,7 @@ public class RamlJavaClientGenerator {
                 final MimeType body = mimeType;
                 final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + BODY_CLASS_SUFFIX;
                 if (MimeTypeHelper.isJsonType(body)) {
-                    if (StringUtils.isNotBlank(body.getSchema())) {
-                        if (globalTypes.containsKey(body.getSchema())) {
-                            bodyType = globalTypes.get(body.getSchema());
-                        } else {
-                            bodyType = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), body.getSchema());
-                        }
-                    } else if (StringUtils.isNotBlank(body.getExample())) {
-                        bodyType = generatePojoFromExample(cm, className, getModelPackage(resourcePath), body.getExample());
-                    }
+                    bodyType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, body, className);
                 } else if (MimeTypeHelper.isTextType(body)) {
                     bodyType = cm.ref(String.class);
                 } else if (MimeTypeHelper.isBinaryType(body)) {
@@ -391,6 +382,26 @@ public class RamlJavaClientGenerator {
             }
         }
         return result;
+    }
+
+    private JType getOrGeneratePojoFromJsonSchema(JCodeModel cm, String resourcePath, MimeType mimeType, String className) throws IOException {
+        JType type = null;
+
+        if (StringUtils.isNotBlank(mimeType.getSchema())) {
+            if (globalTypes.containsKey(mimeType.getSchema())) {
+                type = globalTypes.get(mimeType.getSchema());
+            } else {
+                type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema(), SourceType.JSONSCHEMA);
+            }
+        } else if (StringUtils.isNotBlank(mimeType.getExample())) {
+            type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getExample(), SourceType.JSON);
+        }
+
+        if (type != null && type.fullName().equals("java.lang.Object") && StringUtils.isNotBlank(mimeType.getExample())) {
+            type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getExample(), SourceType.JSON);
+        }
+
+        return type;
     }
 
     private String getModelPackage(String resourcePath) {
@@ -483,36 +494,34 @@ public class RamlJavaClientGenerator {
         return paramsClass;
     }
 
-    public JType generatePojoFromSchema(JCodeModel codeModel, String className, String packageName, String json) throws IOException {
+    public JType generatePojoFromSchema(JCodeModel codeModel, String className, String packageName, String json, SourceType sourceType) throws IOException {
         try {
-            final JPackage jpackage = codeModel._package(packageName);
-            final ObjectMapper mapper = new ObjectMapper();
-            final JsonNode schemaNode = mapper.readTree(json);
-            return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode, null));
+            SchemaMapper schemaMapper = new SchemaMapper(getRuleFactory(sourceType), new SchemaGenerator());
+            return schemaMapper.generate(codeModel, className, packageName, json);
         } catch (JsonParseException e) {
             System.out.println("Can not generate  " + className + " from schema since : " + e.getMessage());
             return codeModel.ref(String.class);
         }
     }
 
-    public JType generatePojoFromExample(JCodeModel codeModel, String className, String packageName, String json) throws IOException {
-        try {
-            final JPackage jpackage = codeModel._package(packageName);
-            final ObjectMapper mapper = new ObjectMapper();
-            final JsonNode schemaNode = new SchemaGenerator().schemaFromExample(mapper.readTree(json));
-            return getRuleFactory().getSchemaRule().apply(className, schemaNode, jpackage, new Schema((URI) null, schemaNode, null));
-        } catch (JsonParseException e) {
-            System.out.println("Can not generate " + className + " from example since : " + e.getMessage());
-            //Lets return an object
-            return codeModel.ref(String.class);
-        }
-    }
 
-    private RuleFactory getRuleFactory() {
-        return new RuleFactory(new JsonSchemaGeneratorConfiguration(), new Jackson2Annotator(), new SchemaStore());
+    private RuleFactory getRuleFactory(final SourceType sourceType) {
+        final DefaultGenerationConfig generationConfig = new JsonSchemaGeneratorConfiguration(sourceType);
+
+        return new RuleFactory(generationConfig, new Jackson2Annotator(generationConfig), new SchemaStore());
     }
 
     private static class JsonSchemaGeneratorConfiguration extends DefaultGenerationConfig {
+        private SourceType sourceType;
+
+        public JsonSchemaGeneratorConfiguration(SourceType sourceType) {
+            this.sourceType = sourceType;
+        }
+
+        @Override
+        public SourceType getSourceType() {
+            return this.sourceType;
+        }
 
         @Override
         public boolean isUseLongIntegers() {

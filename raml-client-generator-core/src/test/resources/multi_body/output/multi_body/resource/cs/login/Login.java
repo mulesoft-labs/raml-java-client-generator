@@ -11,15 +11,15 @@ import multi_body.resource.cs.login.model.LoginPOSTBody;
 public class Login {
 
     private String _baseUrl;
-    private Client client;
+    private Client _client;
 
-    public Login(String baseUrl, Client client) {
+    public Login(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/login");
-        this.client = client;
+        this._client = _client;
     }
 
-    private Client getClient() {
-        return this.client;
+    protected Client getClient() {
+        return this._client;
     }
 
     private String getBaseUri() {
@@ -27,7 +27,7 @@ public class Login {
     }
 
     public multi_body.resource.cs.login.model.LoginPOSTResponse post(LoginPOSTBody body) {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.post(javax.ws.rs.client.Entity.json(body));
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
@@ -38,7 +38,7 @@ public class Login {
     }
 
     public multi_body.resource.cs.login.model.LoginPOSTResponse post(InputStream body) {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.post(javax.ws.rs.client.Entity.entity(body, javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE));
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
@@ -49,7 +49,7 @@ public class Login {
     }
 
     public multi_body.resource.cs.login.model.LoginGETResponse get() {
-        WebTarget target = this.client.target(getBaseUri());
+        WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {

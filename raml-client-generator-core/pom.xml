@@ -16,14 +16,14 @@
     </parent>
 
     <properties>
-        <jersey.version>2.17</jersey.version>
+        <jersey.version>2.24</jersey.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.raml</groupId>
             <artifactId>raml-parser-2</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.19</version>
             <scope>compile</scope>
         </dependency>
         <!--All this are dependencies from raml-parser don't know why are not being taken automatically-->
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>org.jsonschema2pojo</groupId>
             <artifactId>jsonschema2pojo-core</artifactId>
-            <version>0.4.27</version>
+            <version>0.5.1</version>
         </dependency>
 
         <!--Jersey client-->
