@@ -396,6 +396,11 @@ public class RamlJavaClientGenerator {
         } else if (StringUtils.isNotBlank(mimeType.getExample())) {
             type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getExample(), SourceType.JSON);
         }
+
+        if (type != null && type.fullName().equals("java.lang.Object") && StringUtils.isNotBlank(mimeType.getExample())) {
+            type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getExample(), SourceType.JSON);
+        }
+
         return type;
     }
 

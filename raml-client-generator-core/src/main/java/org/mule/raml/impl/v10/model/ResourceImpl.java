@@ -43,7 +43,9 @@ public class ResourceImpl implements Resource {
         List<SecuritySchemeRef> securitySchemeRefs = resource.securedBy();
         List<SecurityScheme> result = new ArrayList<>();
         for (SecuritySchemeRef securitySchemeRef : securitySchemeRefs) {
-            result.add(new SecuritySchemeImpl(securitySchemeRef.securityScheme()));
+            if (securitySchemeRef != null) {
+                result.add(new SecuritySchemeImpl(securitySchemeRef.securityScheme()));
+            }
         }
         return result;
     }
