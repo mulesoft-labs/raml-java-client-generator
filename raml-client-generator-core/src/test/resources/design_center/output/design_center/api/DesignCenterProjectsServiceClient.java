@@ -10,6 +10,9 @@ public class DesignCenterProjectsServiceClient {
     private String _baseUrl;
     public final Projects projects;
 
+    public DesignCenterProjectsServiceClient() {
+    }
+
     public DesignCenterProjectsServiceClient(String baseUrl) {
         _baseUrl = baseUrl;
         projects = new Projects(getBaseUri(), getClient());
