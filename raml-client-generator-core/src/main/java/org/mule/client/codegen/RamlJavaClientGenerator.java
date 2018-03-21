@@ -327,7 +327,7 @@ public class RamlJavaClientGenerator {
                         final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + RESPONSE_CLASS_SUFFIX;
                         returnType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, mimeType, className);
                         if (returnType == null) {
-                            returnType = cm.ref(String.class);
+                            returnType = cm.ref(Object.class);
                         }
                     } else if (MimeTypeHelper.isTextType(mimeType)) {
                         returnType = cm.ref(String.class);
@@ -369,7 +369,7 @@ public class RamlJavaClientGenerator {
 
         if (action.getBody() != null) {
             for (MimeType mimeType : action.getBody().values()) {
-                JType bodyType = null;
+                final JType bodyType;
                 final MimeType body = mimeType;
                 final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + BODY_CLASS_SUFFIX;
                 if (MimeTypeHelper.isJsonType(body)) {
@@ -381,8 +381,14 @@ public class RamlJavaClientGenerator {
                 } else if (MimeTypeHelper.isMultiPartType(body) || MimeTypeHelper.isFormUrlEncodedType(body)) {
                     final Map<String, TypeFieldDefinition> formParameters = body.getFormParameters();
                     bodyType = toParametersJavaBean(cm, className, formParameters, resourcePath);
+                } else {
+                    bodyType = cm.ref(Object.class);
                 }
-                result.add(new JBodyType(bodyType, mimeType));
+                if (bodyType != null) {
+                    result.add(new JBodyType(bodyType, mimeType));
+                } else {
+                    System.out.println("No type was inferred for body type at " + resourcePath + " on method " + action.getType());
+                }
             }
         }
         return result;
@@ -403,6 +409,10 @@ public class RamlJavaClientGenerator {
 
         if (type != null && type.fullName().equals("java.lang.Object") && StringUtils.isNotBlank(mimeType.getExample())) {
             type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getExample(), SourceType.JSON);
+        }
+
+        if (type == null) {
+            type = cm.ref(Object.class);
         }
 
         return type;
