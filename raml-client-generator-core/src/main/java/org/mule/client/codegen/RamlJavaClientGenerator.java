@@ -223,6 +223,8 @@ public class RamlJavaClientGenerator {
 
                         final JMethod getClient = resourceClass.method(JMod.PROTECTED, Client.class, "getClient");
                         getClient.body()._return(JExpr._this().ref(CLIENT_FIELD_NAME));
+                        
+                        JMethod defaultConstructor = resourceClass.constructor(JMod.PUBLIC);
 
                         final JFieldVar baseUrlField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + BASE_URL_FIELD_NAME);
                         final JFieldVar clientField = resourceClass.field(JMod.PRIVATE, Client.class, CLIENT_FIELD_NAME);
