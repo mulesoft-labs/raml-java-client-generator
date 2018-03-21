@@ -130,6 +130,8 @@ public class RamlJavaClientGenerator {
 
         JMethod getClientMethod = clientGenerator.createClient(containerClass);
 
+        JMethod defaultConstructor = containerClass.constructor(JMod.PUBLIC);
+        
         final JMethod containerConstructor = containerClass.constructor(JMod.PUBLIC);
         final JVar baseUriParam = containerConstructor.param(String.class, BASE_URL_FIELD_NAME);
 
