@@ -17,6 +17,9 @@ public class Provider {
 
     private String _baseUrl;
     private Client _client;
+    
+    public Provider() {
+    }
 
     public Provider(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/provider");

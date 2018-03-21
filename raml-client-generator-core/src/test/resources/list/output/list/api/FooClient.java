@@ -15,6 +15,9 @@ public class FooClient {
     private String _baseUrl;
     public final Users users;
 
+    public FooCLient() {
+    }
+    
     public FooClient(String baseUrl) {
         _baseUrl = baseUrl;
         users = new Users(getBaseUri(), getClient());

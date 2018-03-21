@@ -13,6 +13,9 @@ public class CoreServicesAPIReferenceClient {
      * 
      */
     public final Provider provider;
+    
+    public CoreServicesAPIReferenceClient() {
+    }
 
     public CoreServicesAPIReferenceClient(String baseUrl) {
         _baseUrl = baseUrl;
