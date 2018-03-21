@@ -15,6 +15,9 @@ public class SendFormData {
 
     private String _baseUrl;
     private Client _client;
+    
+    public SendFormData() {
+    }
 
     public SendFormData(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/sendFormData");

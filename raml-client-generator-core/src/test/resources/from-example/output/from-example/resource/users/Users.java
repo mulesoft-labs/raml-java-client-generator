@@ -15,6 +15,9 @@ public class Users {
 
     private String _baseUrl;
     private Client _client;
+    
+    public Users() {
+    }
 
     public Users(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/users");

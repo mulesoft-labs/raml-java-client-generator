@@ -9,6 +9,9 @@ public class CoreServicesAPIReferenceClient {
 
     private String _baseUrl;
     public final Api api;
+    
+    public CoreServicesAPIReferenceClient() {
+    }
 
     public CoreServicesAPIReferenceClient(String baseUrl) {
         _baseUrl = baseUrl;
