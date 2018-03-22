@@ -18,7 +18,7 @@ public class Api {
 
     public Api() {
     }
-    
+
     public Api(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/api");
         this._client = _client;

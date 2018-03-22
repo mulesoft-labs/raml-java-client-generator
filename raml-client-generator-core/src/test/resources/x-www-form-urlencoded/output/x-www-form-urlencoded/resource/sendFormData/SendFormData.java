@@ -15,7 +15,7 @@ public class SendFormData {
 
     private String _baseUrl;
     private Client _client;
-    
+
     public SendFormData() {
     }
 

@@ -12,7 +12,7 @@ public class Cs {
 
     public Cs() {
     }
-    
+
     public Cs(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/cs");
         this._client = _client;

@@ -15,7 +15,7 @@ public class Login {
 
     public Login() {
     }
-    
+
     public Login(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/login");
         this._client = _client;

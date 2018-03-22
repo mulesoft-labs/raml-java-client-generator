@@ -12,7 +12,7 @@ public class Cs {
     private Client _client;
     public final Data data;
     public final Login login;
-    
+
     public Cs() {
     }
 

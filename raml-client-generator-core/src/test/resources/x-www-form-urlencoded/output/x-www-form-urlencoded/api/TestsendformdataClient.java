@@ -15,9 +15,6 @@ public class TestsendformdataClient {
     private String _baseUrl;
     public final SendFormData sendFormData;
 
-    public TestsendformdataClient() {
-    }
-    
     public TestsendformdataClient(String baseUrl) {
         _baseUrl = baseUrl;
         sendFormData = new SendFormData(getBaseUri(), getClient());

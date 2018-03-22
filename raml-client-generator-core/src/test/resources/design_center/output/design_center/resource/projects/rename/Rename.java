@@ -32,7 +32,7 @@ public class Rename {
 
     /**
      * Rename a project
-     *
+     * 
      */
     public void put(Object body) {
         WebTarget target = this._client.target(getBaseUri());

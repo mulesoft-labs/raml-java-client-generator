@@ -14,9 +14,6 @@ public class ClientAPIClient {
 
     private String _baseUrl;
     public final Users users;
-    
-    public ClientAPIClient() {
-    }
 
     public ClientAPIClient(String baseUrl) {
         _baseUrl = baseUrl;

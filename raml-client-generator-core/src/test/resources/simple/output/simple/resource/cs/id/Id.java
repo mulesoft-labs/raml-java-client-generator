@@ -14,7 +14,7 @@ public class Id {
     private String _baseUrl;
     private Client _client;
     public final Bar bar;
-    
+
     public Id() {
     }
 

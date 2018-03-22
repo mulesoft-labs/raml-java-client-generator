@@ -16,7 +16,7 @@ public class Login {
 
     public Login() {
     }
-    
+
     public Login(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/login");
         this._client = _client;
@@ -30,7 +30,7 @@ public class Login {
         return _baseUrl;
     }
 
-    public String post(String body) {
+    public Object post(String body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.post(Entity.json(body));
@@ -38,7 +38,7 @@ public class Login {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
-        return response.readEntity(String.class);
+        return response.getEntity();
     }
 
 }

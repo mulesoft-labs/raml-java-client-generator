@@ -9,7 +9,7 @@ public class Cs {
     private String _baseUrl;
     private Client _client;
     public final Login login;
-    
+
     public Cs() {
     }
 

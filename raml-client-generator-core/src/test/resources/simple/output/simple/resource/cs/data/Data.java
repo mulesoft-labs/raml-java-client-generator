@@ -9,7 +9,7 @@ public class Data {
     private String _baseUrl;
     private Client _client;
     public final Foo foo;
-    
+
     public Data() {
     }
 

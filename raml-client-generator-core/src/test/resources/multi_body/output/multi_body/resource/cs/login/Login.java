@@ -12,7 +12,7 @@ public class Login {
 
     private String _baseUrl;
     private Client _client;
-    
+
     public Login() {
     }
 

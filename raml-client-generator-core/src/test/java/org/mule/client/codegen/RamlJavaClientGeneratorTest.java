@@ -50,7 +50,7 @@ public class RamlJavaClientGeneratorTest {
     }
 
     private void runGenerator(String projectName) throws IOException, JClassAlreadyExistsException, URISyntaxException {
-        final File targetFolder = new File(FileUtils.getTempDirectory(), projectName);
+        final File targetFolder = new File(FileUtils.getTempDirectory(), "RamlJavaClientGeneratorTest" + File.separator + projectName + File.separator + "output");
         if (targetFolder.exists()) {
             FileUtils.cleanDirectory(targetFolder);
         }

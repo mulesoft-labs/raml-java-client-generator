@@ -12,7 +12,7 @@ public class Bar {
 
     private String _baseUrl;
     private Client _client;
-    
+
     public Bar() {
     }
 

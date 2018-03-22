@@ -14,9 +14,6 @@ public class DataWeaveAPIClient {
 
     private String _baseUrl;
     public final Exec exec;
-    
-    public DataWeaveAPIClient() {
-    }
 
     public DataWeaveAPIClient(String baseUrl) {
         _baseUrl = baseUrl;
