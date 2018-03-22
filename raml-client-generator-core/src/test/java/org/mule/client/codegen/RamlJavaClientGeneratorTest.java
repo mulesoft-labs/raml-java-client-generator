@@ -29,6 +29,7 @@ public class RamlJavaClientGeneratorTest {
     @Parameterized.Parameters(name = "{index}: {0}/api.raml")
     public static Iterable<Object[]> folders() {
         return Arrays.asList(new Object[][]{
+                {"empty_put"},
                 {"design_center"},
                 {"type_decl"},
                 {"library"},
