@@ -13,9 +13,6 @@ public class Cs {
     public final Data data;
     public final Login login;
 
-    public Cs() {
-    }
-
     public Cs(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/cs");
         this._client = _client;
@@ -31,7 +28,7 @@ public class Cs {
         return _baseUrl;
     }
 
-    public final Id id(String id) {
+    public Id id(String id) {
         return new Id(getBaseUri(), getClient(), id);
     }
 

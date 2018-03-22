@@ -25,7 +25,7 @@ public class SimpleApiClient {
         return new SimpleApiClient(baseUrl);
     }
 
-    public final FileName fileName(String fileName) {
+    public FileName fileName(String fileName) {
         return new FileName(getBaseUri(), getClient(), fileName);
     }
 

@@ -17,9 +17,6 @@ public class Exec {
     private String _baseUrl;
     private Client _client;
 
-    public Exec() {
-    }
-
     public Exec(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/exec");
         this._client = _client;

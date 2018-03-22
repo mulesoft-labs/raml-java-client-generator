@@ -10,9 +10,6 @@ public class Data {
     private Client _client;
     public final Foo foo;
 
-    public Data() {
-    }
-
     public Data(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/data");
         this._client = _client;

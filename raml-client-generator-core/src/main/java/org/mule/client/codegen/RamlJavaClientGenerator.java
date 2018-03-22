@@ -221,9 +221,6 @@ public class RamlJavaClientGenerator {
 
                         final JMethod getClient = resourceClass.method(JMod.PROTECTED, Client.class, "getClient");
                         getClient.body()._return(JExpr._this().ref(CLIENT_FIELD_NAME));
-                        
-                        JMethod defaultConstructor = resourceClass.constructor(JMod.PUBLIC);
-
                         final JFieldVar baseUrlField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + BASE_URL_FIELD_NAME);
                         final JFieldVar clientField = resourceClass.field(JMod.PRIVATE, Client.class, CLIENT_FIELD_NAME);
                         resourceConstructor = resourceClass.constructor(JMod.PUBLIC);
@@ -236,7 +233,7 @@ public class RamlJavaClientGenerator {
 
                             //Link with parent as method
                             final String uriParameterName = resourceName.substring(1, resourceName.length() - 1);
-                            final JMethod resourceFactoryMethod = parentClass.method(JMod.PUBLIC | JMod.FINAL, resourceClass, NameHelper.toValidFieldName(uriParameterName));
+                            final JMethod resourceFactoryMethod = parentClass.method(JMod.PUBLIC , resourceClass, NameHelper.toValidFieldName(uriParameterName));
                             if (StringUtils.isNotEmpty(resourceDescription)) {
                                 resourceFactoryMethod.javadoc().add(resourceDescription);
                             }
