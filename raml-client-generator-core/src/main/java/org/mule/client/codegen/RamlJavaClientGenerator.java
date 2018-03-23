@@ -128,7 +128,7 @@ public class RamlJavaClientGenerator {
 
         final JFieldVar baseUriField = containerClass.field(JMod.PRIVATE, String.class, "_" + BASE_URL_FIELD_NAME);
 
-        JMethod getClientMethod = clientGenerator.createClient(containerClass);
+        final JMethod getClientMethod = clientGenerator.createClient(containerClass);
 
        
         JMethod defaultConstructor = containerClass.constructor(JMod.PUBLIC);
@@ -229,8 +229,6 @@ public class RamlJavaClientGenerator {
 
                         final JMethod getClient = resourceClass.method(JMod.PROTECTED, Client.class, "getClient");
                         getClient.body()._return(JExpr._this().ref(CLIENT_FIELD_NAME));
-                        
-                        
 
                         final JFieldVar baseUrlField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + BASE_URL_FIELD_NAME);
                         final JFieldVar clientField = resourceClass.field(JMod.PRIVATE, Client.class, CLIENT_FIELD_NAME);
@@ -249,7 +247,7 @@ public class RamlJavaClientGenerator {
 
                             //Link with parent as method
                             final String uriParameterName = resourceName.substring(1, resourceName.length() - 1);
-                            final JMethod resourceFactoryMethod = parentClass.method(JMod.PUBLIC | JMod.FINAL, resourceClass, NameHelper.toValidFieldName(uriParameterName));
+                            final JMethod resourceFactoryMethod = parentClass.method(JMod.PUBLIC , resourceClass, NameHelper.toValidFieldName(uriParameterName));
                             if (StringUtils.isNotEmpty(resourceDescription)) {
                                 resourceFactoryMethod.javadoc().add(resourceDescription);
                             }
@@ -341,7 +339,7 @@ public class RamlJavaClientGenerator {
                         final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + RESPONSE_CLASS_SUFFIX;
                         returnType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, mimeType, className);
                         if (returnType == null) {
-                            returnType = cm.ref(String.class);
+                            returnType = cm.ref(Object.class);
                         }
                     } else if (MimeTypeHelper.isTextType(mimeType)) {
                         returnType = cm.ref(String.class);
@@ -383,7 +381,7 @@ public class RamlJavaClientGenerator {
 
         if (action.getBody() != null) {
             for (MimeType mimeType : action.getBody().values()) {
-                JType bodyType = null;
+                final JType bodyType;
                 final MimeType body = mimeType;
                 final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + BODY_CLASS_SUFFIX;
                 if (MimeTypeHelper.isJsonType(body)) {
@@ -395,8 +393,14 @@ public class RamlJavaClientGenerator {
                 } else if (MimeTypeHelper.isMultiPartType(body) || MimeTypeHelper.isFormUrlEncodedType(body)) {
                     final Map<String, TypeFieldDefinition> formParameters = body.getFormParameters();
                     bodyType = toParametersJavaBean(cm, className, formParameters, resourcePath);
+                } else {
+                    bodyType = cm.ref(Object.class);
                 }
-                result.add(new JBodyType(bodyType, mimeType));
+                if (bodyType != null) {
+                    result.add(new JBodyType(bodyType, mimeType));
+                } else {
+                    System.out.println("No type was inferred for body type at " + resourcePath + " on method " + action.getType());
+                }
             }
         }
         return result;
@@ -417,6 +421,10 @@ public class RamlJavaClientGenerator {
 
         if (type != null && type.fullName().equals("java.lang.Object") && StringUtils.isNotBlank(mimeType.getExample())) {
             type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getExample(), SourceType.JSON);
+        }
+
+        if (type == null) {
+            type = cm.ref(Object.class);
         }
 
         return type;

@@ -35,7 +35,7 @@ public class Cs {
         return _baseUrl;
     }
 
-    public final Id id(String id) {
+    public Id id(String id) {
         return new Id(getBaseUri(), getClient(), id);
     }
 

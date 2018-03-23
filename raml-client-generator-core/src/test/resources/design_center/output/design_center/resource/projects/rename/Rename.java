@@ -1,5 +1,5 @@
 
-package global-type-body.resource.cs.login;
+package design_center.resource.projects.rename;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -7,20 +7,15 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-import global-type-body.exceptions.FooException;
+import design_center.exceptions.DesignCenterProjectsServiceException;
 
-public class Login {
+public class Rename {
 
     private String _baseUrl;
     private Client _client;
 
-    public Login() {
-    		_baseUrl = null;
-		_client = null;
-    }
-    
-    public Login(String baseUrl, Client _client) {
-        _baseUrl = (baseUrl +"/login");
+    public Rename(String baseUrl, Client _client) {
+        _baseUrl = (baseUrl +"/rename");
         this._client = _client;
     }
 
@@ -32,15 +27,18 @@ public class Login {
         return _baseUrl;
     }
 
-    public Object post(String body) {
+    /**
+     * Rename a project
+     * 
+     */
+    public void put(Object body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.post(Entity.json(body));
+        Response response = invocationBuilder.put(Entity.json(body));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new DesignCenterProjectsServiceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
-        return response.getEntity();
     }
 
 }

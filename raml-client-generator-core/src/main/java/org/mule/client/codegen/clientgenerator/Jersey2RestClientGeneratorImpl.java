@@ -136,6 +136,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                         ifBlock.invoke(multiValuedMapVar, "add").arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod).invoke("toString"));
                     }
                     methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiValuedMapVar).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_FORM_URLENCODED_TYPE")));
+                } else {
+                    methodInvocation.arg((cm.ref(Entity.class).staticInvoke("entity").arg(bodyParam).arg(type.getType())));
                 }
 
             } else {

@@ -28,7 +28,21 @@ public class RamlJavaClientGeneratorTest {
 
     @Parameterized.Parameters(name = "{index}: {0}/api.raml")
     public static Iterable<Object[]> folders() {
-        return Arrays.asList(new Object[][]{{"type_decl"}, {"library"}, {"simple"}, {"form-parameters"}, {"from-example"}, {"list"}, {"oauth20"}, {"global-type-body"}, {"global-type-return"}, {"multi_body"}, {"x-www-form-urlencoded"}});
+        return Arrays.asList(new Object[][]{
+                {"empty_put"},
+                {"design_center"},
+                {"type_decl"},
+                {"library"},
+                {"simple"},
+                {"form-parameters"},
+                {"from-example"},
+                {"list"},
+                {"oauth20"},
+                {"global-type-body"},
+                {"global-type-return"},
+                {"multi_body"},
+                {"x-www-form-urlencoded"}
+        });
     }
 
     @Test
@@ -37,7 +51,7 @@ public class RamlJavaClientGeneratorTest {
     }
 
     private void runGenerator(String projectName) throws IOException, JClassAlreadyExistsException, URISyntaxException {
-        final File targetFolder = new File(FileUtils.getTempDirectory(), projectName);
+        final File targetFolder = new File(FileUtils.getTempDirectory(), "RamlJavaClientGeneratorTest" + File.separator + projectName + File.separator + "output");
         if (targetFolder.exists()) {
             FileUtils.cleanDirectory(targetFolder);
         }
