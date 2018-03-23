@@ -14,6 +14,8 @@ public class Login {
     private Client _client;
 
     public Login() {
+    		_baseUrl = null;
+		_client = null;
     }
     
     public Login(String baseUrl, Client _client) {

@@ -16,6 +16,8 @@ public class FooClient {
     public final Cs cs;
 
     public FooClient() {
+    		_baseUrl = null;
+		cs = null;
     }
     
     public FooClient(String baseUrl) {

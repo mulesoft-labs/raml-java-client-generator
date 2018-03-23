@@ -16,6 +16,9 @@ public class Id {
     public final Bar bar;
     
     public Id() {
+    		_baseUrl = null;
+		_client = null;
+		bar = null;
     }
 
     public Id(String baseUrl, Client _client, String uriParam) {

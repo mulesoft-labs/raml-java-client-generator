@@ -17,6 +17,8 @@ public class SendFormData {
     private Client _client;
     
     public SendFormData() {
+    		_baseUrl = null;
+		_client = null;
     }
 
     public SendFormData(String baseUrl, Client _client) {

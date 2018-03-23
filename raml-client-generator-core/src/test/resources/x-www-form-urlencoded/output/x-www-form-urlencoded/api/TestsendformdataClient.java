@@ -16,6 +16,8 @@ public class TestsendformdataClient {
     public final SendFormData sendFormData;
 
     public TestsendformdataClient() {
+    		_baseUrl = null;
+		sendFormData = null;
     }
     
     public TestsendformdataClient(String baseUrl) {

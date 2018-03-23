@@ -16,6 +16,8 @@ public class ClientAPIClient {
     public final Users users;
     
     public ClientAPIClient() {
+    		_baseUrl = null;
+		users = null;
     }
 
     public ClientAPIClient(String baseUrl) {

@@ -11,6 +11,8 @@ public class CoreServicesAPIReferenceClient {
     public final Api api;
     
     public CoreServicesAPIReferenceClient() {
+    		_baseUrl = null;
+		api = null;
     }
 
     public CoreServicesAPIReferenceClient(String baseUrl) {

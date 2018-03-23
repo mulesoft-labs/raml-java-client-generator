@@ -18,6 +18,8 @@ public class Exec {
     private Client _client;
     
     public Exec() {
+    		_baseUrl = null;
+		_client = null;
     }
 
     public Exec(String baseUrl, Client _client) {

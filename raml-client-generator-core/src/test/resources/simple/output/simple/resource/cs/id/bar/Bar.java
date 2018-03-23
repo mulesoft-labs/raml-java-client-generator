@@ -14,6 +14,8 @@ public class Bar {
     private Client _client;
     
     public Bar() {
+    		_baseUrl = null;
+		_client = null;
     }
 
     public Bar(String baseUrl, Client _client) {

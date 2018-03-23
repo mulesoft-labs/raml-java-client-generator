@@ -19,6 +19,8 @@ public class Provider {
     private Client _client;
     
     public Provider() {
+    		_baseUrl = null;
+		_client = null;
     }
 
     public Provider(String baseUrl, Client _client) {

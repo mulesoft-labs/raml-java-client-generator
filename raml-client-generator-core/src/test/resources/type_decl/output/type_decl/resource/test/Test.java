@@ -14,6 +14,8 @@ public class Test {
     private Client _client;
     
     public Test() {
+    		_baseUrl = null;
+		_client = null;
     }
 
     public Test(String baseUrl, Client _client) {

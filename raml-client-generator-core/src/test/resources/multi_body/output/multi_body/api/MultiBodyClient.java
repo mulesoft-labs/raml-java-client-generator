@@ -16,6 +16,8 @@ public class MultiBodyClient {
     public final Cs cs;
     
     public MultiBodyClient() {
+    		_baseUrl = null;
+		cs = null;
     }
 
     public MultiBodyClient(String baseUrl) {

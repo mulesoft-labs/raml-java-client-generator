@@ -11,6 +11,9 @@ public class Data {
     public final Foo foo;
     
     public Data() {
+    		_baseUrl = null;
+		_client = null;
+		foo = null;
     }
 
     public Data(String baseUrl, Client _client) {

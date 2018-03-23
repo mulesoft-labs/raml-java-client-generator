@@ -16,6 +16,8 @@ public class Foo {
     private Client _client;
 
     public Foo() {
+    		_baseUrl = null;
+		_client = null;
     }
     
     public Foo(String baseUrl, Client _client) {

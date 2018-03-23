@@ -14,6 +14,10 @@ public class Cs {
     public final Login login;
     
     public Cs() {
+    		_baseUrl = null;
+		_client = null;
+		data = null;
+		login = null;
     }
 
     public Cs(String baseUrl, Client _client) {
