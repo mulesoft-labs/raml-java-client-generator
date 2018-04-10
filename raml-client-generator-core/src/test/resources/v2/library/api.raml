@@ -1,0 +1,20 @@
+#%RAML 1.0
+
+title: Core Services API Reference
+mediaType: application/json
+baseUri: https://anypoint.mulesoft.com/accounts
+
+uses:
+  providers: types/external-provider.raml
+
+/provider:
+  description: External auth* provider information for the organization
+  get:
+    description: Returns combined provider details
+    responses:
+      200:
+        description: Success
+        body:
+          application/json:
+            example: !include examples/provider.json
+            type: providers.ExternalAuthProviderUnion

@@ -1,0 +1,19 @@
+#%RAML 1.0
+title: Simple Api
+/{+fileName}:
+  uriParameters:
+    +fileName:
+      description: Name of the file. This value must be encoded using url encode.
+  put:
+    description: Creates or updates the given file
+    headers:
+      x-commit-message:
+        description: Message of the commit that will be generated when upserting the file.
+      x-base-commit-id:
+        description: |
+          If this header is given, the system will check in the file log if this commit id equals the last commit where the file has been modified.
+          If someone else made a modification before, and error will be returned.
+    body:
+      "*/*":
+    responses:
+      204:

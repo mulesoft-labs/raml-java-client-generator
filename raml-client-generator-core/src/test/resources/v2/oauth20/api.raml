@@ -1,0 +1,41 @@
+#%RAML 1.0
+version: v1
+title: Core Services API Reference
+mediaType: application/json
+baseUri: https://anypoint.mulesoft.com/accounts
+
+securitySchemes:
+  oauth_2_0:
+    description: |
+     OAuth2 is a protocol that lets external apps request authorization to private
+     details in a user's account without getting their password. This is
+     preferred over Basic Authentication because tokens can be limited to specific
+     types of data, and can be revoked by users at any time.
+     Use apiportal for the client_id
+    type: OAuth 2.0
+    describedBy:
+      headers:
+       Authorization:
+         description: |
+           Used to send a valid OAuth 2 access token.
+         type: string
+      responses:
+        401:
+          description: Unauthorized
+    settings:
+      authorizationUri: https://anypoint.mulesoft.com/accounts/oauth2/authorize
+      accessTokenUri: https://anypoint.mulesoft.com/accounts/oauth2/token
+      authorizationGrants: [  ]
+
+securedBy: [ oauth_2_0 ]
+
+/api:
+  securedBy: oauth_2_0
+  get:
+    description: "Returns the list of all users"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              [{"user" : "Mariano"}]

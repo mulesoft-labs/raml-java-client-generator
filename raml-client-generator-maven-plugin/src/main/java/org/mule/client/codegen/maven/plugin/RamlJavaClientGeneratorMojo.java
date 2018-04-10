@@ -7,6 +7,7 @@ import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.mule.client.codegen.OutputVersion;
 import org.mule.client.codegen.RamlJavaClientGenerator;
 import org.apache.maven.project.MavenProject;
 
@@ -31,6 +32,9 @@ public class RamlJavaClientGeneratorMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "${project.build.directory}/generated-sources", property="RamlJavaClientGeneratorMojo.outputDir")
     private String outputDir;
+    
+    @Parameter(defaultValue="v2", property="RamlJavaClientGeneratorMojo.outputVersion")
+    private OutputVersion outputVersion;
 
 
     @Parameter(required = true, readonly = true, defaultValue = "${project}")
@@ -57,7 +61,7 @@ public class RamlJavaClientGeneratorMojo extends AbstractMojo {
             }
 
             for (URL ramlUrl : ramlUrls) {
-                final RamlJavaClientGenerator ramlJavaClientGenerator = new RamlJavaClientGenerator(basePackage, new File(outputDir));
+                final RamlJavaClientGenerator ramlJavaClientGenerator = new RamlJavaClientGenerator(basePackage, new File(outputDir), outputVersion);
                 ramlJavaClientGenerator.generate(ramlUrl);
             }
             project.addCompileSourceRoot(outputDir);

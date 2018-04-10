@@ -1,0 +1,38 @@
+#%RAML 0.8
+title: Foo
+version: 0.1
+mediaType: application/json
+documentation:
+  - title : Foo
+    content : A String
+schemas:
+    - auth: |
+        {
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "id": "http://jsonschema.net",
+          "type": "object",
+          "properties": {
+            "access_token": {
+              "id": "http://jsonschema.net/access_token",
+              "type": "string"
+            },
+            "token_type": {
+              "id": "http://jsonschema.net/token_type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "access_token",
+            "token_type"
+          ]
+        }
+/cs:
+  /login:
+    post:
+      responses:
+        200:
+          body:
+            application/json:
+      body:
+        application/json:
+          schema: auth

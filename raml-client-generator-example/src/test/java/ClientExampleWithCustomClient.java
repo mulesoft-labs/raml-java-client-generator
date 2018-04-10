@@ -1,8 +1,8 @@
-import org.glassfish.jersey.client.ClientProperties;
-import org.mule.example.api.ClientAPIClient;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+
+import org.glassfish.jersey.client.ClientProperties;
+import org.mule.example.api.ClientAPIClient;
 
 
 public class ClientExampleWithCustomClient {

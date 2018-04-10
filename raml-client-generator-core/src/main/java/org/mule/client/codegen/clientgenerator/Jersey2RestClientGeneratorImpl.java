@@ -1,46 +1,86 @@
 package org.mule.client.codegen.clientgenerator;
 
-import com.sun.codemodel.*;
+import static org.mule.client.codegen.utils.SecuritySchemesHelper.isOauth20SecuredBy;
+
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import org.mule.client.codegen.OutputVersion;
 import org.mule.client.codegen.RamlJavaClientGenerator;
 import org.mule.client.codegen.RestClientGenerator;
 import org.mule.client.codegen.model.JBodyType;
 import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
-import org.mule.client.codegen.utils.SecuritySchemesHelper;
 import org.mule.client.codegen.utils.TypeConstants;
-import org.mule.raml.model.*;
+import org.mule.raml.model.Action;
+import org.mule.raml.model.ActionType;
+import org.mule.raml.model.ApiModel;
+import org.mule.raml.model.MimeType;
+import org.mule.raml.model.TypeFieldDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response;
-import java.util.Map;
-
-import static org.mule.client.codegen.utils.SecuritySchemesHelper.isOauth20SecuredBy;
+import com.sun.codemodel.JBlock;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
+import com.sun.codemodel.JTypeVar;
+import com.sun.codemodel.JVar;
 
 
 public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
     private static final String BODY_PARAM_NAME = "body";
     private static final String HEADERS_PARAM_NAME = "headers";
     private static final String TOKEN_PARAM_NAME = "authorizationToken";
     private static final String QUERY_PARAMETERS_PARAM_NAME = "queryParameters";
 
     private static JClass exceptionClass;
+    private static JClass responseClass;
 
     @Override
     public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action, ApiModel apiModel) {
+    	callHttpMethod(cm, resourceClass, returnType, OutputVersion.v1, bodyType, queryParameterType, headerParameterType, action, apiModel);
+    }
+    
+    @Override
+    public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nonnull OutputVersion outputVersion, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action, ApiModel apiModel) {
         if (action.getType() == ActionType.PATCH) {
-            System.out.println("Patch is not supported");
+        	logger.warn("Patch is not supported");
             return;
         }
 
         // Declare the method with the required inputs
-        final JMethod actionMethod = resourceClass.method(JMod.PUBLIC, returnType, action.getType().name().toLowerCase());
+        JMethod actionMethod;
+        if (outputVersion.ordinal() >= OutputVersion.v2.ordinal() ) {
+        	actionMethod = resourceClass.method(JMod.PUBLIC, responseClass.narrow(returnType), action.getType().name().toLowerCase());
+        } else {
+        	actionMethod = resourceClass.method(JMod.PUBLIC, returnType, action.getType().name().toLowerCase());
+        }
         if (StringUtils.isNotBlank(action.getDescription())) {
             actionMethod.javadoc().add(action.getDescription());
         }
@@ -151,17 +191,32 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         final JVar statusInfo = ifBlock.decl(cm.ref(Response.StatusType.class), "statusInfo", responseVal.invoke("getStatusInfo"));
 
         ifBlock._throw(JExpr._new(exceptionClass).arg(statusInfo.invoke("getStatusCode")).arg(statusInfo.invoke("getReasonPhrase")));
-
+        
+        
+        
+        
         if (returnType != cm.VOID) {
+        	JInvocation jInvocation;
             if (returnType.equals(cm.ref(Object.class))) {
-                body._return(responseVal.invoke("getEntity"));
+            	jInvocation = responseVal.invoke("getEntity");
             } else {
                 if (returnType instanceof JClass && !((JClass) returnType).getTypeParameters().isEmpty()) {
                     final JClass narrow = cm.anonymousClass(cm.ref(GenericType.class).narrow(returnType));
-                    body._return(responseVal.invoke("readEntity").arg(JExpr._new(narrow)));
+                    jInvocation = responseVal.invoke("readEntity").arg(JExpr._new(narrow));
                 } else {
-                    body._return(responseVal.invoke("readEntity").arg(JExpr.dotclass(cm.ref(returnType.fullName()))));
+                	jInvocation = responseVal.invoke("readEntity").arg(JExpr.dotclass(cm.ref(returnType.fullName())));
                 }
+            }
+            
+            if ( outputVersion.ordinal() >= OutputVersion.v2.ordinal() ) {
+            	JInvocation apiResponseInvocation = JExpr._new(responseClass.narrow(returnType));
+            	apiResponseInvocation.arg(jInvocation);
+            	apiResponseInvocation.arg(responseVal.invoke("getStringHeaders"));
+                apiResponseInvocation.arg(responseVal);
+                final JVar apiResponseVal = body.decl(responseClass.narrow(returnType), "apiResponse", apiResponseInvocation);
+                body._return(apiResponseVal);
+            } else {
+            	body._return(jInvocation);
             }
         }
     }
@@ -184,7 +239,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
     }
 
     @Override
-    public JClass buildCustomException(JCodeModel cm, String basePackage, String apiName) {
+    public void buildCustomException(JCodeModel cm, String basePackage, String apiName) {
         try {
             JDefinedClass customExceptionClass = cm._class(basePackage + "." + "exceptions" + "." + NameHelper.toValidClassName(apiName) + "Exception");
             customExceptionClass._extends(RuntimeException.class);
@@ -210,6 +265,44 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         } catch (JClassAlreadyExistsException e) {
             exceptionClass = cm.ref(RuntimeException.class);
         }
-        return exceptionClass;
+    }
+    
+    @Override
+    public void buildCustomResponse(JCodeModel cm, String basePackage, ApiModel apiModel) throws JClassAlreadyExistsException {
+    	
+    	String apiName = apiModel.getTitle();
+
+        JDefinedClass customResponseClass = cm._class(basePackage + "." + "responses" + "." + NameHelper.toValidClassName(apiName) + "Response");
+        JTypeVar genericType = customResponseClass.generify("T");
+
+        JFieldVar bodyField = customResponseClass.field(JMod.PRIVATE, genericType, "body");
+        JClass rawHeadersClass = cm.ref(MultivaluedMap.class)
+        		.narrow(cm.ref(String.class), cm.ref(String.class));
+        JFieldVar headersField = customResponseClass.field(JMod.PRIVATE, rawHeadersClass, "headers");
+        JFieldVar responseField = customResponseClass.field(JMod.PRIVATE, Response.class, "response");
+        
+        
+        JMethod containerConstructor = customResponseClass.constructor(JMod.PUBLIC);
+
+        JVar bodyParameter = containerConstructor.param(genericType, "body");
+        containerConstructor.body().assign(JExpr._this().ref(bodyField), bodyParameter);
+        
+        JVar headersParameter = containerConstructor.param(rawHeadersClass, "headers");
+        containerConstructor.body().assign(JExpr._this().ref(headersField), headersParameter);
+        
+        JVar responseParameter = containerConstructor.param(Response.class, "response");
+        containerConstructor.body().assign(JExpr._this().ref(responseField), responseParameter);
+        
+
+        JMethod bodyGetterMethod = customResponseClass.method(JMod.PUBLIC, genericType, "getBody");
+        bodyGetterMethod.body()._return(JExpr._this().ref(bodyField));
+        
+        JMethod headersGetterMethod = customResponseClass.method(JMod.PUBLIC, rawHeadersClass, "getHeaders");
+        headersGetterMethod.body()._return(JExpr._this().ref(headersField));
+        
+        JMethod responseGetterMethod = customResponseClass.method(JMod.PUBLIC, Response.class, "getResponse");
+        responseGetterMethod.body()._return(JExpr._this().ref(responseField));
+        
+        responseClass = customResponseClass;
     }
 }

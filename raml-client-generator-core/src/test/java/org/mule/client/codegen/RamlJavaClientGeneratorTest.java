@@ -8,6 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,6 +21,8 @@ import java.util.Arrays;
 
 @RunWith(value = Parameterized.class)
 public class RamlJavaClientGeneratorTest {
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String projectName;
 
@@ -47,20 +51,25 @@ public class RamlJavaClientGeneratorTest {
     }
 
     @Test
-    public void runTest() throws IOException, JClassAlreadyExistsException, URISyntaxException {
-        runGenerator(projectName);
+    public void runTestV1() throws IOException, JClassAlreadyExistsException, URISyntaxException {
+        runGenerator(projectName, OutputVersion.v1);
+    }
+    
+    @Test
+    public void runTestV2() throws IOException, JClassAlreadyExistsException, URISyntaxException {
+        runGenerator(projectName, OutputVersion.v2);
     }
 
-    private void runGenerator(String projectName) throws IOException, JClassAlreadyExistsException, URISyntaxException {
+    private void runGenerator(String projectName, OutputVersion outputVersion) throws IOException, JClassAlreadyExistsException, URISyntaxException {
 
-        final File actualTarget = new File(FileUtils.getTempDirectory(), "RamlJavaClientGeneratorTest" + File.separator + projectName + File.separator + "output");
+        final File actualTarget = new File(FileUtils.getTempDirectory(), "RamlJavaClientGeneratorTest" + File.separator + outputVersion.toString() + File.separator + projectName + File.separator + "output");
         if (actualTarget.exists()) {
             FileUtils.cleanDirectory(actualTarget);
         }
-        System.out.println("targetFolder = " + actualTarget);
+        logger.info("targetFolder = " + actualTarget);
         actualTarget.mkdirs();
-        final URL resource = this.getClass().getClassLoader().getResource(projectName + "/" + "api.raml");
-        new RamlJavaClientGenerator(projectName, actualTarget).generate(resource);
+        final URL resource = this.getClass().getClassLoader().getResource(outputVersion.toString() + "/" + projectName + "/" + "api.raml");
+        new RamlJavaClientGenerator(projectName, actualTarget, outputVersion).generate(resource);
         assert resource != null;
         final File parentFile = new File(resource.toURI()).getParentFile();
         final File expected = new File(parentFile, "output");
@@ -68,11 +77,11 @@ public class RamlJavaClientGeneratorTest {
             compareDir(actualTarget, expected);
         } finally {
             if (Boolean.getBoolean("update-result")) {
-                System.out.println("-----------UPDATING RESULT -----------------");
-                File expectedDirectory = new File(expected, "../../../../src/test/resources/" + projectName + "/output");
+                logger.info("-----------UPDATING RESULT -----------------");
+                File expectedDirectory = new File(expected, "../../../../src/test/resources/" + outputVersion.toString() + "/" + projectName + "/output");
                 FileUtils.deleteDirectory(expectedDirectory);
-                System.out.println("expected = " + expected);
-                System.out.println("actualTarget = " + actualTarget);
+                logger.info("expected = " + expected);
+                logger.info("actualTarget = " + actualTarget);
                 FileUtils.copyDirectory(actualTarget, expectedDirectory);
             }
         }
