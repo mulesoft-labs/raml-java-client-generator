@@ -18,6 +18,21 @@
     <properties>
         <jersey.version>2.24</jersey.version>
     </properties>
+         
+    <repositories>
+        <repository>
+            <id>nexus.repository</id>
+            <name>Nexus Repository</name>
+            <layout>default</layout>
+            <url>http://repository-master.mulesoft.org/nexus/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>nexus.snapshots.repository</id>
+            <name>Nexus Snapshots Repository</name>
+            <layout>default</layout>
+            <url>http://repository-master.mulesoft.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
