@@ -12,6 +12,11 @@ public class Test {
 
     private String _baseUrl;
     private Client _client;
+    
+    public Test() {
+    		_baseUrl = null;
+		_client = null;
+    }
 
     public Test(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/test");

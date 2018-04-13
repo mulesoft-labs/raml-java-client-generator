@@ -130,12 +130,17 @@ public class RamlJavaClientGenerator {
 
         final JMethod getClientMethod = clientGenerator.createClient(containerClass);
 
+       
+        JMethod defaultConstructor = containerClass.constructor(JMod.PUBLIC);
+        defaultConstructor.body().assign(baseUriField, JExpr._null());
+        
         final JMethod containerConstructor = containerClass.constructor(JMod.PUBLIC);
         final JVar baseUriParam = containerConstructor.param(String.class, BASE_URL_FIELD_NAME);
 
         for (JFieldVar jFieldVar : generatedRequiredField) {
             JVar param = containerConstructor.param(jFieldVar.type(), jFieldVar.name());
             containerConstructor.body().assign(JExpr._this().ref(jFieldVar), param);
+            defaultConstructor.body().assign(jFieldVar, JExpr._null());
         }
 
         containerConstructor.body().assign(baseUriField, baseUriParam);
@@ -182,7 +187,8 @@ public class RamlJavaClientGenerator {
 
         }
 
-        buildResourceClass(cm, containerClass, containerConstructor, resources, "", getClientMethod, raml);
+        buildResourceClass(cm, containerClass,defaultConstructor, containerConstructor, resources, "", getClientMethod, raml);
+
 
         if (!targetFolder.exists()) {
             targetFolder.mkdirs();
@@ -192,12 +198,13 @@ public class RamlJavaClientGenerator {
         System.out.println("Finished Generation");
     }
 
-    private void buildResourceClass(JCodeModel cm, JDefinedClass containerClass, JMethod containerConstructor, Map<String, Resource> resources, String containerResource,
+    private void buildResourceClass(JCodeModel cm, JDefinedClass containerClass, JMethod defaultContainerConstructor,JMethod containerConstructor, Map<String, Resource> resources, String containerResource,
                                     JMethod getClientMethod, ApiModel apiModel) throws JClassAlreadyExistsException, IOException {
 
         for (Map.Entry<String, Resource> stringResourceEntry : resources.entrySet()) {
             JDefinedClass parentClass = containerClass;
             JMethod parentConstructor = containerConstructor;
+            JMethod parentDefaultConstructor = defaultContainerConstructor;
             String parentResource = containerResource;
             final String resourcesName = stringResourceEntry.getKey();
             final String[] resourceParts = resourcesName.split("/");
@@ -208,6 +215,7 @@ public class RamlJavaClientGenerator {
                     final String resourcePath = parentResource + "/" + resourceName;
                     System.out.println("-" + resourcePath);
                     final JDefinedClass resourceClass;
+                    JMethod defaultConstructor = null;
                     final JMethod resourceConstructor;
                     //Check if it is not already defined
 
@@ -221,8 +229,14 @@ public class RamlJavaClientGenerator {
 
                         final JMethod getClient = resourceClass.method(JMod.PROTECTED, Client.class, "getClient");
                         getClient.body()._return(JExpr._this().ref(CLIENT_FIELD_NAME));
+
                         final JFieldVar baseUrlField = resourceClass.field(JMod.PRIVATE, String.class, PRIVATE_FIELD_PREFIX + BASE_URL_FIELD_NAME);
                         final JFieldVar clientField = resourceClass.field(JMod.PRIVATE, Client.class, CLIENT_FIELD_NAME);
+                      
+                        defaultConstructor = resourceClass.constructor(JMod.PUBLIC);
+                        defaultConstructor.body().assign(baseUrlField, JExpr._null());
+                        defaultConstructor.body().assign(clientField, JExpr._null());
+                        
                         resourceConstructor = resourceClass.constructor(JMod.PUBLIC);
                         final JVar baseUrlParam = resourceConstructor.param(String.class, BASE_URL_FIELD_NAME);
                         final JVar clientParam = resourceConstructor.param(Client.class, CLIENT_FIELD_NAME);
@@ -253,6 +267,8 @@ public class RamlJavaClientGenerator {
 
                             parentConstructor.body()
                                     .assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClientMethod)));
+                        
+                            parentDefaultConstructor.body().assign(resourceField, JExpr._null());
                         }
 
                         clientGenerator.resolveBaseURI(cm, getResourceMethod, baseUrlField);
@@ -266,12 +282,13 @@ public class RamlJavaClientGenerator {
 
                     parentClass = resourceClass;
                     parentConstructor = resourceConstructor;
+                    parentDefaultConstructor = defaultConstructor;
                     parentResource = resourcePath;
 
                     //Only last resource should trigger children and actions
                     if (i == resourceParts.length - 1) {
                         buildActionMethods(cm, resourceClass, resource, resourcePath, resourceName, apiModel);
-                        buildResourceClass(cm, resourceClass, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, apiModel);
+                        buildResourceClass(cm, resourceClass, defaultConstructor, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, apiModel);
                     }
                 }
             }

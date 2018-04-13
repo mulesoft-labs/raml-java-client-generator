@@ -9,6 +9,11 @@ public class MyapiClient {
 
     private String _baseUrl;
     public final Test test;
+    
+    public MyapiClient() {
+    		_baseUrl = null;
+    		test = null;
+    }
 
     public MyapiClient(String baseUrl) {
         _baseUrl = baseUrl;

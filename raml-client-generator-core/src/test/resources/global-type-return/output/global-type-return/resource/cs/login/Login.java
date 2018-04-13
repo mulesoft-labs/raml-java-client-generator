@@ -13,6 +13,11 @@ public class Login {
     private String _baseUrl;
     private Client _client;
 
+    public Login() {
+    		_baseUrl = null;
+		_client = null;
+    }
+    
     public Login(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/login");
         this._client = _client;

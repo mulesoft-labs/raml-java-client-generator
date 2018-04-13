@@ -14,6 +14,12 @@ public class Id {
     private String _baseUrl;
     private Client _client;
     public final Bar bar;
+    
+    public Id() {
+    		_baseUrl = null;
+		_client = null;
+		bar = null;
+    }
 
     public Id(String baseUrl, Client _client, String uriParam) {
         _baseUrl = (baseUrl +("/"+ uriParam));

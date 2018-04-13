@@ -9,6 +9,12 @@ public class Data {
     private String _baseUrl;
     private Client _client;
     public final Foo foo;
+    
+    public Data() {
+    		_baseUrl = null;
+		_client = null;
+		foo = null;
+    }
 
     public Data(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/data");

@@ -15,6 +15,11 @@ public class Foo {
     private String _baseUrl;
     private Client _client;
 
+    public Foo() {
+    		_baseUrl = null;
+		_client = null;
+    }
+    
     public Foo(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/foo");
         this._client = _client;

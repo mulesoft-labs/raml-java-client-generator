@@ -14,6 +14,11 @@ public class FooClient {
 
     private String _baseUrl;
     public final Cs cs;
+    
+    public FooClient() {
+    		_baseUrl = null;
+		cs = null;
+    }
 
     public FooClient(String baseUrl) {
         _baseUrl = baseUrl;
