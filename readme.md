@@ -1,6 +1,7 @@
 # RAML Client Generator 
 
-This tool generates a java rest client for a raml based api using a resource api approach.
+This tool generates a java rest client for a raml based api using a resource api approach. 
+Supports both 0.8 and 1.0 versions of Raml
 
 ## Example
 
@@ -54,10 +55,10 @@ It can easily be embedded into your code just add de dependency
 
 ```xml
   <dependency>
-            <groupId>org.mule.raml.codegen</groupId>
-            <artifactId>raml-client-generator-core</artifactId>
-            <version>0.2-SNAPSHOT</version>
-        </dependency>
+        <groupId>org.mule.raml.codegen</groupId>
+        <artifactId>raml-client-generator-core</artifactId>
+        <version>0.2-SNAPSHOT</version>
+  </dependency>
 ```
 
 And then call the RamlJavaClientGenerator
