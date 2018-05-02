@@ -1,5 +1,6 @@
-# RAML Client Generator 
-
+# RAML Client Generator
+![alt text](https://travis-ci.org/mulesoft-labs/raml-java-client-generator.svg?branch=master "Logo Title Text 1")
+  
 This tool generates a java rest client for a raml based api using a resource api approach. 
 Supports both 0.8 and 1.0 versions of Raml
 
