@@ -17,10 +17,10 @@ public class Api {
     private Client _client;
 
     public Api() {
-    		_baseUrl = null;
-		_client = null;
+        _baseUrl = null;
+        _client = null;
     }
-    
+
     public Api(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/api");
         this._client = _client;

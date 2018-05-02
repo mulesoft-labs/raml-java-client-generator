@@ -1,9 +1,9 @@
 
-package oauth20.api;
+package oauth20-global.api;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import oauth20.resource.api.Api;
+import oauth20-global.resource.api.Api;
 
 public class CoreServicesAPIReferenceClient {
 

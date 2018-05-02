@@ -15,10 +15,10 @@ public class SendFormData {
 
     private String _baseUrl;
     private Client _client;
-    
+
     public SendFormData() {
-    		_baseUrl = null;
-		_client = null;
+        _baseUrl = null;
+        _client = null;
     }
 
     public SendFormData(String baseUrl, Client _client) {

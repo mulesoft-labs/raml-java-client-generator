@@ -17,10 +17,10 @@ public class Provider {
 
     private String _baseUrl;
     private Client _client;
-    
+
     public Provider() {
-    		_baseUrl = null;
-		_client = null;
+        _baseUrl = null;
+        _client = null;
     }
 
     public Provider(String baseUrl, Client _client) {

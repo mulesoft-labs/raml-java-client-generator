@@ -10,6 +10,12 @@ public class Projects {
     private Client _client;
     public final Rename rename;
 
+    public Projects() {
+        _baseUrl = null;
+        _client = null;
+        rename = null;
+    }
+
     public Projects(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/projects");
         this._client = _client;

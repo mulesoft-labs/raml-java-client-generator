@@ -16,10 +16,10 @@ public class Exec {
 
     private String _baseUrl;
     private Client _client;
-    
+
     public Exec() {
-    		_baseUrl = null;
-		_client = null;
+        _baseUrl = null;
+        _client = null;
     }
 
     public Exec(String baseUrl, Client _client) {

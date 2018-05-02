@@ -9,11 +9,11 @@ public class Cs {
     private String _baseUrl;
     private Client _client;
     public final Login login;
-    
+
     public Cs() {
-    		_baseUrl = null;
-		_client = null;
-		login = null;
+        _baseUrl = null;
+        _client = null;
+        login = null;
     }
 
     public Cs(String baseUrl, Client _client) {

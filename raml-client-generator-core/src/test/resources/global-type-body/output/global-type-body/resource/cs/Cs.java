@@ -11,11 +11,11 @@ public class Cs {
     public final Login login;
 
     public Cs() {
-    		_baseUrl = null;
-		_client = null;
-		login = null;
+        _baseUrl = null;
+        _client = null;
+        login = null;
     }
-    
+
     public Cs(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/cs");
         this._client = _client;

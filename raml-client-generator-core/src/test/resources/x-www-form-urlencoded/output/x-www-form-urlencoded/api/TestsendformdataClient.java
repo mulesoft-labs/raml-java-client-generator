@@ -16,10 +16,10 @@ public class TestsendformdataClient {
     public final SendFormData sendFormData;
 
     public TestsendformdataClient() {
-    		_baseUrl = null;
-		sendFormData = null;
+        _baseUrl = null;
+        sendFormData = null;
     }
-    
+
     public TestsendformdataClient(String baseUrl) {
         _baseUrl = baseUrl;
         sendFormData = new SendFormData(getBaseUri(), getClient());

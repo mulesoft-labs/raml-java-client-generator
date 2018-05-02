@@ -14,10 +14,10 @@ public class MultiBodyClient {
 
     private String _baseUrl;
     public final Cs cs;
-    
+
     public MultiBodyClient() {
-    		_baseUrl = null;
-		cs = null;
+        _baseUrl = null;
+        cs = null;
     }
 
     public MultiBodyClient(String baseUrl) {

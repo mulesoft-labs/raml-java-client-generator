@@ -17,10 +17,10 @@ public class Users {
     private Client _client;
 
     public Users() {
-    		_baseUrl = null;
-		_client = null;
+        _baseUrl = null;
+        _client = null;
     }
-    
+
     public Users(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/users");
         this._client = _client;

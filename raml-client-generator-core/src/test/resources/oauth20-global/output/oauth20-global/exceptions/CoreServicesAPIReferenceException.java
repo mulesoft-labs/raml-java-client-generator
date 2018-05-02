@@ -1,5 +1,5 @@
 
-package oauth20.exceptions;
+package oauth20-global.exceptions;
 
 
 public class CoreServicesAPIReferenceException

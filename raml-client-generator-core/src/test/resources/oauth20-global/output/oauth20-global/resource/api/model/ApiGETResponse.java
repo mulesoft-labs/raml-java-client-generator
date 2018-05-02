@@ -1,5 +1,5 @@
 
-package oauth20.resource.api.model;
+package oauth20-global.resource.api.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,21 +40,11 @@ public class ApiGETResponse {
         this.user = user;
     }
 
-    /**
-     * 
-     * @return
-     *     The user
-     */
     @JsonProperty("user")
     public String getUser() {
         return user;
     }
 
-    /**
-     * 
-     * @param user
-     *     The user
-     */
     @JsonProperty("user")
     public void setUser(String user) {
         this.user = user;
@@ -63,11 +53,6 @@ public class ApiGETResponse {
     public ApiGETResponse withUser(String user) {
         this.user = user;
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter
@@ -83,6 +68,11 @@ public class ApiGETResponse {
     public ApiGETResponse withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("user", user).append("additionalProperties", additionalProperties).toString();
     }
 
     @Override

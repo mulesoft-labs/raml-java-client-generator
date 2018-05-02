@@ -14,6 +14,11 @@ public class Rename {
     private String _baseUrl;
     private Client _client;
 
+    public Rename() {
+        _baseUrl = null;
+        _client = null;
+    }
+
     public Rename(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/rename");
         this._client = _client;

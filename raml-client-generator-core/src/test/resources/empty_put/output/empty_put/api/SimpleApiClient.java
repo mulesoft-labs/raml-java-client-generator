@@ -9,6 +9,10 @@ public class SimpleApiClient {
 
     private String _baseUrl;
 
+    public SimpleApiClient() {
+        _baseUrl = null;
+    }
+
     public SimpleApiClient(String baseUrl) {
         _baseUrl = baseUrl;
     }

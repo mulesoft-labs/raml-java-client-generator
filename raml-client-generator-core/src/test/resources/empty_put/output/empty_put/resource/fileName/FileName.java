@@ -15,6 +15,11 @@ public class FileName {
     private String _baseUrl;
     private Client _client;
 
+    public FileName() {
+        _baseUrl = null;
+        _client = null;
+    }
+
     public FileName(String baseUrl, Client _client, String uriParam) {
         _baseUrl = (baseUrl +("/"+ uriParam));
         this._client = _client;

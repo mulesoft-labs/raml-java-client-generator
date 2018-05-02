@@ -12,12 +12,13 @@ public class Cs {
     private Client _client;
     public final Data data;
     public final Login login;
-    
+
     public Cs() {
-    		_baseUrl = null;
-		_client = null;
-		data = null;
-		login = null;
+        _baseUrl = null;
+        _client = null;
+        data = null;
+        foo = null;
+        login = null;
     }
 
     public Cs(String baseUrl, Client _client) {

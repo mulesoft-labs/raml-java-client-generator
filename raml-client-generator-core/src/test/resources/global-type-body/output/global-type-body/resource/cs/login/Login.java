@@ -15,10 +15,10 @@ public class Login {
     private Client _client;
 
     public Login() {
-    		_baseUrl = null;
-		_client = null;
+        _baseUrl = null;
+        _client = null;
     }
-    
+
     public Login(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/login");
         this._client = _client;

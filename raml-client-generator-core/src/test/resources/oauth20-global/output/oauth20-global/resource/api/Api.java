@@ -1,5 +1,5 @@
 
-package oauth20.resource.api;
+package oauth20-global.resource.api;
 
 import java.util.List;
 import javax.ws.rs.client.Client;
@@ -8,13 +8,18 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-import oauth20.exceptions.CoreServicesAPIReferenceException;
-import oauth20.resource.api.model.ApiGETResponse;
+import oauth20-global.exceptions.CoreServicesAPIReferenceException;
+import oauth20-global.resource.api.model.ApiGETResponse;
 
 public class Api {
 
     private String _baseUrl;
     private Client _client;
+
+    public Api() {
+        _baseUrl = null;
+        _client = null;
+    }
 
     public Api(String baseUrl, Client _client) {
         _baseUrl = (baseUrl +"/api");

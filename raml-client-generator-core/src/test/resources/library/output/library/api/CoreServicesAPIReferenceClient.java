@@ -13,11 +13,6 @@ public class CoreServicesAPIReferenceClient {
      * 
      */
     public final Provider provider;
-    
-    public CoreServicesAPIReferenceClient() {
-    		_baseUrl = null;
-		provider = null;
-    }
 
     public CoreServicesAPIReferenceClient(String baseUrl) {
         _baseUrl = baseUrl;

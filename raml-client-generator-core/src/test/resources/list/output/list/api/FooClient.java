@@ -15,11 +15,11 @@ public class FooClient {
     private String _baseUrl;
     public final Users users;
 
-    public FooCLient() {
-    		_baseUrl = null;
-		users = null;
+    public FooClient() {
+        _baseUrl = null;
+        users = null;
     }
-    
+
     public FooClient(String baseUrl) {
         _baseUrl = baseUrl;
         users = new Users(getBaseUri(), getClient());
