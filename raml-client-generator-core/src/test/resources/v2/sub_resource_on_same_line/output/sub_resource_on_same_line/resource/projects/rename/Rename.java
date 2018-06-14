@@ -1,5 +1,5 @@
 
-package design_center.resource.projects.rename;
+package sub_resource_on_same_line.resource.projects.rename;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -7,8 +7,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-import design_center.exceptions.DesignCenterProjectsServiceException;
-import design_center.responses.DesignCenterProjectsServiceResponse;
+import sub_resource_on_same_line.exceptions.DesignCenterProjectsServicewithsubresourceonsamelineException;
+import sub_resource_on_same_line.responses.DesignCenterProjectsServicewithsubresourceonsamelineResponse;
 
 public class Rename {
 
@@ -37,15 +37,15 @@ public class Rename {
      * Rename a project
      * 
      */
-    public DesignCenterProjectsServiceResponse<Void> put(Object body) {
+    public DesignCenterProjectsServicewithsubresourceonsamelineResponse<Void> put(Object body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.put(Entity.json(body));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new DesignCenterProjectsServiceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new DesignCenterProjectsServicewithsubresourceonsamelineException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
-        DesignCenterProjectsServiceResponse<Void> apiResponse = new DesignCenterProjectsServiceResponse<Void>(null, response.getStringHeaders(), response);
+        DesignCenterProjectsServicewithsubresourceonsamelineResponse<Void> apiResponse = new DesignCenterProjectsServicewithsubresourceonsamelineResponse<Void>(null, response.getStringHeaders(), response);
         return apiResponse;
     }
 

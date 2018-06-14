@@ -50,6 +50,8 @@ public class SendFormData {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new TestsendformdataException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
+        TestsendformdataResponse<Void> apiResponse = new TestsendformdataResponse<Void>(null, response.getStringHeaders(), response);
+        return apiResponse;
     }
 
 }

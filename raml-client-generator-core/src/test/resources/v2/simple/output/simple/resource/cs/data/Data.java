@@ -13,6 +13,7 @@ public class Data {
     public Data() {
         _baseUrl = null;
         _client = null;
+        foo = null;
     }
 
     public Data(String baseUrl, Client _client) {

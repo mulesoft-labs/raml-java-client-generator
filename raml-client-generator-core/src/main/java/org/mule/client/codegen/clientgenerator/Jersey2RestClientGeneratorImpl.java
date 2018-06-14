@@ -192,9 +192,6 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
         ifBlock._throw(JExpr._new(exceptionClass).arg(statusInfo.invoke("getStatusCode")).arg(statusInfo.invoke("getReasonPhrase")));
         
-        
-        
-        
         if (returnType != cm.VOID) {
         	JInvocation jInvocation;
             if (returnType.equals(cm.ref(Object.class))) {
@@ -218,6 +215,13 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             } else {
             	body._return(jInvocation);
             }
+        } else if ( outputVersion.ordinal() >= OutputVersion.v2.ordinal() ) {
+            JInvocation apiResponseInvocation = JExpr._new(responseClass.narrow(Void.class));
+            apiResponseInvocation.arg(JExpr._null());
+            apiResponseInvocation.arg(responseVal.invoke("getStringHeaders"));
+            apiResponseInvocation.arg(responseVal);
+            final JVar apiResponseVal = body.decl(responseClass.narrow(returnType), "apiResponse", apiResponseInvocation);
+            body._return(apiResponseVal);
         }
     }
 

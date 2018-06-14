@@ -1,0 +1,20 @@
+#%RAML 1.0
+baseUri: http://{host}:{port}/repository/api/v1
+baseUriParameters:
+  host:
+    example: exchange-vcs-1186014507.us-east-1.elb.amazonaws.com
+  port:
+    type: number
+    example: 8080
+title: Design Center Projects Service - with sub-resource on same line
+version: v1
+mediaType: application/json
+
+/projects/rename:
+      put:
+        description: Rename a project
+        body:
+          #schema: projectName
+        responses:
+          202:
+          404:
