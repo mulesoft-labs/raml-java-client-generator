@@ -1,0 +1,95 @@
+
+package multi_body.resource.cs.login.model;
+
+import java.util.HashMap;
+import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+    "userId"
+})
+public class LoginGETResponseBody {
+
+    @JsonProperty("userId")
+    private String userId;
+    @JsonIgnore
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public LoginGETResponseBody() {
+    }
+
+    /**
+     * 
+     * @param userId
+     */
+    public LoginGETResponseBody(String userId) {
+        super();
+        this.userId = userId;
+    }
+
+    @JsonProperty("userId")
+    public String getUserId() {
+        return userId;
+    }
+
+    @JsonProperty("userId")
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public LoginGETResponseBody withUserId(String userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+    }
+
+    public LoginGETResponseBody withAdditionalProperty(String name, Object value) {
+        this.additionalProperties.put(name, value);
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).append("userId", userId).append("additionalProperties", additionalProperties).toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(userId).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof LoginGETResponseBody) == false) {
+            return false;
+        }
+        LoginGETResponseBody rhs = ((LoginGETResponseBody) other);
+        return new EqualsBuilder().append(userId, rhs.userId).append(additionalProperties, rhs.additionalProperties).isEquals();
+    }
+
+}

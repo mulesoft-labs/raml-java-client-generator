@@ -1,0 +1,18 @@
+#%RAML 0.8
+title: Client API
+version: 0.1
+baseUri: http://mycompany.com/clientservice/api
+documentation:
+  - title : Users Platform
+    content : This api describes how to access to the users platform
+mediaType: application/json
+/users:
+  description: "Users in the platform"
+  get:
+    description: "Returns the list of all users"
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+             [{"user" : "Mariano"}]

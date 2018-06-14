@@ -1,0 +1,16 @@
+#%RAML 1.0
+
+title: My api
+types:
+  myType:
+    type: object
+    properties:
+      name: string
+/test:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            type: myType
+

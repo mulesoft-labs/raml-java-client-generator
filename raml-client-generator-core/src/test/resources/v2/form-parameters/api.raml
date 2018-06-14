@@ -1,0 +1,26 @@
+#%RAML 0.8
+---
+title: DataWeave API
+baseUri: http://dataweave-api.cloudhub.io/api
+documentation: 
+  - title: DataWeave Engine API    
+    content: Interact with the Data Weave Engine.
+/exec:
+  description: "Executes a Data Weave Script with the specified inputs."
+  post: 
+   body:
+     multipart/form-data:
+       formParameters:
+         file:
+           description: The file to be uploaded
+           required: true
+           type: file
+         From:
+            description: |
+              The phone number or client identifier to use as the caller id. If
+              using a phone number, it must be a Twilio number or a Verified
+              outgoing caller id for your account.
+            type: string
+            required: true
+            pattern: (\+1|1)?([2-9]\d\d[2-9]\d{6}) # E.164 standard
+            example: +14158675309

@@ -1,11 +1,31 @@
 package org.mule.client.codegen;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.sun.codemodel.*;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.mule.client.codegen.utils.SecuritySchemesHelper.BASIC_AUTHENTICATION;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.client.Client;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jsonschema2pojo.*;
+import org.jsonschema2pojo.DefaultGenerationConfig;
+import org.jsonschema2pojo.Jackson2Annotator;
+import org.jsonschema2pojo.SchemaGenerator;
+import org.jsonschema2pojo.SchemaMapper;
+import org.jsonschema2pojo.SchemaStore;
+import org.jsonschema2pojo.SourceType;
 import org.jsonschema2pojo.rules.RuleFactory;
 import org.mule.client.codegen.clientgenerator.Jersey2RestClientGeneratorImpl;
 import org.mule.client.codegen.model.JBodyType;
@@ -17,20 +37,33 @@ import org.mule.client.codegen.utils.NameHelper;
 import org.mule.client.codegen.utils.SecuritySchemesHelper;
 import org.mule.client.codegen.utils.TypeConstants;
 import org.mule.raml.ApiModelLoader;
-import org.mule.raml.model.*;
+import org.mule.raml.model.Action;
+import org.mule.raml.model.ActionType;
+import org.mule.raml.model.ApiModel;
+import org.mule.raml.model.MimeType;
+import org.mule.raml.model.Resource;
+import org.mule.raml.model.Response;
+import org.mule.raml.model.SecurityScheme;
+import org.mule.raml.model.TypeFieldDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Client;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.*;
-
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.mule.client.codegen.utils.SecuritySchemesHelper.BASIC_AUTHENTICATION;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
+import com.sun.codemodel.JVar;
 
 public class RamlJavaClientGenerator {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String OK_RESPONSE = "200";
 
@@ -65,17 +98,23 @@ public class RamlJavaClientGenerator {
     private String basePackage;
     private File targetFolder;
     private RestClientGenerator clientGenerator;
+    private OutputVersion outputVersion;
 
     // This two properties hold state so maybe should be local and pass through
     private Map<String, JType> globalTypes;
     private Map<String, Pair<JDefinedClass, JMethod>> resourceClasses;
 
     public RamlJavaClientGenerator(String basePackage, File targetFolder) {
+        this(basePackage, targetFolder, OutputVersion.v1);
+    }
+
+    public RamlJavaClientGenerator(String basePackage, File targetFolder, OutputVersion outputVersion) {
         this.basePackage = basePackage;
         this.targetFolder = targetFolder;
         this.clientGenerator = new Jersey2RestClientGeneratorImpl();
         this.resourceClasses = new HashMap<>();
         this.globalTypes = new HashMap<>();
+        this.outputVersion = outputVersion;
     }
 
     public void generate(URL ramlFile) throws JClassAlreadyExistsException, IOException {
@@ -84,10 +123,10 @@ public class RamlJavaClientGenerator {
         }
         globalTypes.clear();
         resourceClasses.clear();
-        System.out.println("Start generating for " + ramlFile);
+        logger.info("Start generating for " + ramlFile);
         try (final InputStreamReader inputStreamReader = new InputStreamReader(ramlFile.openStream())) {
             final ApiModel raml = ApiModelLoader.build(inputStreamReader, ramlFile.toExternalForm());
-            System.out.println("Parsed successfully " + ramlFile);
+            logger.info("Parsed successfully " + ramlFile);
             generate(raml);
         }
 
@@ -111,6 +150,9 @@ public class RamlJavaClientGenerator {
         }
 
         this.clientGenerator.buildCustomException(cm, basePackage, raml.getTitle());
+        if ( outputVersion.ordinal() >= OutputVersion.v2.ordinal() ) {
+            this.clientGenerator.buildCustomResponse(cm, basePackage, raml);
+        }
 
         final JDefinedClass containerClientClass = cm
                 ._class(basePackage + PACKAGE_SEPARATOR + "api" + PACKAGE_SEPARATOR + NameHelper.toValidClassName(raml.getTitle()) + CLIENT_CLASS_SUFFIX);
@@ -199,9 +241,9 @@ public class RamlJavaClientGenerator {
         if (!targetFolder.exists()) {
             targetFolder.mkdirs();
         }
-
-        cm.build(targetFolder);
-        System.out.println("Finished Generation");
+        // TODO add a output or disable output
+        cm.build(targetFolder, targetFolder, null);
+        logger.info("Finished Generation");
     }
 
     private void buildResourceClass(JCodeModel cm, JDefinedClass containerClass, JMethod defaultContainerConstructor, JMethod containerConstructor, Map<String, Resource> resources, String containerResource,
@@ -219,7 +261,7 @@ public class RamlJavaClientGenerator {
                     final String resourceName = resourceParts[i];
                     final Resource resource = stringResourceEntry.getValue();
                     final String resourcePath = parentResource + "/" + resourceName;
-                    System.out.println("-" + resourcePath);
+                    logger.info("-" + resourcePath);
                     final JDefinedClass resourceClass;
                     JMethod defaultConstructor = null;
                     final JMethod resourceConstructor;
@@ -316,7 +358,7 @@ public class RamlJavaClientGenerator {
         for (Map.Entry<ActionType, Action> actionTypeActionEntry : actions.entrySet()) {
             final ActionType actionType = actionTypeActionEntry.getKey();
             final Action action = actionTypeActionEntry.getValue();
-            System.out.println("  " + action.getType() + "");
+            logger.info("  " + action.getType() + "");
 
             final Response response = action.getResponses().get(OK_RESPONSE);
             final List<JBodyType> bodiesType = buildBodyType(cm, actionType, action, resourcePath, resourceName);
@@ -324,10 +366,10 @@ public class RamlJavaClientGenerator {
             final JType queryParameterType = buildQueryParametersType(cm, actionType, action, resourcePath, resourceName);
             final JType headerParameterType = buildHeaderType(cm, resourcePath, resourceName, actionType, action);
             if (bodiesType.isEmpty()) {
-                clientGenerator.callHttpMethod(cm, resourceClass, returnType, null, queryParameterType, headerParameterType, action, apiModel);
+                clientGenerator.callHttpMethod(cm, resourceClass, returnType, outputVersion, null, queryParameterType, headerParameterType, action, apiModel);
             } else {
                 for (JBodyType bodyType : bodiesType) {
-                    clientGenerator.callHttpMethod(cm, resourceClass, returnType, bodyType, queryParameterType, headerParameterType, action, apiModel);
+                    clientGenerator.callHttpMethod(cm, resourceClass, returnType, outputVersion, bodyType, queryParameterType, headerParameterType, action, apiModel);
                 }
             }
         }
@@ -343,7 +385,10 @@ public class RamlJavaClientGenerator {
                     final Map.Entry<String, MimeType> bodyEntry = bodies.next();
                     final MimeType mimeType = bodyEntry.getValue();
                     if (MimeTypeHelper.isJsonType(mimeType)) {
-                        final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + RESPONSE_CLASS_SUFFIX;
+                        String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + RESPONSE_CLASS_SUFFIX;
+                        if ( outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
+                            className = className + BODY_CLASS_SUFFIX;
+                        }
                         returnType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, mimeType, className);
                         if (returnType == null) {
                             returnType = cm.ref(Object.class);
@@ -406,7 +451,7 @@ public class RamlJavaClientGenerator {
                 if (bodyType != null) {
                     result.add(new JBodyType(bodyType, mimeType));
                 } else {
-                    System.out.println("No type was inferred for body type at " + resourcePath + " on method " + action.getType());
+                    logger.info("No type was inferred for body type at " + resourcePath + " on method " + action.getType());
                 }
             }
         }
@@ -448,7 +493,6 @@ public class RamlJavaClientGenerator {
         for (Map.Entry<String, TypeFieldDefinition> parameterEntry : paramMap.entrySet()) {
             String parameterName = parameterEntry.getKey();
             TypeFieldDefinition typeFieldDefinition = parameterEntry.getValue();
-            String type = typeFieldDefinition.getType();
             String defaultValueDefinition = typeFieldDefinition.getDefaultValue();
             String descriptionDefinition = typeFieldDefinition.getDescription();
 
@@ -532,7 +576,7 @@ public class RamlJavaClientGenerator {
             SchemaMapper schemaMapper = new SchemaMapper(getRuleFactory(sourceType), new SchemaGenerator());
             return schemaMapper.generate(codeModel, className, packageName, json);
         } catch (JsonParseException e) {
-            System.out.println("Can not generate  " + className + " from schema since : " + e.getMessage());
+            logger.info("Can not generate  " + className + " from schema since : " + e.getMessage());
             return codeModel.ref(String.class);
         }
     }
