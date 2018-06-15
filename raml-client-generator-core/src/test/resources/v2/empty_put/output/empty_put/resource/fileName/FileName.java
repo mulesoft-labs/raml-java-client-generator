@@ -52,6 +52,8 @@ public class FileName {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new SimpleApiException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
+        SimpleApiResponse<Void> apiResponse = new SimpleApiResponse<Void>(null, response.getStringHeaders(), response);
+        return apiResponse;
     }
 
 }

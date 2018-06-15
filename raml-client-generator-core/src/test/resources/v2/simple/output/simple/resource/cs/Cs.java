@@ -17,7 +17,6 @@ public class Cs {
         _baseUrl = null;
         _client = null;
         data = null;
-        foo = null;
         login = null;
     }
 

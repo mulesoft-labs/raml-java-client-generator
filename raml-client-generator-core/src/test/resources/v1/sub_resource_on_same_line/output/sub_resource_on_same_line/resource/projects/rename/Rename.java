@@ -1,31 +1,27 @@
 
-package simple.resource.cs.id;
+package sub_resource_on_same_line.resource.projects.rename;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-import simple.exceptions.FooException;
-import simple.resource.cs.id.bar.Bar;
-import simple.responses.FooResponse;
+import sub_resource_on_same_line.exceptions.DesignCenterProjectsServicewithsubresourceonsamelineException;
 
-public class Id {
+public class Rename {
 
     private String _baseUrl;
     private Client _client;
-    public final Bar bar;
 
-    public Id() {
+    public Rename() {
         _baseUrl = null;
         _client = null;
-        bar = null;
     }
 
-    public Id(String baseUrl, Client _client, String uriParam) {
-        _baseUrl = (baseUrl +("/"+ uriParam));
+    public Rename(String baseUrl, Client _client) {
+        _baseUrl = (baseUrl +"/rename");
         this._client = _client;
-        bar = new Bar(getBaseUri(), getClient());
     }
 
     protected Client getClient() {
@@ -36,16 +32,18 @@ public class Id {
         return _baseUrl;
     }
 
-    public FooResponse<Void> get() {
+    /**
+     * Rename a project
+     * 
+     */
+    public void put(Object body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.get();
+        Response response = invocationBuilder.put(Entity.json(body));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new DesignCenterProjectsServicewithsubresourceonsamelineException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
-        FooResponse<Void> apiResponse = new FooResponse<Void>(null, response.getStringHeaders(), response);
-        return apiResponse;
     }
 
 }

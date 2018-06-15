@@ -51,6 +51,8 @@ public class Exec {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new DataWeaveAPIException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
+        DataWeaveAPIResponse<Void> apiResponse = new DataWeaveAPIResponse<Void>(null, response.getStringHeaders(), response);
+        return apiResponse;
     }
 
 }

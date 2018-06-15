@@ -332,12 +332,13 @@ public class RamlJavaClientGenerator {
 
                     parentClass = resourceClass;
                     parentConstructor = resourceConstructor;
+                    parentDefaultConstructor = defaultConstructor;
                     parentResource = resourcePath;
 
                     //Only last resource should trigger children and actions
                     if (i == resourceParts.length - 1) {
                         buildActionMethods(cm, resourceClass, resource, resourcePath, resourceName, apiModel);
-                        buildResourceClass(cm, resourceClass, defaultConstructor, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, apiModel);
+                        buildResourceClass(cm, resourceClass, parentDefaultConstructor, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, apiModel);
                     }
                 }
             }

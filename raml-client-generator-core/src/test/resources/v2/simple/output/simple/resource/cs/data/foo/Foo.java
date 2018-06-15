@@ -48,6 +48,8 @@ public class Foo {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
         }
+        FooResponse<Void> apiResponse = new FooResponse<Void>(null, response.getStringHeaders(), response);
+        return apiResponse;
     }
 
 }
