@@ -328,6 +328,7 @@ public class RamlJavaClientGenerator {
                         final Pair<JDefinedClass, JMethod> resourcePair = this.resourceClasses.get(resourcePath);
                         resourceClass = resourcePair.getLeft();
                         resourceConstructor = resourcePair.getRight();
+                        defaultConstructor = resourceClass.getConstructor(new JType[] {});
                     }
 
                     parentClass = resourceClass;

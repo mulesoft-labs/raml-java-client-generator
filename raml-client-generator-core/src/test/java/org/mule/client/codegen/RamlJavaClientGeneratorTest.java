@@ -46,6 +46,7 @@ public class RamlJavaClientGeneratorTest {
                 {"oauth20-global"},
                 {"simple"},
                 {"sub_resource_on_same_line"},
+                {"same_path_multiple_times"},
                 {"type_decl"},
                 {"x-www-form-urlencoded"}
         });
