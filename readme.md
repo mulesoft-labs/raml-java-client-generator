@@ -58,7 +58,7 @@ It can easily be embedded into your code just add de dependency
   <dependency>
         <groupId>org.mule.raml.codegen</groupId>
         <artifactId>raml-client-generator-core</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.2</version>
   </dependency>
 ```
 
@@ -81,7 +81,7 @@ For maven just add this plugin
             <plugin>
                 <groupId>org.mule.raml.codegen</groupId>
                 <artifactId>raml-client-generator-maven-plugin</artifactId>
-                <version>0.2-SNAPSHOT</version>
+                <version>0.2</version>
                 <executions>
                     <execution>
                         <goals>
