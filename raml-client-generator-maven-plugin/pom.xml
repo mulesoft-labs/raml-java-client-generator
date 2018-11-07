@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.mule.raml.codegen</groupId>
             <artifactId>raml-client-generator-core</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- dependencies to annotations -->
