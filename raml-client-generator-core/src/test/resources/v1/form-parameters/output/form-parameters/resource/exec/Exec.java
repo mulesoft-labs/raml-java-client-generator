@@ -48,7 +48,7 @@ public class Exec {
         Response response = invocationBuilder.post(Entity.entity(multiPart, multiPart.getMediaType()));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new DataWeaveAPIException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new DataWeaveAPIException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
     }
 

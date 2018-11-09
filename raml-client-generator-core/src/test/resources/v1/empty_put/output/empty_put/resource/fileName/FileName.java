@@ -49,7 +49,7 @@ public class FileName {
         Response response = invocationBuilder.put(Entity.entity(body, "*/*"));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new SimpleApiException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new SimpleApiException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
     }
 

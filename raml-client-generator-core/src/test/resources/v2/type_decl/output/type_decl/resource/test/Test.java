@@ -38,7 +38,7 @@ public class Test {
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new MyapiException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new MyapiException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
         MyapiResponse<type_decl.model.MyType> apiResponse = new MyapiResponse<type_decl.model.MyType>(response.readEntity(type_decl.model.MyType.class), response.getStringHeaders(), response);
         return apiResponse;

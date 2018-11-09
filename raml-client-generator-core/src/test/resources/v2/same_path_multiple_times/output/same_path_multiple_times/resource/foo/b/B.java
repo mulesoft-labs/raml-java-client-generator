@@ -38,7 +38,7 @@ public class B {
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
         FooResponse<same_path_multiple_times.resource.foo.b.model.BGETResponseBody> apiResponse = new FooResponse<same_path_multiple_times.resource.foo.b.model.BGETResponseBody>(response.readEntity(same_path_multiple_times.resource.foo.b.model.BGETResponseBody.class), response.getStringHeaders(), response);
         return apiResponse;
