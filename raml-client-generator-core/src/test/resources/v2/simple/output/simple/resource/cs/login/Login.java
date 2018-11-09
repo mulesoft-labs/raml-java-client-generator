@@ -38,7 +38,7 @@ public class Login {
         Response response = invocationBuilder.post(Entity.json(body));
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
         FooResponse<simple.resource.cs.login.model.LoginPOSTResponseBody> apiResponse = new FooResponse<simple.resource.cs.login.model.LoginPOSTResponseBody>(response.readEntity(simple.resource.cs.login.model.LoginPOSTResponseBody.class), response.getStringHeaders(), response);
         return apiResponse;
@@ -50,7 +50,7 @@ public class Login {
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
         FooResponse<simple.resource.cs.login.model.LoginGETResponseBody> apiResponse = new FooResponse<simple.resource.cs.login.model.LoginGETResponseBody>(response.readEntity(simple.resource.cs.login.model.LoginGETResponseBody.class), response.getStringHeaders(), response);
         return apiResponse;

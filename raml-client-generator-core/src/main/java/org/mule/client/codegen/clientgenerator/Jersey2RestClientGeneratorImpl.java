@@ -190,8 +190,14 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         final JBlock ifBlock = body._if(responseVal.invoke("getStatusInfo").invoke("getFamily").ne(cm.directClass("javax.ws.rs.core.Response.Status.Family").staticRef("SUCCESSFUL")))._then();
         final JVar statusInfo = ifBlock.decl(cm.ref(Response.StatusType.class), "statusInfo", responseVal.invoke("getStatusInfo"));
 
-        ifBlock._throw(JExpr._new(exceptionClass).arg(statusInfo.invoke("getStatusCode")).arg(statusInfo.invoke("getReasonPhrase")));
-        
+        ifBlock._throw(
+                JExpr._new(exceptionClass)
+                    .arg(statusInfo.invoke("getStatusCode"))
+                    .arg(statusInfo.invoke("getReasonPhrase"))
+                    .arg(responseVal.invoke("getStringHeaders"))
+                    .arg(responseVal)
+                );
+
         if (returnType != cm.VOID) {
         	JInvocation jInvocation;
             if (returnType.equals(cm.ref(Object.class))) {
@@ -250,20 +256,45 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
             JFieldVar statusCodeField = customExceptionClass.field(JMod.PRIVATE, Integer.TYPE, "statusCode");
             JFieldVar reasonField = customExceptionClass.field(JMod.PRIVATE, String.class, "reason");
+            JClass rawHeadersClass = cm.ref(MultivaluedMap.class)
+                .narrow(cm.ref(String.class), cm.ref(String.class));
+            JFieldVar headersField = customExceptionClass.field(JMod.PRIVATE, rawHeadersClass, "headers");
+            JFieldVar responseField = customExceptionClass.field(JMod.PRIVATE, Response.class, "response");
 
-            JMethod containerConstructor = customExceptionClass.constructor(JMod.PUBLIC);
+            // Constructor with only statusCode, reason, headers and response
+            JMethod exceptionConstructor = customExceptionClass.constructor(JMod.PUBLIC);
 
-            JVar statusCodeParameter = containerConstructor.param(Integer.TYPE, "statusCode");
-            JVar reasonParameter = containerConstructor.param(String.class, "reason");
+            JVar statusCodeParameter = exceptionConstructor.param(Integer.TYPE, "statusCode");
+            exceptionConstructor.body().assign(JExpr._this().ref(statusCodeField), statusCodeParameter);
 
-            containerConstructor.body().assign(JExpr._this().ref(statusCodeField), statusCodeParameter);
-            containerConstructor.body().assign(JExpr._this().ref(reasonField), reasonParameter);
+            JVar reasonParameter = exceptionConstructor.param(String.class, "reason");
+            exceptionConstructor.body().assign(JExpr._this().ref(reasonField), reasonParameter);
+
+            JVar headersParameter = exceptionConstructor.param(rawHeadersClass, "headers");
+            exceptionConstructor.body().assign(JExpr._this().ref(headersField), headersParameter);
+
+            JVar responseParameter = exceptionConstructor.param(Response.class, "response");
+            exceptionConstructor.body().assign(JExpr._this().ref(responseField), responseParameter);
+
+            // Constructor with only statusCode and reason
+            JMethod containerConstructorWithoutHeadersAndResponse = customExceptionClass.constructor(JMod.PUBLIC);
+            statusCodeParameter = containerConstructorWithoutHeadersAndResponse.param(Integer.TYPE, "statusCode");
+            reasonParameter = containerConstructorWithoutHeadersAndResponse.param(String.class, "reason");
+            JInvocation thisInvocation = JExpr.invoke("this")
+                .arg(statusCodeParameter).arg(reasonParameter).arg(JExpr._null()).arg(JExpr._null());
+            containerConstructorWithoutHeadersAndResponse.body().add(thisInvocation);
 
             JMethod statusCodeGetterMethod = customExceptionClass.method(JMod.PUBLIC, Integer.TYPE, "getStatusCode");
             JMethod reasonGetterMethod = customExceptionClass.method(JMod.PUBLIC, String.class, "getReason");
 
             statusCodeGetterMethod.body()._return(JExpr._this().ref(statusCodeField));
             reasonGetterMethod.body()._return(JExpr._this().ref(reasonField));
+
+            JMethod headersGetterMethod = customExceptionClass.method(JMod.PUBLIC, rawHeadersClass, "getHeaders");
+            headersGetterMethod.body()._return(JExpr._this().ref(headersField));
+
+            JMethod responseGetterMethod = customExceptionClass.method(JMod.PUBLIC, Response.class, "getResponse");
+            responseGetterMethod.body()._return(JExpr._this().ref(responseField));
 
             exceptionClass = customExceptionClass;
         } catch (JClassAlreadyExistsException e) {
@@ -296,7 +327,6 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         
         JVar responseParameter = containerConstructor.param(Response.class, "response");
         containerConstructor.body().assign(JExpr._this().ref(responseField), responseParameter);
-        
 
         JMethod bodyGetterMethod = customResponseClass.method(JMod.PUBLIC, genericType, "getBody");
         bodyGetterMethod.body()._return(JExpr._this().ref(bodyField));

@@ -44,7 +44,7 @@ public class Users {
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new ClientAPIException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new ClientAPIException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
         return response.readEntity(new GenericType<List<UsersGETResponse>>() {
 

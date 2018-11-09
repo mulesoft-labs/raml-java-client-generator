@@ -43,7 +43,7 @@ public class Rename {
         Response response = invocationBuilder.put(Entity.json(body));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new DesignCenterProjectsServiceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new DesignCenterProjectsServiceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
         DesignCenterProjectsServiceResponse<Void> apiResponse = new DesignCenterProjectsServiceResponse<Void>(null, response.getStringHeaders(), response);
         return apiResponse;

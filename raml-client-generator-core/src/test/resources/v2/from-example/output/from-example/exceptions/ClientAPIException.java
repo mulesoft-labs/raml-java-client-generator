@@ -1,6 +1,8 @@
 
 package from-example.exceptions;
 
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 public class ClientAPIException
     extends RuntimeException
@@ -8,10 +10,18 @@ public class ClientAPIException
 
     private int statusCode;
     private String reason;
+    private MultivaluedMap<String, String> headers;
+    private Response response;
 
-    public ClientAPIException(int statusCode, String reason) {
+    public ClientAPIException(int statusCode, String reason, MultivaluedMap<String, String> headers, Response response) {
         this.statusCode = statusCode;
         this.reason = reason;
+        this.headers = headers;
+        this.response = response;
+    }
+
+    public ClientAPIException(int statusCode, String reason) {
+        this(statusCode, reason, null, null);
     }
 
     public int getStatusCode() {
@@ -20,6 +30,14 @@ public class ClientAPIException
 
     public String getReason() {
         return this.reason;
+    }
+
+    public MultivaluedMap<String, String> getHeaders() {
+        return this.headers;
+    }
+
+    public Response getResponse() {
+        return this.response;
     }
 
 }

@@ -47,7 +47,7 @@ public class SendFormData {
         Response response = invocationBuilder.post(Entity.entity(multiValuedMap, javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new TestsendformdataException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new TestsendformdataException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
     }
 

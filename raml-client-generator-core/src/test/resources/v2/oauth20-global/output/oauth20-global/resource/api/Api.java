@@ -46,7 +46,7 @@ public class Api {
         Response response = invocationBuilder.get();
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new CoreServicesAPIReferenceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase());
+            throw new CoreServicesAPIReferenceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
         CoreServicesAPIReferenceResponse<List<ApiGETResponseBody>> apiResponse = new CoreServicesAPIReferenceResponse<List<ApiGETResponseBody>>(response.readEntity(new GenericType<List<ApiGETResponseBody>>() {
 

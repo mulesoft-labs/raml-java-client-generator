@@ -32,7 +32,7 @@ mediaType: application/json
 Using the generated api 
 
 ```java
-final List<UsersGETResponse> result = ClientAPIClient.create().users.get();
+final ClientAPIResponse<List<UsersGETResponseBody>> result = ClientAPIClient.create().users.get();
 ```
 
 Customizing the client 
