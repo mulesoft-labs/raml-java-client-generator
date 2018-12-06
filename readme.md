@@ -1,4 +1,5 @@
 # RAML Client Generator
+
 ![alt text](https://travis-ci.org/mulesoft-labs/raml-java-client-generator.svg?branch=master "Logo Title Text 1")
   
 This tool generates a java rest client for a raml based api using a resource api approach. 
@@ -50,9 +51,10 @@ final ClientAPIClient client = new ClientAPIClient() {
 client.users.userId("luis").get();
 ```
 
-## Using it from java
+## Calling the code generator from Java
 
-It can easily be embedded into your code just add de dependency
+It can easily be embedded the code generation into your code just.
+Add the dependency to `pom.xml`
 
 ```xml
   <dependency>
@@ -60,6 +62,18 @@ It can easily be embedded into your code just add de dependency
         <artifactId>raml-client-generator-core</artifactId>
         <version>0.2</version>
   </dependency>
+```
+
+**Note:** Since the RAML Java Client Generator artifacts are not published to Maven Central you will also have to add the following repository either to your `pom.xml` or an active profile in your maven settings.
+
+```xml
+  <repositories>
+    <repository>
+      <id>mulesoft-releases</id>
+      <name>Mule Release Repository</name>
+      <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases</url>
+    </repository>
+  </repositories>
 ```
 
 And then call the RamlJavaClientGenerator
@@ -70,9 +84,9 @@ And then call the RamlJavaClientGenerator
                 targetFolder).generate(this.getClass().getClassLoader().getResource("simple/basic.raml"));
 ```
 
-## Using it from maven
+## Generate client code from RAML using the maven plugin
 
-For maven just add this plugin 
+There is also a maven plugin that allows you to generate the client code during your build process.
 
 
 ```xml
@@ -95,4 +109,16 @@ For maven just add this plugin
             </plugin>
         </plugins>
     </build>
-```    
+```
+
+**Note:** Since the RAML Java Client Generator artifacts are not published to Maven Central you will also have to add the following plugin repository either to your `pom.xml` or an active profile in your maven settings.
+
+```xml
+  <pluginRepositories>
+    <pluginRepository>
+      <id>mulesoft-releases</id>
+      <name>Mule Release Repository</name>
+      <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases</url>
+    </pluginRepository>
+  </pluginRepositories>
+```
