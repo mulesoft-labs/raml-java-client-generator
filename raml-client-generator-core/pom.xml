@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.raml</groupId>
             <artifactId>raml-parser-2</artifactId>
-            <version>1.0.19</version>
+            <version>1.0.34</version>
             <scope>compile</scope>
         </dependency>
         <!--All this are dependencies from raml-parser don't know why are not being taken automatically-->
@@ -68,28 +68,34 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.fge</groupId>
-            <artifactId>json-schema-validator</artifactId>
-            <version>2.2.6</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.github.java-json-tools</groupId>-->
+<!--            <artifactId>json-schema-validator</artifactId>-->
+<!--            <version>2.2.10</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>javax.mail</groupId>-->
+<!--                    <artifactId>mailapi</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jsonSchema</artifactId>
             <version>2.8.3</version>
         </dependency>
-        <dependency>
-            <groupId>com.googlecode.juniversalchardet</groupId>
-            <artifactId>juniversalchardet</artifactId>
-            <version>1.0.3</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.googlecode.juniversalchardet</groupId>-->
+<!--            <artifactId>juniversalchardet</artifactId>-->
+<!--            <version>1.0.3</version>-->
+<!--        </dependency>-->
         <!-- End -->
 
         <!--Schema generator tool-->
         <dependency>
             <groupId>org.jsonschema2pojo</groupId>
             <artifactId>jsonschema2pojo-core</artifactId>
-            <version>0.5.1</version>
+            <version>1.0.1</version>
         </dependency>
 
         <!--Jersey client-->

@@ -9,9 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -192,12 +189,60 @@ public class ProviderGETResponseBody {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("type", type).append("oauth2AuthorizationProvider", oauth2AuthorizationProvider).append("oauth2ClientProvider", oauth2ClientProvider).append("oauth2TokenProvider", oauth2TokenProvider).append("oauth2TokenValidationProvider", oauth2TokenValidationProvider).append("saml", saml).append("serviceProvider", serviceProvider).append("additionalProperties", additionalProperties).toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(ProviderGETResponseBody.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("type");
+        sb.append('=');
+        sb.append(((this.type == null)?"<null>":this.type));
+        sb.append(',');
+        sb.append("oauth2AuthorizationProvider");
+        sb.append('=');
+        sb.append(((this.oauth2AuthorizationProvider == null)?"<null>":this.oauth2AuthorizationProvider));
+        sb.append(',');
+        sb.append("oauth2ClientProvider");
+        sb.append('=');
+        sb.append(((this.oauth2ClientProvider == null)?"<null>":this.oauth2ClientProvider));
+        sb.append(',');
+        sb.append("oauth2TokenProvider");
+        sb.append('=');
+        sb.append(((this.oauth2TokenProvider == null)?"<null>":this.oauth2TokenProvider));
+        sb.append(',');
+        sb.append("oauth2TokenValidationProvider");
+        sb.append('=');
+        sb.append(((this.oauth2TokenValidationProvider == null)?"<null>":this.oauth2TokenValidationProvider));
+        sb.append(',');
+        sb.append("saml");
+        sb.append('=');
+        sb.append(((this.saml == null)?"<null>":this.saml));
+        sb.append(',');
+        sb.append("serviceProvider");
+        sb.append('=');
+        sb.append(((this.serviceProvider == null)?"<null>":this.serviceProvider));
+        sb.append(',');
+        sb.append("additionalProperties");
+        sb.append('=');
+        sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(oauth2ClientProvider).append(oauth2AuthorizationProvider).append(saml).append(serviceProvider).append(additionalProperties).append(type).append(oauth2TokenValidationProvider).append(oauth2TokenProvider).toHashCode();
+        int result = 1;
+        result = ((result* 31)+((this.oauth2ClientProvider == null)? 0 :this.oauth2ClientProvider.hashCode()));
+        result = ((result* 31)+((this.oauth2AuthorizationProvider == null)? 0 :this.oauth2AuthorizationProvider.hashCode()));
+        result = ((result* 31)+((this.saml == null)? 0 :this.saml.hashCode()));
+        result = ((result* 31)+((this.serviceProvider == null)? 0 :this.serviceProvider.hashCode()));
+        result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
+        result = ((result* 31)+((this.type == null)? 0 :this.type.hashCode()));
+        result = ((result* 31)+((this.oauth2TokenValidationProvider == null)? 0 :this.oauth2TokenValidationProvider.hashCode()));
+        result = ((result* 31)+((this.oauth2TokenProvider == null)? 0 :this.oauth2TokenProvider.hashCode()));
+        return result;
     }
 
     @Override
@@ -209,7 +254,7 @@ public class ProviderGETResponseBody {
             return false;
         }
         ProviderGETResponseBody rhs = ((ProviderGETResponseBody) other);
-        return new EqualsBuilder().append(oauth2ClientProvider, rhs.oauth2ClientProvider).append(oauth2AuthorizationProvider, rhs.oauth2AuthorizationProvider).append(saml, rhs.saml).append(serviceProvider, rhs.serviceProvider).append(additionalProperties, rhs.additionalProperties).append(type, rhs.type).append(oauth2TokenValidationProvider, rhs.oauth2TokenValidationProvider).append(oauth2TokenProvider, rhs.oauth2TokenProvider).isEquals();
+        return (((((((((this.oauth2ClientProvider == rhs.oauth2ClientProvider)||((this.oauth2ClientProvider!= null)&&this.oauth2ClientProvider.equals(rhs.oauth2ClientProvider)))&&((this.oauth2AuthorizationProvider == rhs.oauth2AuthorizationProvider)||((this.oauth2AuthorizationProvider!= null)&&this.oauth2AuthorizationProvider.equals(rhs.oauth2AuthorizationProvider))))&&((this.saml == rhs.saml)||((this.saml!= null)&&this.saml.equals(rhs.saml))))&&((this.serviceProvider == rhs.serviceProvider)||((this.serviceProvider!= null)&&this.serviceProvider.equals(rhs.serviceProvider))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.type == rhs.type)||((this.type!= null)&&this.type.equals(rhs.type))))&&((this.oauth2TokenValidationProvider == rhs.oauth2TokenValidationProvider)||((this.oauth2TokenValidationProvider!= null)&&this.oauth2TokenValidationProvider.equals(rhs.oauth2TokenValidationProvider))))&&((this.oauth2TokenProvider == rhs.oauth2TokenProvider)||((this.oauth2TokenProvider!= null)&&this.oauth2TokenProvider.equals(rhs.oauth2TokenProvider))));
     }
 
 }

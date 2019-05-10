@@ -9,9 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -132,12 +129,45 @@ public class Oauth2TokenValidationProvider {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("name", name).append("url", url).append("clientId", clientId).append("clientSecret", clientSecret).append("additionalProperties", additionalProperties).toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(Oauth2TokenValidationProvider.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("name");
+        sb.append('=');
+        sb.append(((this.name == null)?"<null>":this.name));
+        sb.append(',');
+        sb.append("url");
+        sb.append('=');
+        sb.append(((this.url == null)?"<null>":this.url));
+        sb.append(',');
+        sb.append("clientId");
+        sb.append('=');
+        sb.append(((this.clientId == null)?"<null>":this.clientId));
+        sb.append(',');
+        sb.append("clientSecret");
+        sb.append('=');
+        sb.append(((this.clientSecret == null)?"<null>":this.clientSecret));
+        sb.append(',');
+        sb.append("additionalProperties");
+        sb.append('=');
+        sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(name).append(clientSecret).append(clientId).append(additionalProperties).append(url).toHashCode();
+        int result = 1;
+        result = ((result* 31)+((this.name == null)? 0 :this.name.hashCode()));
+        result = ((result* 31)+((this.clientSecret == null)? 0 :this.clientSecret.hashCode()));
+        result = ((result* 31)+((this.clientId == null)? 0 :this.clientId.hashCode()));
+        result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
+        result = ((result* 31)+((this.url == null)? 0 :this.url.hashCode()));
+        return result;
     }
 
     @Override
@@ -149,7 +179,7 @@ public class Oauth2TokenValidationProvider {
             return false;
         }
         Oauth2TokenValidationProvider rhs = ((Oauth2TokenValidationProvider) other);
-        return new EqualsBuilder().append(name, rhs.name).append(clientSecret, rhs.clientSecret).append(clientId, rhs.clientId).append(additionalProperties, rhs.additionalProperties).append(url, rhs.url).isEquals();
+        return ((((((this.name == rhs.name)||((this.name!= null)&&this.name.equals(rhs.name)))&&((this.clientSecret == rhs.clientSecret)||((this.clientSecret!= null)&&this.clientSecret.equals(rhs.clientSecret))))&&((this.clientId == rhs.clientId)||((this.clientId!= null)&&this.clientId.equals(rhs.clientId))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.url == rhs.url)||((this.url!= null)&&this.url.equals(rhs.url))));
     }
 
 }

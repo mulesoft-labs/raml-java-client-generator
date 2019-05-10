@@ -61,6 +61,15 @@ public class MimeTypeImpl implements MimeType {
     }
 
     @Override
+    public String getSchemaPath() {
+        if (typeDeclaration instanceof ExternalTypeDeclaration) {
+            return ((ExternalTypeDeclaration) typeDeclaration).schemaPath();
+        }
+        return null;
+
+    }
+
+    @Override
     public Map<String, TypeFieldDefinition> getFormParameters() {
         // no longer supported in RAML 1.0
         return new HashMap<>();

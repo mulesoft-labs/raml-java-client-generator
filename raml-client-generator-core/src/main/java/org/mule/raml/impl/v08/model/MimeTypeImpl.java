@@ -47,6 +47,11 @@ public class MimeTypeImpl implements MimeType
     }
 
     @Override
+    public String getSchemaPath() {
+        return null;
+    }
+
+    @Override
     public Map<String, TypeFieldDefinition> getFormParameters()
     {
 

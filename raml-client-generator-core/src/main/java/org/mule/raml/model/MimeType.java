@@ -13,6 +13,8 @@ public interface MimeType
 
     String getSchema();
 
+    String getSchemaPath();
+
     Map<String, TypeFieldDefinition> getFormParameters();
 
     /**

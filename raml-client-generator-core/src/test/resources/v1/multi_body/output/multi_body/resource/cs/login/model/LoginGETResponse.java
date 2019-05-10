@@ -9,9 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -72,12 +69,30 @@ public class LoginGETResponse {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("userId", userId).append("additionalProperties", additionalProperties).toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(LoginGETResponse.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("userId");
+        sb.append('=');
+        sb.append(((this.userId == null)?"<null>":this.userId));
+        sb.append(',');
+        sb.append("additionalProperties");
+        sb.append('=');
+        sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(userId).append(additionalProperties).toHashCode();
+        int result = 1;
+        result = ((result* 31)+((this.userId == null)? 0 :this.userId.hashCode()));
+        result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
+        return result;
     }
 
     @Override
@@ -89,7 +104,7 @@ public class LoginGETResponse {
             return false;
         }
         LoginGETResponse rhs = ((LoginGETResponse) other);
-        return new EqualsBuilder().append(userId, rhs.userId).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return (((this.userId == rhs.userId)||((this.userId!= null)&&this.userId.equals(rhs.userId)))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))));
     }
 
 }

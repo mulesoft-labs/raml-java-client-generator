@@ -9,9 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -122,12 +119,35 @@ public class LoginPOSTBody {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("accessToken", accessToken).append("tokenType", tokenType).append("additionalProperties", additionalProperties).toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(LoginPOSTBody.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("accessToken");
+        sb.append('=');
+        sb.append(((this.accessToken == null)?"<null>":this.accessToken));
+        sb.append(',');
+        sb.append("tokenType");
+        sb.append('=');
+        sb.append(((this.tokenType == null)?"<null>":this.tokenType));
+        sb.append(',');
+        sb.append("additionalProperties");
+        sb.append('=');
+        sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(additionalProperties).append(accessToken).append(tokenType).toHashCode();
+        int result = 1;
+        result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
+        result = ((result* 31)+((this.accessToken == null)? 0 :this.accessToken.hashCode()));
+        result = ((result* 31)+((this.tokenType == null)? 0 :this.tokenType.hashCode()));
+        return result;
     }
 
     @Override
@@ -139,7 +159,7 @@ public class LoginPOSTBody {
             return false;
         }
         LoginPOSTBody rhs = ((LoginPOSTBody) other);
-        return new EqualsBuilder().append(additionalProperties, rhs.additionalProperties).append(accessToken, rhs.accessToken).append(tokenType, rhs.tokenType).isEquals();
+        return ((((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties)))&&((this.accessToken == rhs.accessToken)||((this.accessToken!= null)&&this.accessToken.equals(rhs.accessToken))))&&((this.tokenType == rhs.tokenType)||((this.tokenType!= null)&&this.tokenType.equals(rhs.tokenType))));
     }
 
 }

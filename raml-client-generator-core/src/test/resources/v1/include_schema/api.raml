@@ -1,0 +1,16 @@
+#%RAML 1.0
+title: Foo
+version: 0.1
+mediaType: application/json
+documentation:
+  - title : Foo
+    content : A String
+
+/cs:
+  /login:
+    post:
+      responses:
+        200:
+          body:
+            application/json:
+              schema: !include schemas/authorizations.json

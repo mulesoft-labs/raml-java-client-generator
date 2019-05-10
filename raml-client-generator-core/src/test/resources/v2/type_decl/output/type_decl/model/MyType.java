@@ -9,9 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -19,6 +16,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 })
 public class MyType {
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("name")
     private String name;
     @JsonIgnore
@@ -40,11 +42,21 @@ public class MyType {
         this.name = name;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("name")
     public String getName() {
         return name;
     }
 
+    /**
+     * 
+     * (Required)
+     * 
+     */
     @JsonProperty("name")
     public void setName(String name) {
         this.name = name;
@@ -72,12 +84,30 @@ public class MyType {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("name", name).append("additionalProperties", additionalProperties).toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(MyType.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("name");
+        sb.append('=');
+        sb.append(((this.name == null)?"<null>":this.name));
+        sb.append(',');
+        sb.append("additionalProperties");
+        sb.append('=');
+        sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(name).append(additionalProperties).toHashCode();
+        int result = 1;
+        result = ((result* 31)+((this.name == null)? 0 :this.name.hashCode()));
+        result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
+        return result;
     }
 
     @Override
@@ -89,7 +119,7 @@ public class MyType {
             return false;
         }
         MyType rhs = ((MyType) other);
-        return new EqualsBuilder().append(name, rhs.name).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return (((this.name == rhs.name)||((this.name!= null)&&this.name.equals(rhs.name)))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))));
     }
 
 }

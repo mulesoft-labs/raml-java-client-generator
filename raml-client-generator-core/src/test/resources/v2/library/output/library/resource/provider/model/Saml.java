@@ -9,9 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -152,12 +149,50 @@ public class Saml {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("name", name).append("issuer", issuer).append("publicKey", publicKey).append("audience", audience).append("bypassExpiration", bypassExpiration).append("additionalProperties", additionalProperties).toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(Saml.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append("name");
+        sb.append('=');
+        sb.append(((this.name == null)?"<null>":this.name));
+        sb.append(',');
+        sb.append("issuer");
+        sb.append('=');
+        sb.append(((this.issuer == null)?"<null>":this.issuer));
+        sb.append(',');
+        sb.append("publicKey");
+        sb.append('=');
+        sb.append(((this.publicKey == null)?"<null>":this.publicKey));
+        sb.append(',');
+        sb.append("audience");
+        sb.append('=');
+        sb.append(((this.audience == null)?"<null>":this.audience));
+        sb.append(',');
+        sb.append("bypassExpiration");
+        sb.append('=');
+        sb.append(((this.bypassExpiration == null)?"<null>":this.bypassExpiration));
+        sb.append(',');
+        sb.append("additionalProperties");
+        sb.append('=');
+        sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
+        sb.append(',');
+        if (sb.charAt((sb.length()- 1)) == ',') {
+            sb.setCharAt((sb.length()- 1), ']');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(audience).append(name).append(publicKey).append(additionalProperties).append(bypassExpiration).append(issuer).toHashCode();
+        int result = 1;
+        result = ((result* 31)+((this.audience == null)? 0 :this.audience.hashCode()));
+        result = ((result* 31)+((this.name == null)? 0 :this.name.hashCode()));
+        result = ((result* 31)+((this.publicKey == null)? 0 :this.publicKey.hashCode()));
+        result = ((result* 31)+((this.additionalProperties == null)? 0 :this.additionalProperties.hashCode()));
+        result = ((result* 31)+((this.bypassExpiration == null)? 0 :this.bypassExpiration.hashCode()));
+        result = ((result* 31)+((this.issuer == null)? 0 :this.issuer.hashCode()));
+        return result;
     }
 
     @Override
@@ -169,7 +204,7 @@ public class Saml {
             return false;
         }
         Saml rhs = ((Saml) other);
-        return new EqualsBuilder().append(audience, rhs.audience).append(name, rhs.name).append(publicKey, rhs.publicKey).append(additionalProperties, rhs.additionalProperties).append(bypassExpiration, rhs.bypassExpiration).append(issuer, rhs.issuer).isEquals();
+        return (((((((this.audience == rhs.audience)||((this.audience!= null)&&this.audience.equals(rhs.audience)))&&((this.name == rhs.name)||((this.name!= null)&&this.name.equals(rhs.name))))&&((this.publicKey == rhs.publicKey)||((this.publicKey!= null)&&this.publicKey.equals(rhs.publicKey))))&&((this.additionalProperties == rhs.additionalProperties)||((this.additionalProperties!= null)&&this.additionalProperties.equals(rhs.additionalProperties))))&&((this.bypassExpiration == rhs.bypassExpiration)||((this.bypassExpiration!= null)&&this.bypassExpiration.equals(rhs.bypassExpiration))))&&((this.issuer == rhs.issuer)||((this.issuer!= null)&&this.issuer.equals(rhs.issuer))));
     }
 
 }

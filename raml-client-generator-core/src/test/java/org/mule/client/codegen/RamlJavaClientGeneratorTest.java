@@ -39,11 +39,13 @@ public class RamlJavaClientGeneratorTest {
                 {"from-example"},
                 {"global-type-body"},
                 {"global-type-return"},
+                {"include_schema"},
                 {"library"},
                 {"list"},
                 {"multi_body"},
                 {"oauth20"},
                 {"oauth20-global"},
+                {"oauth_override"},
                 {"simple"},
                 {"sub_resource_on_same_line"},
                 {"same_path_multiple_times"},
@@ -78,13 +80,19 @@ public class RamlJavaClientGeneratorTest {
         try {
             compareDir(actualTarget, expected);
         } finally {
-            if (Boolean.getBoolean("update-result")) {
-                logger.info("-----------UPDATING RESULT -----------------");
-                File expectedDirectory = new File(expected, "../../../../src/test/resources/" + outputVersion.toString() + "/" + projectName + "/output");
-                FileUtils.deleteDirectory(expectedDirectory);
-                logger.info("expected = " + expected);
-                logger.info("actualTarget = " + actualTarget);
-                FileUtils.copyDirectory(actualTarget, expectedDirectory);
+            try {
+                if (Boolean.getBoolean("update-result")) {
+                    logger.info("-----------UPDATING RESULT -----------------");
+                    File expectedDirectory = new File(expected, "../../../../../src/test/resources/" + outputVersion.toString() + "/" + projectName + "/output").getAbsoluteFile();
+                    System.out.println("expectedDirectory = " + resource);
+                    FileUtils.deleteDirectory(expectedDirectory);
+                    expectedDirectory.mkdirs();
+                    logger.info("expected = " + expectedDirectory);
+                    logger.info("actualTarget = " + actualTarget);
+                    FileUtils.copyDirectory(actualTarget, expectedDirectory);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
 

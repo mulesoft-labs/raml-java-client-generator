@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,7 +64,7 @@ import com.sun.codemodel.JVar;
 
 public class RamlJavaClientGenerator {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String OK_RESPONSE = "200";
 
@@ -150,7 +151,7 @@ public class RamlJavaClientGenerator {
         }
 
         this.clientGenerator.buildCustomException(cm, basePackage, raml.getTitle());
-        if ( outputVersion.ordinal() >= OutputVersion.v2.ordinal() ) {
+        if (outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
             this.clientGenerator.buildCustomResponse(cm, basePackage, raml);
         }
 
@@ -328,7 +329,7 @@ public class RamlJavaClientGenerator {
                         final Pair<JDefinedClass, JMethod> resourcePair = this.resourceClasses.get(resourcePath);
                         resourceClass = resourcePair.getLeft();
                         resourceConstructor = resourcePair.getRight();
-                        defaultConstructor = resourceClass.getConstructor(new JType[] {});
+                        defaultConstructor = resourceClass.getConstructor(new JType[]{});
                     }
 
                     parentClass = resourceClass;
@@ -388,7 +389,7 @@ public class RamlJavaClientGenerator {
                     final MimeType mimeType = bodyEntry.getValue();
                     if (MimeTypeHelper.isJsonType(mimeType)) {
                         String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + RESPONSE_CLASS_SUFFIX;
-                        if ( outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
+                        if (outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
                             className = className + BODY_CLASS_SUFFIX;
                         }
                         returnType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, mimeType, className);
@@ -467,7 +468,7 @@ public class RamlJavaClientGenerator {
             if (globalTypes.containsKey(mimeType.getSchema())) {
                 type = globalTypes.get(mimeType.getSchema());
             } else {
-                type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema(), SourceType.JSONSCHEMA);
+                type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getSchema(), mimeType.getSchemaPath(), SourceType.JSONSCHEMA);
             }
         } else if (StringUtils.isNotBlank(mimeType.getExample())) {
             type = generatePojoFromSchema(cm, className, getModelPackage(resourcePath), mimeType.getExample(), SourceType.JSON);
@@ -574,9 +575,18 @@ public class RamlJavaClientGenerator {
     }
 
     public JType generatePojoFromSchema(JCodeModel codeModel, String className, String packageName, String json, SourceType sourceType) throws IOException {
+        return generatePojoFromSchema(codeModel, className, packageName, json, null, sourceType);
+    }
+
+    public JType generatePojoFromSchema(JCodeModel codeModel, String className, String packageName, String json, String url, SourceType sourceType) throws IOException {
         try {
             SchemaMapper schemaMapper = new SchemaMapper(getRuleFactory(sourceType), new SchemaGenerator());
-            return schemaMapper.generate(codeModel, className, packageName, json);
+            System.out.println("url = " + url);
+            if (url == null) {
+                return schemaMapper.generate(codeModel, className, packageName, json);
+            } else {
+                return schemaMapper.generate(codeModel, className, packageName, json, URI.create(url));
+            }
         } catch (JsonParseException e) {
             logger.info("Can not generate  " + className + " from schema since : " + e.getMessage());
             return codeModel.ref(String.class);

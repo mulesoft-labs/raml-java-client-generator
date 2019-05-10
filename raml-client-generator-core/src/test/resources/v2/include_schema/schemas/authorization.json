@@ -1,0 +1,49 @@
+{
+  "type": "object",
+
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "http://cs.anypoint.mulesoft.com/authorization.json",
+  "properties": {
+    "created_at": {
+      "format": "date-time",
+      "description": "The time the authorization was created"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "description": "The time the authorization was last modified"
+    },
+    "last_used": {
+      "format": "date-time",
+      "description": "The time the authorization was last used in an OAuth2 flow"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "The ID of the user who granted the authorization"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "The ID of the client who is granted the authorization"
+    },
+    "domain": {
+      "type": "string",
+      "description": "The domain of the client who is granted the authorization"
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "created_at",
+    "updated_at",
+    "user_id",
+    "client_id",
+    "domain",
+    "scopes"
+  ],
+  "additionalProperties": false
+}
