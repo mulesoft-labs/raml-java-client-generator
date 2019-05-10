@@ -47,7 +47,7 @@ public class SecuritySchemesHelper {
     private static boolean isOauth20(List<SecurityScheme> securedBy) {
         boolean containsOauth = false;
         for (SecurityScheme securityScheme : securedBy) {
-            containsOauth = containsOauth || securityScheme.getType().equals(SecuritySchemesHelper.OAUTH_20);
+            containsOauth = containsOauth || (securityScheme != null && securityScheme.getType().equals(SecuritySchemesHelper.OAUTH_20));
         }
 
         return containsOauth;

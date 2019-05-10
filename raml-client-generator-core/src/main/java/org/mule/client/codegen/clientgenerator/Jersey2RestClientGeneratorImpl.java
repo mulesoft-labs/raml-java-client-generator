@@ -52,8 +52,8 @@ import com.sun.codemodel.JVar;
 
 public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private static final String BODY_PARAM_NAME = "body";
     private static final String HEADERS_PARAM_NAME = "headers";
     private static final String TOKEN_PARAM_NAME = "authorizationToken";
@@ -64,22 +64,22 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
     @Override
     public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action, ApiModel apiModel) {
-    	callHttpMethod(cm, resourceClass, returnType, OutputVersion.v1, bodyType, queryParameterType, headerParameterType, action, apiModel);
+        callHttpMethod(cm, resourceClass, returnType, OutputVersion.v1, bodyType, queryParameterType, headerParameterType, action, apiModel);
     }
-    
+
     @Override
     public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nonnull OutputVersion outputVersion, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action, ApiModel apiModel) {
         if (action.getType() == ActionType.PATCH) {
-        	logger.warn("Patch is not supported");
+            logger.warn("Patch is not supported");
             return;
         }
 
         // Declare the method with the required inputs
         JMethod actionMethod;
-        if (outputVersion.ordinal() >= OutputVersion.v2.ordinal() ) {
-        	actionMethod = resourceClass.method(JMod.PUBLIC, responseClass.narrow(returnType), action.getType().name().toLowerCase());
+        if (outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
+            actionMethod = resourceClass.method(JMod.PUBLIC, responseClass.narrow(returnType), action.getType().name().toLowerCase());
         } else {
-        	actionMethod = resourceClass.method(JMod.PUBLIC, returnType, action.getType().name().toLowerCase());
+            actionMethod = resourceClass.method(JMod.PUBLIC, returnType, action.getType().name().toLowerCase());
         }
         if (StringUtils.isNotBlank(action.getDescription())) {
             actionMethod.javadoc().add(action.getDescription());
@@ -106,7 +106,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         }
 
         final JVar authenticationParam;
-        if (isOauth20SecuredBy(action.getResource()) || isOauth20SecuredBy(apiModel)) {
+        //If global but not locally specified
+        if (isOauth20SecuredBy(action.getResource()) || (isOauth20SecuredBy(apiModel) && action.getResource().getSecuredBy().isEmpty())) {
             authenticationParam = actionMethod.param(String.class, TOKEN_PARAM_NAME);
         } else {
             authenticationParam = null;
@@ -192,36 +193,36 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
         ifBlock._throw(
                 JExpr._new(exceptionClass)
-                    .arg(statusInfo.invoke("getStatusCode"))
-                    .arg(statusInfo.invoke("getReasonPhrase"))
-                    .arg(responseVal.invoke("getStringHeaders"))
-                    .arg(responseVal)
-                );
+                        .arg(statusInfo.invoke("getStatusCode"))
+                        .arg(statusInfo.invoke("getReasonPhrase"))
+                        .arg(responseVal.invoke("getStringHeaders"))
+                        .arg(responseVal)
+        );
 
         if (returnType != cm.VOID) {
-        	JInvocation jInvocation;
+            JInvocation jInvocation;
             if (returnType.equals(cm.ref(Object.class))) {
-            	jInvocation = responseVal.invoke("getEntity");
+                jInvocation = responseVal.invoke("getEntity");
             } else {
                 if (returnType instanceof JClass && !((JClass) returnType).getTypeParameters().isEmpty()) {
                     final JClass narrow = cm.anonymousClass(cm.ref(GenericType.class).narrow(returnType));
                     jInvocation = responseVal.invoke("readEntity").arg(JExpr._new(narrow));
                 } else {
-                	jInvocation = responseVal.invoke("readEntity").arg(JExpr.dotclass(cm.ref(returnType.fullName())));
+                    jInvocation = responseVal.invoke("readEntity").arg(JExpr.dotclass(cm.ref(returnType.fullName())));
                 }
             }
-            
-            if ( outputVersion.ordinal() >= OutputVersion.v2.ordinal() ) {
-            	JInvocation apiResponseInvocation = JExpr._new(responseClass.narrow(returnType));
-            	apiResponseInvocation.arg(jInvocation);
-            	apiResponseInvocation.arg(responseVal.invoke("getStringHeaders"));
+
+            if (outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
+                JInvocation apiResponseInvocation = JExpr._new(responseClass.narrow(returnType));
+                apiResponseInvocation.arg(jInvocation);
+                apiResponseInvocation.arg(responseVal.invoke("getStringHeaders"));
                 apiResponseInvocation.arg(responseVal);
                 final JVar apiResponseVal = body.decl(responseClass.narrow(returnType), "apiResponse", apiResponseInvocation);
                 body._return(apiResponseVal);
             } else {
-            	body._return(jInvocation);
+                body._return(jInvocation);
             }
-        } else if ( outputVersion.ordinal() >= OutputVersion.v2.ordinal() ) {
+        } else if (outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
             JInvocation apiResponseInvocation = JExpr._new(responseClass.narrow(Void.class));
             apiResponseInvocation.arg(JExpr._null());
             apiResponseInvocation.arg(responseVal.invoke("getStringHeaders"));
@@ -257,7 +258,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             JFieldVar statusCodeField = customExceptionClass.field(JMod.PRIVATE, Integer.TYPE, "statusCode");
             JFieldVar reasonField = customExceptionClass.field(JMod.PRIVATE, String.class, "reason");
             JClass rawHeadersClass = cm.ref(MultivaluedMap.class)
-                .narrow(cm.ref(String.class), cm.ref(String.class));
+                    .narrow(cm.ref(String.class), cm.ref(String.class));
             JFieldVar headersField = customExceptionClass.field(JMod.PRIVATE, rawHeadersClass, "headers");
             JFieldVar responseField = customExceptionClass.field(JMod.PRIVATE, Response.class, "response");
 
@@ -281,7 +282,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             statusCodeParameter = containerConstructorWithoutHeadersAndResponse.param(Integer.TYPE, "statusCode");
             reasonParameter = containerConstructorWithoutHeadersAndResponse.param(String.class, "reason");
             JInvocation thisInvocation = JExpr.invoke("this")
-                .arg(statusCodeParameter).arg(reasonParameter).arg(JExpr._null()).arg(JExpr._null());
+                    .arg(statusCodeParameter).arg(reasonParameter).arg(JExpr._null()).arg(JExpr._null());
             containerConstructorWithoutHeadersAndResponse.body().add(thisInvocation);
 
             JMethod statusCodeGetterMethod = customExceptionClass.method(JMod.PUBLIC, Integer.TYPE, "getStatusCode");
@@ -301,42 +302,42 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             exceptionClass = cm.ref(RuntimeException.class);
         }
     }
-    
+
     @Override
     public void buildCustomResponse(JCodeModel cm, String basePackage, ApiModel apiModel) throws JClassAlreadyExistsException {
-    	
-    	String apiName = apiModel.getTitle();
+
+        String apiName = apiModel.getTitle();
 
         JDefinedClass customResponseClass = cm._class(basePackage + "." + "responses" + "." + NameHelper.toValidClassName(apiName) + "Response");
         JTypeVar genericType = customResponseClass.generify("T");
 
         JFieldVar bodyField = customResponseClass.field(JMod.PRIVATE, genericType, "body");
         JClass rawHeadersClass = cm.ref(MultivaluedMap.class)
-        		.narrow(cm.ref(String.class), cm.ref(String.class));
+                .narrow(cm.ref(String.class), cm.ref(String.class));
         JFieldVar headersField = customResponseClass.field(JMod.PRIVATE, rawHeadersClass, "headers");
         JFieldVar responseField = customResponseClass.field(JMod.PRIVATE, Response.class, "response");
-        
-        
+
+
         JMethod containerConstructor = customResponseClass.constructor(JMod.PUBLIC);
 
         JVar bodyParameter = containerConstructor.param(genericType, "body");
         containerConstructor.body().assign(JExpr._this().ref(bodyField), bodyParameter);
-        
+
         JVar headersParameter = containerConstructor.param(rawHeadersClass, "headers");
         containerConstructor.body().assign(JExpr._this().ref(headersField), headersParameter);
-        
+
         JVar responseParameter = containerConstructor.param(Response.class, "response");
         containerConstructor.body().assign(JExpr._this().ref(responseField), responseParameter);
 
         JMethod bodyGetterMethod = customResponseClass.method(JMod.PUBLIC, genericType, "getBody");
         bodyGetterMethod.body()._return(JExpr._this().ref(bodyField));
-        
+
         JMethod headersGetterMethod = customResponseClass.method(JMod.PUBLIC, rawHeadersClass, "getHeaders");
         headersGetterMethod.body()._return(JExpr._this().ref(headersField));
-        
+
         JMethod responseGetterMethod = customResponseClass.method(JMod.PUBLIC, Response.class, "getResponse");
         responseGetterMethod.body()._return(JExpr._this().ref(responseField));
-        
+
         responseClass = customResponseClass;
     }
 }

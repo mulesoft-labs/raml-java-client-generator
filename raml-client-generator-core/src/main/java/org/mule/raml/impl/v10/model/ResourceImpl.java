@@ -45,6 +45,9 @@ public class ResourceImpl implements Resource {
         for (SecuritySchemeRef securitySchemeRef : securitySchemeRefs) {
             if (securitySchemeRef != null) {
                 result.add(new SecuritySchemeImpl(securitySchemeRef.securityScheme()));
+            } else {
+                //Add null to specify empty securedBy
+                result.add(null);
             }
         }
         return result;

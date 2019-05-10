@@ -2,6 +2,12 @@
 package oauth_override.resource.api.login;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
+import oauth_override.exceptions.CoreServicesAPIReferenceException;
+import oauth_override.responses.CoreServicesAPIReferenceResponse;
 
 public class Login {
 
@@ -24,6 +30,18 @@ public class Login {
 
     private String getBaseUri() {
         return _baseUrl;
+    }
+
+    public CoreServicesAPIReferenceResponse<Void> get() {
+        WebTarget target = this._client.target(getBaseUri());
+        final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
+        Response response = invocationBuilder.get();
+        if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
+            Response.StatusType statusInfo = response.getStatusInfo();
+            throw new CoreServicesAPIReferenceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
+        }
+        CoreServicesAPIReferenceResponse<Void> apiResponse = new CoreServicesAPIReferenceResponse<Void>(null, response.getStringHeaders(), response);
+        return apiResponse;
     }
 
 }
