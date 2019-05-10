@@ -60,7 +60,7 @@ Add the dependency to `pom.xml`
   <dependency>
         <groupId>org.mule.raml.codegen</groupId>
         <artifactId>raml-client-generator-core</artifactId>
-        <version>0.2</version>
+        <version>0.3</version>
   </dependency>
 ```
 
