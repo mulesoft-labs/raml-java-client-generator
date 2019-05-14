@@ -3,10 +3,7 @@ package org.mule.client.codegen;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.mule.client.codegen.utils.SecuritySchemesHelper.BASIC_AUTHENTICATION;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,12 +18,7 @@ import javax.ws.rs.client.Client;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jsonschema2pojo.DefaultGenerationConfig;
-import org.jsonschema2pojo.Jackson2Annotator;
-import org.jsonschema2pojo.SchemaGenerator;
-import org.jsonschema2pojo.SchemaMapper;
-import org.jsonschema2pojo.SchemaStore;
-import org.jsonschema2pojo.SourceType;
+import org.jsonschema2pojo.*;
 import org.jsonschema2pojo.rules.RuleFactory;
 import org.mule.client.codegen.clientgenerator.Jersey2RestClientGeneratorImpl;
 import org.mule.client.codegen.model.JBodyType;
@@ -412,19 +404,18 @@ public class RamlJavaClientGenerator {
 
     private JType buildHeaderType(JCodeModel cm, String resourcePath, String resourceName, ActionType actionType, Action action) throws JClassAlreadyExistsException {
         final Map<String, TypeFieldDefinition> headers = action.getHeaders();
-        JType headerParameterType = null;
-        if (headers != null && !headers.isEmpty()) {
-            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + HEADER_CLASS_SUFFIX;
-            headerParameterType = toParametersJavaBean(cm, className, headers, resourcePath);
-        }
-        return headerParameterType;
+        return buildMap(cm, actionType, resourcePath, resourceName, headers, HEADER_CLASS_SUFFIX);
     }
 
     private JType buildQueryParametersType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName) throws JClassAlreadyExistsException {
         final Map<String, TypeFieldDefinition> queryParameters = action.getQueryParameters();
+        return buildMap(cm, actionType, resourcePath, resourceName, queryParameters, QUERY_PARAM_CLASS_SUFFIX);
+    }
+
+    private JType buildMap(JCodeModel cm, ActionType actionType, String resourcePath, String resourceName, Map<String, TypeFieldDefinition> queryParameters, String queryParamClassSuffix) throws JClassAlreadyExistsException {
         JType queryParameterType = null;
         if (queryParameters != null && !queryParameters.isEmpty()) {
-            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + QUERY_PARAM_CLASS_SUFFIX;
+            final String className = NameHelper.toValidClassName(resourceName) + NameHelper.toCamelCase(actionType.name(), false) + queryParamClassSuffix;
             queryParameterType = toParametersJavaBean(cm, className, queryParameters, resourcePath);
         }
         return queryParameterType;
@@ -581,11 +572,21 @@ public class RamlJavaClientGenerator {
     public JType generatePojoFromSchema(JCodeModel codeModel, String className, String packageName, String json, String url, SourceType sourceType) throws IOException {
         try {
             SchemaMapper schemaMapper = new SchemaMapper(getRuleFactory(sourceType), new SchemaGenerator());
-            System.out.println("url = " + url);
-            if (url == null) {
+            if (SourceType.JSON == sourceType) {
                 return schemaMapper.generate(codeModel, className, packageName, json);
             } else {
-                return schemaMapper.generate(codeModel, className, packageName, json, URI.create(url));
+                URI uri;
+                if (url == null) {
+                    File tmpFile = File.createTempFile("tmp", "json");
+                    try (FileWriter writer = new FileWriter(tmpFile)) {
+                        writer.write(json);
+                    }
+                    uri = tmpFile.toURI();
+                } else {
+                    uri = URI.create(url);
+                }
+
+                return schemaMapper.generate(codeModel, className, packageName, json, uri);
             }
         } catch (JsonParseException e) {
             logger.info("Can not generate  " + className + " from schema since : " + e.getMessage());
@@ -630,6 +631,11 @@ public class RamlJavaClientGenerator {
         @Override
         public boolean isGenerateBuilders() {
             return true;
+        }
+
+        @Override
+        public Language getTargetLanguage() {
+            return super.getTargetLanguage();
         }
     }
 }

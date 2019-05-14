@@ -1,0 +1,25 @@
+#%RAML 1.0
+title: locations
+version: 1.0.0
+baseUri: /bar/locations
+protocols: [ HTTPS ]
+mediaType: application/json
+
+types:
+  foo:
+    type: object
+    description: Some definition
+    properties:
+      children?:
+        description: The list of children nodes.
+        type: foo[]
+
+/bar:
+  get:
+    displayName: SomeDisplayNameValue
+    description: SomeDescriptionValue
+    responses:
+      200:
+        body:
+          application/json:
+            type: foo

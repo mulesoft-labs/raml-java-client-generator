@@ -46,6 +46,7 @@ public class RamlJavaClientGeneratorTest {
                 {"oauth20"},
                 {"oauth20-global"},
                 {"oauth_override"},
+                {"recursive_type"},
                 {"simple"},
                 {"sub_resource_on_same_line"},
                 {"same_path_multiple_times"},
