@@ -7,6 +7,7 @@ import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.mule.client.codegen.CodeGenConfig;
 import org.mule.client.codegen.OutputVersion;
 import org.mule.client.codegen.RamlJavaClientGenerator;
 import org.apache.maven.project.MavenProject;
@@ -21,19 +22,28 @@ import java.util.List;
 public class RamlJavaClientGeneratorMojo extends AbstractMojo {
 
 
-    @Parameter(defaultValue = "${project.build.resources[0].directory}/api.raml", property="RamlJavaClientGeneratorMojo.ramlFile")
+    @Parameter(defaultValue = "${project.build.resources[0].directory}/api.raml", property = "RamlJavaClientGeneratorMojo.ramlFile")
     private String ramlFile;
 
-    @Parameter(property="RamlJavaClientGeneratorMojo.ramlURL")
+    @Parameter(property = "RamlJavaClientGeneratorMojo.ramlURL")
     private String ramlURL;
 
-    @Parameter(required = true, property="RamlJavaClientGeneratorMojo.basePackage")
+    @Parameter(required = true, property = "RamlJavaClientGeneratorMojo.basePackage")
     private String basePackage;
 
-    @Parameter(defaultValue = "${project.build.directory}/generated-sources", property="RamlJavaClientGeneratorMojo.outputDir")
+    @Parameter(defaultValue = "${project.build.directory}/generated-sources", property = "RamlJavaClientGeneratorMojo.outputDir")
     private String outputDir;
-    
-    @Parameter(defaultValue="v2", property="RamlJavaClientGeneratorMojo.outputVersion")
+
+    @Parameter(defaultValue = "false")
+    private Boolean useJava8Dates;
+
+    @Parameter(defaultValue = "false")
+    private Boolean includeAdditionalProperties;
+
+    @Parameter(defaultValue = "false")
+    private Boolean useOptionalForGetters;
+
+    @Parameter(defaultValue = "v2", property = "RamlJavaClientGeneratorMojo.outputVersion")
     private OutputVersion outputVersion;
 
 
@@ -61,7 +71,13 @@ public class RamlJavaClientGeneratorMojo extends AbstractMojo {
             }
 
             for (URL ramlUrl : ramlUrls) {
-                final RamlJavaClientGenerator ramlJavaClientGenerator = new RamlJavaClientGenerator(basePackage, new File(outputDir), outputVersion);
+                CodeGenConfig codeGenConfig = new CodeGenConfig();
+                codeGenConfig
+                        .setUseJava8Dates(useJava8Dates)
+                        .setIncludeAdditionalProperties(includeAdditionalProperties)
+                        .setUseJava8Optional(useOptionalForGetters);
+
+                final RamlJavaClientGenerator ramlJavaClientGenerator = new RamlJavaClientGenerator(basePackage, new File(outputDir), outputVersion, codeGenConfig);
                 ramlJavaClientGenerator.generate(ramlUrl);
             }
             project.addCompileSourceRoot(outputDir);

@@ -90,6 +90,7 @@ public class RamlJavaClientGenerator {
 
     private String basePackage;
     private File targetFolder;
+    private CodeGenConfig codeGenConfig;
     private RestClientGenerator clientGenerator;
     private OutputVersion outputVersion;
 
@@ -97,13 +98,15 @@ public class RamlJavaClientGenerator {
     private Map<String, JType> globalTypes;
     private Map<String, Pair<JDefinedClass, JMethod>> resourceClasses;
 
+
     public RamlJavaClientGenerator(String basePackage, File targetFolder) {
-        this(basePackage, targetFolder, OutputVersion.v1);
+        this(basePackage, targetFolder, OutputVersion.v1, new CodeGenConfig());
     }
 
-    public RamlJavaClientGenerator(String basePackage, File targetFolder, OutputVersion outputVersion) {
+    public RamlJavaClientGenerator(String basePackage, File targetFolder, OutputVersion outputVersion, CodeGenConfig codeGenConfig) {
         this.basePackage = basePackage;
         this.targetFolder = targetFolder;
+        this.codeGenConfig = codeGenConfig;
         this.clientGenerator = new Jersey2RestClientGeneratorImpl();
         this.resourceClasses = new HashMap<>();
         this.globalTypes = new HashMap<>();
@@ -571,7 +574,7 @@ public class RamlJavaClientGenerator {
 
     public JType generatePojoFromSchema(JCodeModel codeModel, String className, String packageName, String json, String url, SourceType sourceType) throws IOException {
         try {
-            SchemaMapper schemaMapper = new SchemaMapper(getRuleFactory(sourceType), new SchemaGenerator());
+            SchemaMapper schemaMapper = new SchemaMapper(getRuleFactory(sourceType, codeGenConfig), new SchemaGenerator());
             if (SourceType.JSON == sourceType) {
                 return schemaMapper.generate(codeModel, className, packageName, json);
             } else {
@@ -595,17 +598,19 @@ public class RamlJavaClientGenerator {
     }
 
 
-    private RuleFactory getRuleFactory(final SourceType sourceType) {
-        final DefaultGenerationConfig generationConfig = new JsonSchemaGeneratorConfiguration(sourceType);
+    private RuleFactory getRuleFactory(final SourceType sourceType, CodeGenConfig codeGenConfig) {
+        final DefaultGenerationConfig generationConfig = new JsonSchemaGeneratorConfiguration(sourceType, codeGenConfig);
 
         return new RuleFactory(generationConfig, new Jackson2Annotator(generationConfig), new SchemaStore());
     }
 
     private static class JsonSchemaGeneratorConfiguration extends DefaultGenerationConfig {
         private SourceType sourceType;
+        private CodeGenConfig codeGenConfig;
 
-        public JsonSchemaGeneratorConfiguration(SourceType sourceType) {
+        public JsonSchemaGeneratorConfiguration(SourceType sourceType, CodeGenConfig codeGenConfig) {
             this.sourceType = sourceType;
+            this.codeGenConfig = codeGenConfig;
         }
 
         @Override
@@ -636,6 +641,36 @@ public class RamlJavaClientGenerator {
         @Override
         public Language getTargetLanguage() {
             return super.getTargetLanguage();
+        }
+
+        @Override
+        public boolean isIncludeAdditionalProperties() {
+            return codeGenConfig.getIncludeAdditionalProperties();
+        }
+
+        @Override
+        public boolean isUseOptionalForGetters() {
+            return codeGenConfig.getUseJava8Optional();
+        }
+
+        @Override
+        public String getDateTimeType() {
+            return codeGenConfig.getUseJava8Dates() ? "java.time.LocalDateTime" : null;
+        }
+
+        @Override
+        public String getDateType() {
+            return codeGenConfig.getUseJava8Dates() ? "java.time.LocalDate" : null;
+        }
+
+        @Override
+        public String getTimeType() {
+            return codeGenConfig.getUseJava8Dates() ? "java.time.LocalTime" : null;
+        }
+
+        @Override
+        public String getTargetVersion() {
+            return codeGenConfig.getTargetVersion();
         }
     }
 }

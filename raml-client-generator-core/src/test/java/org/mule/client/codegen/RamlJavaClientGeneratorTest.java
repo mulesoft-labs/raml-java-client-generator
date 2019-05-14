@@ -18,11 +18,12 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Properties;
 
 @RunWith(value = Parameterized.class)
 public class RamlJavaClientGeneratorTest {
-	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String projectName;
 
@@ -33,6 +34,7 @@ public class RamlJavaClientGeneratorTest {
     @Parameterized.Parameters(name = "{index}: {0}/api.raml")
     public static Iterable<Object[]> folders() {
         return Arrays.asList(new Object[][]{
+                {"avoid_additional_properties"},
                 {"design_center"},
                 {"empty_put"},
                 {"form-parameters"},
@@ -40,6 +42,7 @@ public class RamlJavaClientGeneratorTest {
                 {"global-type-body"},
                 {"global-type-return"},
                 {"include_schema"},
+                {"java_8_dates"},
                 {"library"},
                 {"list"},
                 {"multi_body"},
@@ -51,6 +54,7 @@ public class RamlJavaClientGeneratorTest {
                 {"sub_resource_on_same_line"},
                 {"same_path_multiple_times"},
                 {"type_decl"},
+                {"use_optional"},
                 {"x-www-form-urlencoded"}
         });
     }
@@ -59,22 +63,35 @@ public class RamlJavaClientGeneratorTest {
     public void runTestV1() throws IOException, JClassAlreadyExistsException, URISyntaxException {
         runGenerator(projectName, OutputVersion.v1);
     }
-    
+
     @Test
     public void runTestV2() throws IOException, JClassAlreadyExistsException, URISyntaxException {
         runGenerator(projectName, OutputVersion.v2);
     }
 
     private void runGenerator(String projectName, OutputVersion outputVersion) throws IOException, JClassAlreadyExistsException, URISyntaxException {
-
+        final URL resource = this.getClass().getClassLoader().getResource(outputVersion.toString() + "/" + projectName + "/" + "api.raml");
+        if (resource == null) {
+            System.out.println("Ingoring " + projectName + " for " + outputVersion + " as it doesn't exists");
+            return;
+        }
         final File actualTarget = new File(FileUtils.getTempDirectory(), "RamlJavaClientGeneratorTest" + File.separator + outputVersion.toString() + File.separator + projectName + File.separator + "output");
         if (actualTarget.exists()) {
             FileUtils.cleanDirectory(actualTarget);
         }
         logger.info("targetFolder = " + actualTarget);
         actualTarget.mkdirs();
-        final URL resource = this.getClass().getClassLoader().getResource(outputVersion.toString() + "/" + projectName + "/" + "api.raml");
-        new RamlJavaClientGenerator(projectName, actualTarget, outputVersion).generate(resource);
+
+        CodeGenConfig codeGenConfig = new CodeGenConfig();
+        final URL config = this.getClass().getClassLoader().getResource(outputVersion.toString() + "/" + projectName + "/" + "api.properties");
+        if (config != null) {
+            Properties properties = new Properties();
+            properties.load(config.openStream());
+            codeGenConfig.setUseJava8Dates(Boolean.parseBoolean(properties.getProperty("java8Dates", "false")));
+            codeGenConfig.setUseJava8Optional(Boolean.parseBoolean(properties.getProperty("optionals", "false")));
+            codeGenConfig.setIncludeAdditionalProperties(Boolean.parseBoolean(properties.getProperty("additionalProperties", "false")));
+        }
+        new RamlJavaClientGenerator(projectName, actualTarget, outputVersion, codeGenConfig).generate(resource);
         assert resource != null;
         final File parentFile = new File(resource.toURI()).getParentFile();
         final File expected = new File(parentFile, "output");
@@ -92,7 +109,7 @@ public class RamlJavaClientGeneratorTest {
                     logger.info("actualTarget = " + actualTarget);
                     FileUtils.copyDirectory(actualTarget, expectedDirectory);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
