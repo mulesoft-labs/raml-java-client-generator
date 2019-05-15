@@ -1,0 +1,29 @@
+#%RAML 1.0
+
+title: "t"
+types:
+  MyAPI:
+  Error:
+
+/myapi:
+  description: "Some description"
+  put:
+    description: "some description."
+    queryParameters:
+      someName:
+        description: "Some name"
+        type: "string"
+        required: true
+        example: "some example"
+    body:
+      application/xml:
+        type: MyAPI
+    responses:
+      200:
+        body:
+          application/xml:
+            type: "string"
+      500:
+        body:
+          application/xml:
+            type: Error

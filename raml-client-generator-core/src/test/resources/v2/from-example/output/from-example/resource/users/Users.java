@@ -4,7 +4,6 @@ package from-example.resource.users;
 import java.util.List;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
@@ -47,11 +46,8 @@ public class Users {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new ClientAPIException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
-        ClientAPIResponse<List<UsersGETResponseBody>> apiResponse = new ClientAPIResponse<List<UsersGETResponseBody>>(response.readEntity(new GenericType<List<UsersGETResponseBody>>() {
-
-
-        }
-        ), response.getStringHeaders(), response);
+        ClientAPIResponse<List<UsersGETResponseBody>> apiResponse = new ClientAPIResponse<List<UsersGETResponseBody>>(response.readEntity((
+new javax.ws.rs.core.GenericType<java.util.List<from-example.resource.users.model.UsersGETResponseBody>>() {})), response.getStringHeaders(), response);
         return apiResponse;
     }
 

@@ -4,7 +4,6 @@ package oauth20-global.resource.api;
 import java.util.List;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
@@ -48,11 +47,8 @@ public class Api {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new CoreServicesAPIReferenceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
-        CoreServicesAPIReferenceResponse<List<ApiGETResponseBody>> apiResponse = new CoreServicesAPIReferenceResponse<List<ApiGETResponseBody>>(response.readEntity(new GenericType<List<ApiGETResponseBody>>() {
-
-
-        }
-        ), response.getStringHeaders(), response);
+        CoreServicesAPIReferenceResponse<List<ApiGETResponseBody>> apiResponse = new CoreServicesAPIReferenceResponse<List<ApiGETResponseBody>>(response.readEntity((
+new javax.ws.rs.core.GenericType<java.util.List<oauth20-global.resource.api.model.ApiGETResponseBody>>() {})), response.getStringHeaders(), response);
         return apiResponse;
     }
 

@@ -62,10 +62,6 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
     private static JClass exceptionClass;
     private static JClass responseClass;
 
-    @Override
-    public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action, ApiModel apiModel) {
-        callHttpMethod(cm, resourceClass, returnType, OutputVersion.v1, bodyType, queryParameterType, headerParameterType, action, apiModel);
-    }
 
     @Override
     public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JType returnType, @Nonnull OutputVersion outputVersion, @Nullable JBodyType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action, ApiModel apiModel) {
@@ -205,8 +201,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                 jInvocation = responseVal.invoke("getEntity");
             } else {
                 if (returnType instanceof JClass && !((JClass) returnType).getTypeParameters().isEmpty()) {
-                    final JClass narrow = cm.anonymousClass(cm.ref(GenericType.class).narrow(returnType));
-                    jInvocation = responseVal.invoke("readEntity").arg(JExpr._new(narrow));
+                    jInvocation = responseVal.invoke("readEntity").arg(JExpr.direct("\n" +
+                            "new " + GenericType.class.getName() + "<" + returnType.fullName() + ">() {}"));
                 } else {
                     jInvocation = responseVal.invoke("readEntity").arg(JExpr.dotclass(cm.ref(returnType.fullName())));
                 }

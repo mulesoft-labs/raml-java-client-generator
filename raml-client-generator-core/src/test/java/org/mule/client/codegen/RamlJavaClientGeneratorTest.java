@@ -55,7 +55,8 @@ public class RamlJavaClientGeneratorTest {
                 {"same_path_multiple_times"},
                 {"type_decl"},
                 {"use_optional"},
-                {"x-www-form-urlencoded"}
+                {"x-www-form-urlencoded"},
+                {"xml_mimetype"},
         });
     }
 

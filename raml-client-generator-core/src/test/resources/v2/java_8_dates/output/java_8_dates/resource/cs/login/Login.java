@@ -7,7 +7,6 @@ import java_8_dates.resource.cs.login.model.AuthorizationJson;
 import java_8_dates.responses.FooResponse;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
@@ -43,11 +42,8 @@ public class Login {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
-        FooResponse<List<AuthorizationJson>> apiResponse = new FooResponse<List<AuthorizationJson>>(response.readEntity(new GenericType<List<AuthorizationJson>>() {
-
-
-        }
-        ), response.getStringHeaders(), response);
+        FooResponse<List<AuthorizationJson>> apiResponse = new FooResponse<List<AuthorizationJson>>(response.readEntity((
+new javax.ws.rs.core.GenericType<java.util.List<java_8_dates.resource.cs.login.model.AuthorizationJson>>() {})), response.getStringHeaders(), response);
         return apiResponse;
     }
 
