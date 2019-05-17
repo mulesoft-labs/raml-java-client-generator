@@ -104,8 +104,8 @@ There is also a maven plugin that allows you to generate the client code during 
                         <configuration>
                             <basePackage>org.mule.example</basePackage>
                             <useJava8Dates>false</useJava8Dates>                            
-                            <!--False by default                            -->
-                            <includeAdditionalProperties>false</includeAdditionalProperties>
+                            <!--True by default                            -->
+                            <includeAdditionalProperties>true</includeAdditionalProperties>
                             <!--False by default                            -->
                             <useOptionalForGetters>false</useOptionalForGetters>
                         </configuration>

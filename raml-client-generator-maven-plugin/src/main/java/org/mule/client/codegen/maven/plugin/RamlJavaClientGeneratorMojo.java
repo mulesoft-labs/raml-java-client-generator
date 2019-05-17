@@ -37,7 +37,7 @@ public class RamlJavaClientGeneratorMojo extends AbstractMojo {
     @Parameter(defaultValue = "false")
     private Boolean useJava8Dates;
 
-    @Parameter(defaultValue = "false")
+    @Parameter(defaultValue = "true")
     private Boolean includeAdditionalProperties;
 
     @Parameter(defaultValue = "false")

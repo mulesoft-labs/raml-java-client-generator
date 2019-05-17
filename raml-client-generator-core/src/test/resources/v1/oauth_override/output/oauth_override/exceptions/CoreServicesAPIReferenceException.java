@@ -14,6 +14,7 @@ public class CoreServicesAPIReferenceException
     private Response response;
 
     public CoreServicesAPIReferenceException(int statusCode, String reason, MultivaluedMap<String, String> headers, Response response) {
+        super(reason);
         this.statusCode = statusCode;
         this.reason = reason;
         this.headers = headers;

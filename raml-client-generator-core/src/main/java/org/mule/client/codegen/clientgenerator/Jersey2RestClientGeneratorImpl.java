@@ -248,30 +248,30 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
     @Override
     public void buildCustomException(JCodeModel cm, String basePackage, String apiName) {
         try {
-            JDefinedClass customExceptionClass = cm._class(basePackage + "." + "exceptions" + "." + NameHelper.toValidClassName(apiName) + "Exception");
+            final JDefinedClass customExceptionClass = cm._class(basePackage + "." + "exceptions" + "." + NameHelper.toValidClassName(apiName) + "Exception");
             customExceptionClass._extends(RuntimeException.class);
 
-            JFieldVar statusCodeField = customExceptionClass.field(JMod.PRIVATE, Integer.TYPE, "statusCode");
-            JFieldVar reasonField = customExceptionClass.field(JMod.PRIVATE, String.class, "reason");
-            JClass rawHeadersClass = cm.ref(MultivaluedMap.class)
-                    .narrow(cm.ref(String.class), cm.ref(String.class));
-            JFieldVar headersField = customExceptionClass.field(JMod.PRIVATE, rawHeadersClass, "headers");
-            JFieldVar responseField = customExceptionClass.field(JMod.PRIVATE, Response.class, "response");
+            final JFieldVar statusCodeField = customExceptionClass.field(JMod.PRIVATE, Integer.TYPE, "statusCode");
+            final JFieldVar reasonField = customExceptionClass.field(JMod.PRIVATE, String.class, "reason");
+            final JClass rawHeadersClass = cm.ref(MultivaluedMap.class).narrow(cm.ref(String.class), cm.ref(String.class));
+            final JFieldVar headersField = customExceptionClass.field(JMod.PRIVATE, rawHeadersClass, "headers");
+            final JFieldVar responseField = customExceptionClass.field(JMod.PRIVATE, Response.class, "response");
 
             // Constructor with only statusCode, reason, headers and response
-            JMethod exceptionConstructor = customExceptionClass.constructor(JMod.PUBLIC);
-
+            final JMethod exceptionConstructor = customExceptionClass.constructor(JMod.PUBLIC);
+            //Start Constructor Params
             JVar statusCodeParameter = exceptionConstructor.param(Integer.TYPE, "statusCode");
-            exceptionConstructor.body().assign(JExpr._this().ref(statusCodeField), statusCodeParameter);
-
             JVar reasonParameter = exceptionConstructor.param(String.class, "reason");
-            exceptionConstructor.body().assign(JExpr._this().ref(reasonField), reasonParameter);
-
             JVar headersParameter = exceptionConstructor.param(rawHeadersClass, "headers");
-            exceptionConstructor.body().assign(JExpr._this().ref(headersField), headersParameter);
-
             JVar responseParameter = exceptionConstructor.param(Response.class, "response");
+            //End Constructor Params
+            //Constructor Body
+            exceptionConstructor.body().invoke("super").arg(reasonParameter);
+            exceptionConstructor.body().assign(JExpr._this().ref(statusCodeField), statusCodeParameter);
+            exceptionConstructor.body().assign(JExpr._this().ref(reasonField), reasonParameter);
+            exceptionConstructor.body().assign(JExpr._this().ref(headersField), headersParameter);
             exceptionConstructor.body().assign(JExpr._this().ref(responseField), responseParameter);
+            //Constructor Body
 
             // Constructor with only statusCode and reason
             JMethod containerConstructorWithoutHeadersAndResponse = customExceptionClass.constructor(JMod.PUBLIC);
