@@ -95,7 +95,7 @@ There is also a maven plugin that allows you to generate the client code during 
             <plugin>
                 <groupId>org.mule.raml.codegen</groupId>
                 <artifactId>raml-client-generator-maven-plugin</artifactId>
-                <version>0.6</version>
+                <version>0.7</version>
                 <executions>
                     <execution>
                         <goals>
