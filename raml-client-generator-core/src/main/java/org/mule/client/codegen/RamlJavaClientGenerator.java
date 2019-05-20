@@ -6,6 +6,7 @@ import static org.mule.client.codegen.utils.SecuritySchemesHelper.BASIC_AUTHENTI
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -299,7 +300,9 @@ public class RamlJavaClientGenerator {
                             }
                             final JVar uriParam = resourceFactoryMethod.param(String.class, NameHelper.toValidFieldName(uriParameterName));
                             resourceFactoryMethod.body()._return(JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClient)).arg(uriParam));
-                            resourceConstructor.body().assign(baseUrlField, baseUrlParam.plus(JExpr.lit("/").plus(uriParamConstructorParam)));
+
+                            final JInvocation encodedUriParam = cm.ref(URLEncoder.class).staticInvoke("encode").arg(uriParamConstructorParam);
+                            resourceConstructor.body().assign(baseUrlField, baseUrlParam.plus(JExpr.lit("/").plus(encodedUriParam)));
                             resourceConstructor.body().assign(JExpr._this().ref(clientField), clientParam);
 
                         } else {

@@ -1,6 +1,7 @@
 
 package simple.resource.cs.id;
 
+import java.net.URLEncoder;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
@@ -22,7 +23,7 @@ public class Id {
     }
 
     public Id(String baseUrl, Client _client, String uriParam) {
-        _baseUrl = (baseUrl +("/"+ uriParam));
+        _baseUrl = (baseUrl +("/"+ URLEncoder.encode(uriParam)));
         this._client = _client;
         bar = new Bar(getBaseUri(), getClient());
     }

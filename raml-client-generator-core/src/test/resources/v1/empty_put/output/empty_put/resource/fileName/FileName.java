@@ -1,6 +1,7 @@
 
 package empty_put.resource.fileName;
 
+import java.net.URLEncoder;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -21,7 +22,7 @@ public class FileName {
     }
 
     public FileName(String baseUrl, Client _client, String uriParam) {
-        _baseUrl = (baseUrl +("/"+ uriParam));
+        _baseUrl = (baseUrl +("/"+ URLEncoder.encode(uriParam)));
         this._client = _client;
     }
 
