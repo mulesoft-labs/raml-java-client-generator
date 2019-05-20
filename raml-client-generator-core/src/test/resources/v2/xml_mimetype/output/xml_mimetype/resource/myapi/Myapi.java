@@ -43,7 +43,7 @@ public class Myapi {
      * some description.
      * 
      */
-    public TResponse<String> put(Object body, MyapiPUTQueryParam queryParameters) {
+    public TResponse<Object> put(Object body, MyapiPUTQueryParam queryParameters) {
         WebTarget target = this._client.target(getBaseUri());
         if (queryParameters.getSomeName()!= null) {
             target = target.queryParam("someName", queryParameters.getSomeName());
@@ -54,7 +54,7 @@ public class Myapi {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new TException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
-        TResponse<String> apiResponse = new TResponse<String>(response.readEntity(String.class), response.getStringHeaders(), response);
+        TResponse<Object> apiResponse = new TResponse<Object>(response.readEntity(Object.class), response.getStringHeaders(), response);
         return apiResponse;
     }
 

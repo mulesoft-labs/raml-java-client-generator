@@ -32,7 +32,7 @@ public class Bar {
         return _baseUrl;
     }
 
-    public FooResponse<String> post() {
+    public FooResponse<Void> post() {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         Response response = invocationBuilder.post(null);
@@ -40,7 +40,7 @@ public class Bar {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
-        FooResponse<String> apiResponse = new FooResponse<String>(response.readEntity(String.class), response.getStringHeaders(), response);
+        FooResponse<Void> apiResponse = new FooResponse<Void>(null, response.getStringHeaders(), response);
         return apiResponse;
     }
 

@@ -40,7 +40,7 @@ public class Login {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
-        FooResponse<String> apiResponse = new FooResponse<String>(response.readEntity(String.class), response.getStringHeaders(), response);
+        FooResponse<String> apiResponse = new FooResponse<String>(((String) response.readEntity(Object.class)), response.getStringHeaders(), response);
         return apiResponse;
     }
 

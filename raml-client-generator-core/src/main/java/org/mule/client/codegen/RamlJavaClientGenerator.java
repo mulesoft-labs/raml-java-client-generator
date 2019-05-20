@@ -21,7 +21,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jsonschema2pojo.*;
 import org.jsonschema2pojo.rules.RuleFactory;
 import org.mule.client.codegen.clientgenerator.Jersey2RestClientGeneratorImpl;
-import org.mule.client.codegen.model.JBodyType;
+import org.mule.client.codegen.model.JTypeWithMimeType;
 import org.mule.client.codegen.security.BasicAuthClientGenerator;
 import org.mule.client.codegen.security.NoSecuredClientGenerator;
 import org.mule.client.codegen.security.SecurityClientGenerator;
@@ -59,6 +59,8 @@ public class RamlJavaClientGenerator {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String OK_RESPONSE = "200";
+    public static final String CREATED_RESPONSE = "201";
+    public static final String ACCEPTED_RESPONSE = "202";
 
     // Code generation constants
     public static final String RESPONSE_CLASS_SUFFIX = "Response";
@@ -317,8 +319,7 @@ public class RamlJavaClientGenerator {
                             }
                         }
 
-                        clientGenerator.resolveBaseURI(cm, getResourceMethod, baseUrlField);
-                        //this.clientGenerator.createClient(cm, resourceClass, baseURIMethod);
+                        this.clientGenerator.resolveBaseURI(cm, getResourceMethod, baseUrlField);
                         this.resourceClasses.put(resourcePath, new ImmutablePair<>(resourceClass, resourceConstructor));
                     } else {
                         final Pair<JDefinedClass, JMethod> resourcePair = this.resourceClasses.get(resourcePath);
@@ -358,25 +359,36 @@ public class RamlJavaClientGenerator {
             final Action action = actionTypeActionEntry.getValue();
             logger.info("  " + action.getType() + "");
 
-            final Response response = action.getResponses().get(OK_RESPONSE);
-            final List<JBodyType> bodiesType = buildBodyType(cm, actionType, action, resourcePath, resourceName);
-            final JType returnType = buildReturnType(cm, actionType, response, resourcePath, resourceName);
+            final Response response = getActionResponse(action);
+            final List<JTypeWithMimeType> bodiesType = buildBodyType(cm, actionType, action, resourcePath, resourceName);
+            final JTypeWithMimeType returnType = buildReturnType(cm, actionType, response, resourcePath, resourceName);
             final JType queryParameterType = buildQueryParametersType(cm, actionType, action, resourcePath, resourceName);
             final JType headerParameterType = buildHeaderType(cm, resourcePath, resourceName, actionType, action);
             if (bodiesType.isEmpty()) {
                 clientGenerator.callHttpMethod(cm, resourceClass, returnType, outputVersion, null, queryParameterType, headerParameterType, action, apiModel);
             } else {
-                for (JBodyType bodyType : bodiesType) {
+                for (JTypeWithMimeType bodyType : bodiesType) {
                     clientGenerator.callHttpMethod(cm, resourceClass, returnType, outputVersion, bodyType, queryParameterType, headerParameterType, action, apiModel);
                 }
             }
         }
     }
 
-    private JType buildReturnType(JCodeModel cm, ActionType actionType, Response response, String resourcePath, String resourceName) throws IOException {
-        JType returnType = cm.VOID;
+    private Response getActionResponse(Action action) {
+        Response response = action.getResponses().get(OK_RESPONSE);
+        if (response == null) {
+            response = action.getResponses().get(CREATED_RESPONSE);
+        }
+        if (response == null) {
+            response = action.getResponses().get(ACCEPTED_RESPONSE);
+        }
+        return response;
+    }
+
+    private JTypeWithMimeType buildReturnType(JCodeModel cm, ActionType actionType, Response response, String resourcePath, String resourceName) throws IOException {
+        JTypeWithMimeType returnType = new JTypeWithMimeType(cm.VOID, null);
         if (response != null) {
-            returnType = cm.ref(String.class);
+
             if (response.getBody() != null) {
                 final Iterator<Map.Entry<String, MimeType>> bodies = response.getBody().entrySet().iterator();
                 if (bodies.hasNext()) {
@@ -387,18 +399,15 @@ public class RamlJavaClientGenerator {
                         if (outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
                             className = className + BODY_CLASS_SUFFIX;
                         }
-                        returnType = getOrGeneratePojoFromJsonSchema(cm, resourcePath, mimeType, className);
-                        if (returnType == null) {
-                            returnType = cm.ref(Object.class);
-                        }
-                    } else if (MimeTypeHelper.isTextType(mimeType)) {
-                        returnType = cm.ref(String.class);
-                    } else if (MimeTypeHelper.isBinaryType(mimeType)) {
-                        returnType = cm.ref(InputStream.class);
-                    } else {
-                        returnType = cm.ref(String.class);
-                    }
+                        returnType = new JTypeWithMimeType(getOrGeneratePojoFromJsonSchema(cm, resourcePath, mimeType, className), mimeType);
 
+                    } else if (MimeTypeHelper.isTextType(mimeType)) {
+                        returnType = new JTypeWithMimeType(cm.ref(String.class), mimeType);
+                    } else if (MimeTypeHelper.isBinaryType(mimeType)) {
+                        returnType = new JTypeWithMimeType(cm.ref(InputStream.class), mimeType);
+                    } else {
+                        returnType = new JTypeWithMimeType(cm.ref(Object.class), mimeType);
+                    }
                 }
             }
         }
@@ -424,9 +433,9 @@ public class RamlJavaClientGenerator {
         return queryParameterType;
     }
 
-    private List<JBodyType> buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName)
+    private List<JTypeWithMimeType> buildBodyType(JCodeModel cm, ActionType actionType, Action action, String resourcePath, String resourceName)
             throws IOException, JClassAlreadyExistsException {
-        final List<JBodyType> result = new ArrayList<>();
+        final List<JTypeWithMimeType> result = new ArrayList<>();
 
         if (action.getBody() != null) {
             for (MimeType mimeType : action.getBody().values()) {
@@ -446,7 +455,7 @@ public class RamlJavaClientGenerator {
                     bodyType = cm.ref(Object.class);
                 }
                 if (bodyType != null) {
-                    result.add(new JBodyType(bodyType, mimeType));
+                    result.add(new JTypeWithMimeType(bodyType, mimeType));
                 } else {
                     logger.info("No type was inferred for body type at " + resourcePath + " on method " + action.getType());
                 }

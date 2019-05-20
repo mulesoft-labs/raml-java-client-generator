@@ -3,13 +3,13 @@ package org.mule.client.codegen.model;
 import com.sun.codemodel.JType;
 import org.mule.raml.model.MimeType;
 
-public class JBodyType {
+public class JTypeWithMimeType {
 
     private JType type;
 
     private MimeType mimeType;
 
-    public JBodyType(JType type, MimeType mimeType) {
+    public JTypeWithMimeType(JType type, MimeType mimeType) {
         this.type = type;
         this.mimeType = mimeType;
     }
