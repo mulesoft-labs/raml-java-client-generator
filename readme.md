@@ -110,6 +110,8 @@ There is also a maven plugin that allows you to generate the client code during 
                             <includeAdditionalProperties>false</includeAdditionalProperties>
                             <!--False by default                            -->
                             <useOptionalForGetters>false</useOptionalForGetters>
+                            <!--False by default                            -->
+                            <useBigDecimals>false</useBigDecimals>
                         </configuration>
                     </execution>
                 </executions>

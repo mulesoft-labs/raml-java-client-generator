@@ -90,6 +90,7 @@ public class RamlJavaClientGeneratorTest {
             codeGenConfig.setUseJava8Dates(Boolean.parseBoolean(properties.getProperty("java8Dates", "false")));
             codeGenConfig.setUseJava8Optional(Boolean.parseBoolean(properties.getProperty("optionals", "false")));
             codeGenConfig.setIncludeAdditionalProperties(Boolean.parseBoolean(properties.getProperty("additionalProperties", "false")));
+            codeGenConfig.setUseBigDecimals(Boolean.parseBoolean(properties.getProperty("useBigDecimals", "false")));
         }
         new RamlJavaClientGenerator(projectName, actualTarget, outputVersion, codeGenConfig).generate(resource);
         assert resource != null;

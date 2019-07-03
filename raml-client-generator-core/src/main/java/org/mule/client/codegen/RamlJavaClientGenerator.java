@@ -669,6 +669,11 @@ public class RamlJavaClientGenerator {
         }
 
         @Override
+        public boolean isUseBigDecimals() {
+            return codeGenConfig.getUseBigDecimals();
+        }
+
+        @Override
         public String getTargetVersion() {
             return codeGenConfig.getTargetVersion();
         }
