@@ -60,7 +60,7 @@ Add the dependency to `pom.xml`
   <dependency>
         <groupId>org.mule.raml.codegen</groupId>
         <artifactId>raml-client-generator-core</artifactId>
-        <version>0.9</version>
+        <version>0.10</version>
   </dependency>
 ```
 
@@ -95,7 +95,7 @@ There is also a maven plugin that allows you to generate the client code during 
             <plugin>
                 <groupId>org.mule.raml.codegen</groupId>
                 <artifactId>raml-client-generator-maven-plugin</artifactId>
-                <version>0.9</version>
+                <version>0.10</version>
                 <executions>
                     <execution>
                         <goals>
