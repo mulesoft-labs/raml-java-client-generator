@@ -8,6 +8,8 @@ public class CodeGenConfig {
 
     private boolean useJava8Optional = false;
 
+    private boolean useBigDecimals = false;
+
     private String targetVersion = "1.6";
 
     public CodeGenConfig() {
@@ -38,6 +40,15 @@ public class CodeGenConfig {
 
     public CodeGenConfig setUseJava8Dates(boolean useJava8Dates) {
         this.useJava8Dates = useJava8Dates;
+        return this;
+    }
+
+    public boolean getUseBigDecimals() {
+        return useBigDecimals;
+    }
+
+    public CodeGenConfig setUseBigDecimals(boolean useBigDecimals) {
+        this.useBigDecimals = useBigDecimals;
         return this;
     }
 

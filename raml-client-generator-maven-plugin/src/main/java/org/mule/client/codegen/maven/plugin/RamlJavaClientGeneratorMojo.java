@@ -41,6 +41,9 @@ public class RamlJavaClientGeneratorMojo extends AbstractMojo {
     private Boolean includeAdditionalProperties;
 
     @Parameter(defaultValue = "false")
+    private Boolean useBigDecimals;
+
+    @Parameter(defaultValue = "false")
     private Boolean useOptionalForGetters;
 
     @Parameter(defaultValue = "v2", property = "RamlJavaClientGeneratorMojo.outputVersion")
@@ -75,7 +78,8 @@ public class RamlJavaClientGeneratorMojo extends AbstractMojo {
                 codeGenConfig
                         .setUseJava8Dates(useJava8Dates)
                         .setIncludeAdditionalProperties(includeAdditionalProperties)
-                        .setUseJava8Optional(useOptionalForGetters);
+                        .setUseJava8Optional(useOptionalForGetters)
+                        .setUseBigDecimals(useBigDecimals);
 
                 final RamlJavaClientGenerator ramlJavaClientGenerator = new RamlJavaClientGenerator(basePackage, new File(outputDir), outputVersion, codeGenConfig);
                 ramlJavaClientGenerator.generate(ramlUrl);
