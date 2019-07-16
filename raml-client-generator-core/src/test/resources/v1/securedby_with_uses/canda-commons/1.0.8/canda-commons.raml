@@ -1,0 +1,15 @@
+#%RAML 1.0 Library
+
+securitySchemes:
+  basicAuth:
+    displayName: Basic Authentication
+    description: This API supports Basic Authentication. The client has to provide an "Authorization" header with valid credentials.
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send valid credentials.
+          type: string
+      responses:
+        401:
+          description: Credentials are missing or could not be validated by the server.

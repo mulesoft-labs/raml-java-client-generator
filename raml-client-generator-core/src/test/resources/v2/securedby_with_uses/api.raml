@@ -1,0 +1,28 @@
+#%RAML 1.0
+version: api
+title: BuyosExperienceLayer
+baseUri: http://localhost:24045/api
+
+uses:
+  candaCommons: canda-commons/1.0.8/canda-commons.raml
+
+securedBy: [candaCommons.basicAuth]
+
+# Workaround as https://github.com/mulesoft-labs/raml-java-client-generator
+# does not detect securitySchemes placed in the "uses" section.
+#securitySchemes:
+#  clientid:
+#    description: Client ID Policy
+#    type: Basic Authentication
+
+#securedBy: [clientid]
+
+/users/{id}:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                { "userId": "foo" }
+

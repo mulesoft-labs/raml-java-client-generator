@@ -51,6 +51,7 @@ public class RamlJavaClientGeneratorTest {
                 {"oauth_override"},
                 {"recursive_type"},
                 {"simple"},
+                {"securedby_with_uses"},
                 {"sub_resource_on_same_line"},
                 {"same_path_multiple_times"},
                 {"type_decl"},
