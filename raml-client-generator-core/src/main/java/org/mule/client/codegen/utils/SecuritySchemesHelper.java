@@ -31,6 +31,12 @@ public class SecuritySchemesHelper {
                 supportedSecuritySchemes.add(new ImmutablePair<>(schemeMap.getType(), schemeMap));
             }
         }
+        List<SecurityScheme> securedBy = raml.getSecuredBy();
+        for (SecurityScheme securedBySecurityScheme : securedBy) {
+            if (SUPPORTED_SECURITY_SCHEMES.contains(securedBySecurityScheme.getType())) {
+                supportedSecuritySchemes.add(new ImmutablePair<>(securedBySecurityScheme.getType(), securedBySecurityScheme));
+            }
+		}
         return supportedSecuritySchemes;
     }
 
