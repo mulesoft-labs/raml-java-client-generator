@@ -6,6 +6,8 @@ baseUri: http://localhost:24045/api
 uses:
   candaCommons: canda-commons/1.0.8/canda-commons.raml
 
+securedBy: [candaCommons.basicAuth]
+
 # Workaround as https://github.com/mulesoft-labs/raml-java-client-generator
 # does not detect securitySchemes placed in the "uses" section.
 #securitySchemes:
