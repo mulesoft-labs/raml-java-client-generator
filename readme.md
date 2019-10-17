@@ -132,4 +132,4 @@ There is also a maven plugin that allows you to generate the client code during 
 
 ### Disclaimer
 
-This is an incubator project (so expect bugs) so no mulesoft oficial support. If any issue is detected please report an issue and we will try to fix it. Also PR are wellcome. 
+This is an incubator project (so expect bugs) so no mulesoft oficial support. If any issue is detected please report an issue and we will try to fix it. Also PR are welcome. 
