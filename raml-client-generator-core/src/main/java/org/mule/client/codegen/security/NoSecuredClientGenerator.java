@@ -30,7 +30,7 @@ public class NoSecuredClientGenerator implements SecurityClientGenerator {
         JClass cbRef = cm.ref(ClientBuilder.class);
         JInvocation init = cbRef.staticInvoke("newBuilder");
         final JVar cbVal = body.decl(cbRef, "clientBuilder", init);
-        body._return(cbVal.invoke("wichConfig").arg(ccVal).invoke("build"));
+        body._return(cbVal.invoke("withConfig").arg(ccVal).invoke("build"));
         return getClient;
     }
 }

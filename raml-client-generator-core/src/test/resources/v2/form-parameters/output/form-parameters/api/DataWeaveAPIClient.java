@@ -33,7 +33,7 @@ public class DataWeaveAPIClient {
         ClientConfig cc = new ClientConfig();
         cc.register(MultiPartFeature.class);
         javax.ws.rs.client.ClientBuilder clientBuilder = javax.ws.rs.client.ClientBuilder.newBuilder();
-        return clientBuilder.wichConfig(cc).build();
+        return clientBuilder.withConfig(cc).build();
     }
 
     protected String getBaseUri() {

@@ -318,12 +318,13 @@ public class RamlJavaClientGenerator {
                                 resourceField.javadoc().add(resourceDescription);
                             }
 
-                            if (!hasMultipart(resource)) {
-                                parentConstructor.body()
-                                        .assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClientMethod)));
-                            } else {
+                            if (getClientWithMultipart != null
+                                    && hasMultipart(resource)) {
                                 parentConstructor.body()
                                         .assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClientWithMultipart)));
+                            } else {
+                                parentConstructor.body()
+                                        .assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClientMethod)));
                             }
 
                             if (parentDefaultConstructor != null) {
@@ -348,7 +349,9 @@ public class RamlJavaClientGenerator {
                     //Only last resource should trigger children and actions
                     if (i == resourceParts.length - 1) {
                         buildActionMethods(cm, resourceClass, resource, resourcePath, resourceName, apiModel);
-                        buildResourceClass(cm, resourceClass, parentDefaultConstructor, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, getClientWithMultipart, apiModel);
+                        //setting the multipart client to null to avoid resources classes not use a non existing method, as they have only one client
+                        JMethod getClientWithMultipartForChildren = null;
+                        buildResourceClass(cm, resourceClass, parentDefaultConstructor, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, getClientWithMultipartForChildren, apiModel);
                     }
                 }
             }
