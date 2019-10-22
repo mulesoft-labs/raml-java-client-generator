@@ -25,4 +25,13 @@ securedBy: [candaCommons.basicAuth]
             application/json:
               example: |
                 { "userId": "foo" }
-
+/files:
+  post:
+    body:
+      multipart/form-data:
+        properties:
+          files:
+            description: The file(s) to be uploaded
+            required: true
+            type: file
+            fileTypes: ['image/jpeg', 'image/png']

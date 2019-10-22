@@ -6,4 +6,6 @@ import com.sun.codemodel.JMethod;
 public interface SecurityClientGenerator {
 
     JMethod createClient(JDefinedClass containerClass);
+
+    JMethod createClientWithMultipart(JDefinedClass containerClass);
 }

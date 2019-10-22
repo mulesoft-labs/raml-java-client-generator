@@ -2,13 +2,14 @@
 package x-www-form-urlencoded.api;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import x-www-form-urlencoded.resource.sendFormData.SendFormData;
 
 
 /**
  * Some content
- * 
+ *
  */
 public class TestsendformdataClient {
 
@@ -22,11 +23,18 @@ public class TestsendformdataClient {
 
     public TestsendformdataClient(String baseUrl) {
         _baseUrl = baseUrl;
-        sendFormData = new SendFormData(getBaseUri(), getClient());
+        sendFormData = new SendFormData(getBaseUri(), getClientWithMultipart());
     }
 
     protected Client getClient() {
-        return ClientBuilder.newClient();
+        return javax.ws.rs.client.ClientBuilder.newClient();
+    }
+
+    protected Client getClientWithMultipart() {
+        ClientConfig cc = new ClientConfig();
+        cc.register(MultiPartFeature.class);
+        javax.ws.rs.client.ClientBuilder clientBuilder = javax.ws.rs.client.ClientBuilder.newBuilder();
+        return clientBuilder.wichConfig(cc).build();
     }
 
     protected String getBaseUri() {

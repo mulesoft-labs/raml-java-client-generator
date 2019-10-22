@@ -1,8 +1,8 @@
 
 package securedby_with_uses.api;
 
-import javax.ws.rs.client.ClientBuilder;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import securedby_with_uses.resource.files.Files;
 import securedby_with_uses.resource.users.Users;
 
 public class BuyosExperienceLayerClient {
@@ -11,12 +11,14 @@ public class BuyosExperienceLayerClient {
     private static java.lang.String password;
     private java.lang.String _baseUrl;
     public final Users users;
+    public final Files files;
 
     public BuyosExperienceLayerClient(java.lang.String baseUrl, java.lang.String username, java.lang.String password) {
         this.username = username;
         this.password = password;
         _baseUrl = baseUrl;
         users = new Users(getBaseUri(), getClient());
+        files = new Files(getBaseUri(), getClientWithMultipart());
     }
 
     public BuyosExperienceLayerClient(java.lang.String username, java.lang.String password) {
@@ -24,8 +26,15 @@ public class BuyosExperienceLayerClient {
     }
 
     protected javax.ws.rs.client.Client getClient() {
-        final javax.ws.rs.client.Client _client = ClientBuilder.newClient();
-        _client.register(HttpAuthenticationFeature.basic(username, password));
+        final javax.ws.rs.client.Client _client = javax.ws.rs.client.ClientBuilder.newClient();
+        _client.register(org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic(username, password));
+        return _client;
+    }
+
+    protected javax.ws.rs.client.Client getClientWithMultipart() {
+        final javax.ws.rs.client.Client _client = javax.ws.rs.client.ClientBuilder.newClient();
+        _client.register(org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic(username, password));
+        _client.register(MultiPartFeature.class);
         return _client;
     }
 

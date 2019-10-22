@@ -2,13 +2,14 @@
 package form-parameters.api;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import form-parameters.resource.exec.Exec;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 
 /**
  * Interact with the Data Weave Engine.
- * 
+ *
  */
 public class DataWeaveAPIClient {
 
@@ -17,7 +18,7 @@ public class DataWeaveAPIClient {
 
     public DataWeaveAPIClient(String baseUrl) {
         _baseUrl = baseUrl;
-        exec = new Exec(getBaseUri(), getClient());
+        exec = new Exec(getBaseUri(), getClientWithMultipart());
     }
 
     public DataWeaveAPIClient() {
@@ -25,7 +26,14 @@ public class DataWeaveAPIClient {
     }
 
     protected Client getClient() {
-        return ClientBuilder.newClient();
+        return javax.ws.rs.client.ClientBuilder.newClient();
+    }
+
+    protected Client getClientWithMultipart() {
+        ClientConfig cc = new ClientConfig();
+        cc.register(MultiPartFeature.class);
+        javax.ws.rs.client.ClientBuilder clientBuilder = javax.ws.rs.client.ClientBuilder.newBuilder();
+        return clientBuilder.wichConfig(cc).build();
     }
 
     protected String getBaseUri() {

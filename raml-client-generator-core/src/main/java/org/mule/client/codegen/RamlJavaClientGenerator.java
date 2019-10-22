@@ -171,6 +171,10 @@ public class RamlJavaClientGenerator {
         final JFieldVar baseUriField = containerClientClass.field(JMod.PRIVATE, String.class, "_" + BASE_URL_FIELD_NAME);
 
         final JMethod getClientMethod = clientGenerator.createClient(containerClientClass);
+        JMethod getClientWithMultipart = null;
+        if (hasMultipart(resources)) {
+            getClientWithMultipart = clientGenerator.createClientWithMultipart(containerClientClass);
+        }
 
         JMethod defaultConstructor = null;
         if (isBlank(raml.getBaseUri())) {
@@ -234,7 +238,7 @@ public class RamlJavaClientGenerator {
 
         }
 
-        buildResourceClass(cm, containerClientClass, defaultConstructor, containerConstructor, resources, "", getClientMethod, raml);
+        buildResourceClass(cm, containerClientClass, defaultConstructor, containerConstructor, resources, "", getClientMethod, getClientWithMultipart, raml);
 
 
         if (!targetFolder.exists()) {
@@ -246,7 +250,7 @@ public class RamlJavaClientGenerator {
     }
 
     private void buildResourceClass(JCodeModel cm, JDefinedClass containerClass, JMethod defaultContainerConstructor, JMethod containerConstructor, Map<String, Resource> resources, String containerResource,
-                                    JMethod getClientMethod, ApiModel apiModel) throws JClassAlreadyExistsException, IOException {
+                                    JMethod getClientMethod, JMethod getClientWithMultipart, ApiModel apiModel) throws JClassAlreadyExistsException, IOException {
 
         for (Map.Entry<String, Resource> stringResourceEntry : resources.entrySet()) {
             JDefinedClass parentClass = containerClass;
@@ -314,8 +318,13 @@ public class RamlJavaClientGenerator {
                                 resourceField.javadoc().add(resourceDescription);
                             }
 
-                            parentConstructor.body()
-                                    .assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClientMethod)));
+                            if (!hasMultipart(resource)) {
+                                parentConstructor.body()
+                                        .assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClientMethod)));
+                            } else {
+                                parentConstructor.body()
+                                        .assign(resourceField, JExpr._new(resourceClass).arg(JExpr.invoke(GET_BASE_URI_METHOD_NAME)).arg(JExpr.invoke(getClientWithMultipart)));
+                            }
 
                             if (parentDefaultConstructor != null) {
                                 parentDefaultConstructor.body().assign(resourceField, JExpr._null());
@@ -339,11 +348,49 @@ public class RamlJavaClientGenerator {
                     //Only last resource should trigger children and actions
                     if (i == resourceParts.length - 1) {
                         buildActionMethods(cm, resourceClass, resource, resourcePath, resourceName, apiModel);
-                        buildResourceClass(cm, resourceClass, parentDefaultConstructor, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, apiModel);
+                        buildResourceClass(cm, resourceClass, parentDefaultConstructor, resourceConstructor, resource.getResources(), resourcePath, getClientMethod, getClientWithMultipart, apiModel);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * @param resource starting point ;]
+     * @return true if any of the resource's action, or any of it's resources' actions childs is multipart
+     */
+    private boolean hasMultipart(Resource resource) {
+        final Map<ActionType, Action> actions = resource.getActions();
+        for (Map.Entry<ActionType, Action> actionTypeActionEntry : actions.entrySet()) {
+            final Action action = actionTypeActionEntry.getValue();
+            boolean multipart = hasMultipart(action);
+            if (multipart) {
+                return true;
+            }
+        }
+        return hasMultipart(resource.getResources());
+    }
+
+    private boolean hasMultipart(Map<String, Resource> resources) {
+        for (Map.Entry<String, Resource> stringResourceEntry : resources.entrySet()) {
+            boolean multipart = hasMultipart(stringResourceEntry.getValue());
+            if (multipart) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasMultipart(Action action) {
+        if (action.getBody() != null) {
+            for (MimeType mimeType : action.getBody().values()) {
+                final MimeType body = mimeType;
+                if (MimeTypeHelper.isMultiPartType(body) || MimeTypeHelper.isFormUrlEncodedType(body)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private String getResourcePackage(String resourcePath) {
@@ -371,6 +418,11 @@ public class RamlJavaClientGenerator {
                 clientGenerator.callHttpMethod(cm, resourceClass, returnType, outputVersion, null, queryParameterType, headerParameterType, action, apiModel);
             } else {
                 for (JTypeWithMimeType bodyType : bodiesType) {
+//                    final MimeType type = bodyType.getMimeType();
+//                    if (MimeTypeHelper.isMultiPartType(type)) {
+//                        //TODO lautaro do something.
+//                        asdasd
+//                    }
                     clientGenerator.callHttpMethod(cm, resourceClass, returnType, outputVersion, bodyType, queryParameterType, headerParameterType, action, apiModel);
                 }
             }
