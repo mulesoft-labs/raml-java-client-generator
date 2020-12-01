@@ -106,7 +106,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
         }
 
         if (authenticationParam != null) {
-            body.add(invocationBuilder.invoke("header").arg("Authorization").arg(JExpr.lit("Bearer ").plus(authenticationParam)));
+            body.add(invocationBuilder.invoke("header").arg("Authorization").arg(JExpr.lit("bearer ").plus(authenticationParam)));
         }
 
         JInvocation methodInvocation = JExpr.invoke(invocationBuilder, "method");

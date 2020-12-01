@@ -40,7 +40,7 @@ public class Api {
     public List<ApiGETResponse> get(String authorizationToken) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
-        invocationBuilder.header("Authorization", ("Bearer "+ authorizationToken));
+        invocationBuilder.header("Authorization", ("bearer "+ authorizationToken));
         Response response = invocationBuilder.method("GET");
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
