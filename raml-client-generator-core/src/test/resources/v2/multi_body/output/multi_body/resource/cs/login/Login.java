@@ -35,7 +35,7 @@ public class Login {
     public MultiBodyResponse<multi_body.resource.cs.login.model.LoginPOSTResponseBody> post(LoginPOSTBody body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.post(javax.ws.rs.client.Entity.json(body));
+        Response response = invocationBuilder.method("POST", javax.ws.rs.client.Entity.json(body));
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new MultiBodyException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
@@ -47,7 +47,7 @@ public class Login {
     public MultiBodyResponse<multi_body.resource.cs.login.model.LoginPOSTResponseBody> post(InputStream body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.post(javax.ws.rs.client.Entity.entity(body, javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE));
+        Response response = invocationBuilder.method("POST", javax.ws.rs.client.Entity.entity(body, javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE));
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new MultiBodyException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
@@ -59,7 +59,7 @@ public class Login {
     public MultiBodyResponse<multi_body.resource.cs.login.model.LoginGETResponseBody> get() {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.get();
+        Response response = invocationBuilder.method("GET");
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new MultiBodyException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);

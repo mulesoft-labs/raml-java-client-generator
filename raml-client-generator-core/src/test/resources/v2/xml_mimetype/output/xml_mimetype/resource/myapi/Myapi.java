@@ -49,7 +49,7 @@ public class Myapi {
             target = target.queryParam("someName", queryParameters.getSomeName());
         }
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.put(Entity.entity(body, "application/xml"));
+        Response response = invocationBuilder.method("PUT", Entity.entity(body, "application/xml"));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new TException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);

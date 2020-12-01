@@ -81,7 +81,7 @@ public class RamlJavaClientGeneratorTest {
         if (actualTarget.exists()) {
             FileUtils.cleanDirectory(actualTarget);
         }
-        logger.info("targetFolder = " + actualTarget);
+        logger.info("actualTarget = " + actualTarget);
         actualTarget.mkdirs();
 
         CodeGenConfig codeGenConfig = new CodeGenConfig();
@@ -103,13 +103,13 @@ public class RamlJavaClientGeneratorTest {
         } finally {
             try {
                 if (Boolean.getBoolean("update-result")) {
+                    File expectedDirectory = new File(parentFile, "../../../../src/test/resources/" + outputVersion.toString() + "/" + projectName + "/output").getAbsoluteFile();
                     logger.info("-----------UPDATING RESULT -----------------");
-                    File expectedDirectory = new File(expected, "../../../../../src/test/resources/" + outputVersion.toString() + "/" + projectName + "/output").getAbsoluteFile();
-                    System.out.println("expectedDirectory = " + resource);
-                    FileUtils.deleteDirectory(expectedDirectory);
-                    expectedDirectory.mkdirs();
-                    logger.info("expected = " + expectedDirectory);
-                    logger.info("actualTarget = " + actualTarget);
+                    logger.info("Expected = " + expectedDirectory);
+                    logger.info("Result = " + actualTarget);
+//                    FileUtils.deleteDirectory(expectedDirectory);
+                    final boolean mkdirs = expectedDirectory.mkdirs();
+                    System.out.println("mkdirs = " + mkdirs);
                     FileUtils.copyDirectory(actualTarget, expectedDirectory);
                 }
             } catch (Exception e) {

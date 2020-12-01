@@ -1,5 +1,5 @@
 
-package form-parameters.resource.exec;
+package securedby_with_uses.resource.files;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -7,23 +7,23 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-import form-parameters.exceptions.DataWeaveAPIException;
-import form-parameters.resource.exec.model.ExecPOSTBody;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import securedby_with_uses.exceptions.BuyosExperienceLayerException;
+import securedby_with_uses.resource.files.model.FilesPOSTBody;
+import securedby_with_uses.responses.BuyosExperienceLayerResponse;
 
-public class Exec {
+public class Files {
 
     private String _baseUrl;
     private Client _client;
 
-    public Exec() {
+    public Files() {
         _baseUrl = null;
         _client = null;
     }
 
-    public Exec(String baseUrl, Client _client) {
-        _baseUrl = (baseUrl +"/exec");
+    public Files(String baseUrl, Client _client) {
+        _baseUrl = (baseUrl +"/files");
         this._client = _client;
     }
 
@@ -35,21 +35,17 @@ public class Exec {
         return _baseUrl;
     }
 
-    public void post(ExecPOSTBody body) {
+    public BuyosExperienceLayerResponse<Void> post(FilesPOSTBody body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         FormDataMultiPart multiPart = new FormDataMultiPart();
-        if (body.getFile()!= null) {
-            multiPart.bodyPart(new FileDataBodyPart("file", body.getFile()));
-        }
-        if (body.getFrom()!= null) {
-            multiPart.field("From", body.getFrom().toString());
-        }
         Response response = invocationBuilder.method("POST", Entity.entity(multiPart, multiPart.getMediaType()));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new DataWeaveAPIException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
+            throw new BuyosExperienceLayerException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
+        BuyosExperienceLayerResponse<Void> apiResponse = new BuyosExperienceLayerResponse<Void>(null, response.getStringHeaders(), response);
+        return apiResponse;
     }
 
 }

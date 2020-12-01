@@ -44,7 +44,7 @@ public class SendFormData {
         if (body.getParam2()!= null) {
             multiValuedMap.add("param2", body.getParam2().toString());
         }
-        Response response = invocationBuilder.post(Entity.entity(multiValuedMap, javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE));
+        Response response = invocationBuilder.method("POST", Entity.entity(multiValuedMap, javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new TestsendformdataException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);

@@ -48,7 +48,7 @@ public class FileName {
         if (headers.getXCommitMessage()!= null) {
             invocationBuilder.header("x-commit-message", headers.getXCommitMessage());
         }
-        Response response = invocationBuilder.put(Entity.entity(body, "*/*"));
+        Response response = invocationBuilder.method("PUT", Entity.entity(body, "*/*"));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new SimpleApiException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);

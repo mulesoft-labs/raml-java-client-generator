@@ -42,7 +42,7 @@ public class Foo {
         if (headers.getId()!= null) {
             invocationBuilder.header("id", headers.getId());
         }
-        Response response = invocationBuilder.get();
+        Response response = invocationBuilder.method("GET");
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);

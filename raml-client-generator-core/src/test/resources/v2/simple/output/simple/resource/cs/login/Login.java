@@ -35,7 +35,7 @@ public class Login {
     public FooResponse<simple.resource.cs.login.model.LoginPOSTResponseBody> post(LoginPOSTBody body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.post(Entity.json(body));
+        Response response = invocationBuilder.method("POST", Entity.json(body));
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
@@ -47,7 +47,7 @@ public class Login {
     public FooResponse<simple.resource.cs.login.model.LoginGETResponseBody> get() {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.get();
+        Response response = invocationBuilder.method("GET");
         if (response.getStatusInfo().getFamily()!= javax.ws.rs.core.Response.Status.Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new FooException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);

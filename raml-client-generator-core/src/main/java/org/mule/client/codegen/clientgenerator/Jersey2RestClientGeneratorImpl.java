@@ -1,20 +1,5 @@
 package org.mule.client.codegen.clientgenerator;
 
-import static org.mule.client.codegen.utils.SecuritySchemesHelper.isOauth20SecuredBy;
-
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
 import com.sun.codemodel.*;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
@@ -26,13 +11,20 @@ import org.mule.client.codegen.model.JTypeWithMimeType;
 import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
 import org.mule.client.codegen.utils.TypeConstants;
-import org.mule.raml.model.Action;
-import org.mule.raml.model.ActionType;
-import org.mule.raml.model.ApiModel;
-import org.mule.raml.model.MimeType;
-import org.mule.raml.model.TypeFieldDefinition;
+import org.mule.raml.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.util.Map;
+
+import static org.mule.client.codegen.utils.SecuritySchemesHelper.isOauth20SecuredBy;
 
 
 public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
@@ -50,11 +42,6 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
 
     @Override
     public void callHttpMethod(@Nonnull JCodeModel cm, @Nonnull JDefinedClass resourceClass, @Nonnull JTypeWithMimeType returnType, @Nonnull OutputVersion outputVersion, @Nullable JTypeWithMimeType bodyType, @Nullable JType queryParameterType, @Nullable JType headerParameterType, @Nonnull Action action, ApiModel apiModel) {
-        if (action.getType() == ActionType.PATCH) {
-            logger.warn("Patch is not supported");
-            return;
-        }
-
         // Declare the method with the required inputs
         JMethod actionMethod;
         if (outputVersion.ordinal() >= OutputVersion.v2.ordinal()) {
@@ -122,7 +109,8 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             body.add(invocationBuilder.invoke("header").arg("Authorization").arg(JExpr.lit("Bearer ").plus(authenticationParam)));
         }
 
-        final JInvocation methodInvocation = JExpr.invoke(invocationBuilder, action.getType().name().toLowerCase());
+        JInvocation methodInvocation = JExpr.invoke(invocationBuilder, "method");
+        methodInvocation.arg(action.getType().name());
         if (action.getType() != ActionType.GET && action.getType() != ActionType.OPTIONS && action.getType() != ActionType.DELETE) {
             if (bodyParam != null) {
                 final MimeType type = bodyType.getMimeType();
@@ -163,7 +151,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                 }
 
             } else {
-                methodInvocation.arg(JExpr._null());
+                methodInvocation.arg(JExpr.cast(cm.directClass(Entity.class.getName()), JExpr._null()));
             }
         }
 

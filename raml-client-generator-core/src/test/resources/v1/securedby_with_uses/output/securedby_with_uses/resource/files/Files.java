@@ -1,30 +1,28 @@
 
-package library.resource.provider;
+package securedby_with_uses.resource.files;
 
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
-import library.exceptions.CoreServicesAPIReferenceException;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import securedby_with_uses.exceptions.BuyosExperienceLayerException;
+import securedby_with_uses.resource.files.model.FilesPOSTBody;
 
-
-/**
- * External auth* provider information for the organization
- * 
- */
-public class Provider {
+public class Files {
 
     private String _baseUrl;
     private Client _client;
 
-    public Provider() {
+    public Files() {
         _baseUrl = null;
         _client = null;
     }
 
-    public Provider(String baseUrl, Client _client) {
-        _baseUrl = (baseUrl +"/provider");
+    public Files(String baseUrl, Client _client) {
+        _baseUrl = (baseUrl +"/files");
         this._client = _client;
     }
 
@@ -36,19 +34,15 @@ public class Provider {
         return _baseUrl;
     }
 
-    /**
-     * Returns combined provider details
-     * 
-     */
-    public library.resource.provider.model.ProviderGETResponse get() {
+    public void post(FilesPOSTBody body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.method("GET");
+        FormDataMultiPart multiPart = new FormDataMultiPart();
+        Response response = invocationBuilder.method("POST", Entity.entity(multiPart, multiPart.getMediaType()));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
-            throw new CoreServicesAPIReferenceException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
+            throw new BuyosExperienceLayerException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
         }
-        return response.readEntity(library.resource.provider.model.ProviderGETResponse.class);
     }
 
 }

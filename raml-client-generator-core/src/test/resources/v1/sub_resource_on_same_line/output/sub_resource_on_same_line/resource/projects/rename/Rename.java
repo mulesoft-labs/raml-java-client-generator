@@ -39,7 +39,7 @@ public class Rename {
     public void put(Object body) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.put(Entity.json(body));
+        Response response = invocationBuilder.method("PUT", Entity.json(body));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new DesignCenterProjectsServicewithsubresourceonsamelineException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
