@@ -9,9 +9,7 @@ Map pipelineParams = [
         "mavenSettingsXmlId"                    : "data-weave-maven-settings",
         "devBranchesRegex"                      : "master",
         "enableScheduleTrigger"                 : true,
-        "scheduleTriggerCommand"                : "@daily",
-        "archiveArtifacts"                      : "data-weave-tita-it/target/Test*.log",
-        "projectType"                           : "runtime"
+        "scheduleTriggerCommand"                : "@daily"
 ]
 
 runtimeBuild(pipelineParams)
