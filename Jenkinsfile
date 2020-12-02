@@ -9,7 +9,8 @@ Map pipelineParams = [
         "mavenSettingsXmlId"                    : "data-weave-maven-settings",
         "devBranchesRegex"                      : "master",
         "enableScheduleTrigger"                 : true,
-        "scheduleTriggerCommand"                : "@daily"
+        "scheduleTriggerCommand"                : "@daily",
+        "projectType"                           : "runtime"
 ]
 
 runtimeBuild(pipelineParams)
