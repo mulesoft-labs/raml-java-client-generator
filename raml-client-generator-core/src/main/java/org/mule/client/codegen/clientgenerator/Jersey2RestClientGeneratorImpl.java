@@ -1,6 +1,19 @@
 package org.mule.client.codegen.clientgenerator;
 
-import com.sun.codemodel.*;
+import com.sun.codemodel.JBlock;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
+import com.sun.codemodel.JTypeVar;
+import com.sun.codemodel.JVar;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
@@ -11,7 +24,11 @@ import org.mule.client.codegen.model.JTypeWithMimeType;
 import org.mule.client.codegen.utils.MimeTypeHelper;
 import org.mule.client.codegen.utils.NameHelper;
 import org.mule.client.codegen.utils.TypeConstants;
-import org.mule.raml.model.*;
+import org.mule.raml.model.Action;
+import org.mule.raml.model.ActionType;
+import org.mule.raml.model.ApiModel;
+import org.mule.raml.model.MimeType;
+import org.mule.raml.model.TypeFieldDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +37,11 @@ import javax.annotation.Nullable;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.*;
 import java.util.Map;
 
 import static org.mule.client.codegen.utils.SecuritySchemesHelper.isOauth20SecuredBy;
@@ -34,6 +54,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
     private static final String BODY_PARAM_NAME = "body";
     private static final String HEADERS_PARAM_NAME = "headers";
     private static final String TOKEN_PARAM_NAME = "authorizationToken";
+    private static final String MIME_TYPE_NAME = "mimeType";
     private static final String QUERY_PARAMETERS_PARAM_NAME = "queryParameters";
 
     private static JClass exceptionClass;
@@ -146,6 +167,9 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                         ifBlock.invoke(multiValuedMapVar, "add").arg(JExpr.lit(paramName)).arg(bodyParam.invoke(paramGetterMethod).invoke("toString"));
                     }
                     methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiValuedMapVar).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_FORM_URLENCODED_TYPE")));
+                } else if (MimeTypeHelper.isAnyType(type)) {
+                    final JVar mimeTypeParam = actionMethod.param(String.class, MIME_TYPE_NAME);
+                    methodInvocation.arg((cm.ref(Entity.class).staticInvoke("entity").arg(bodyParam).arg(mimeTypeParam)));
                 } else {
                     methodInvocation.arg((cm.ref(Entity.class).staticInvoke("entity").arg(bodyParam).arg(type.getType())));
                 }

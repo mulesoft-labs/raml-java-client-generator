@@ -39,7 +39,7 @@ public class FileName {
      * Creates or updates the given file
      * 
      */
-    public SimpleApiResponse<Void> put(Object body, FileNamePUTHeader headers) {
+    public SimpleApiResponse<Void> put(Object body, FileNamePUTHeader headers, String mimeType) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         if (headers.getXBaseCommitId()!= null) {
@@ -48,7 +48,7 @@ public class FileName {
         if (headers.getXCommitMessage()!= null) {
             invocationBuilder.header("x-commit-message", headers.getXCommitMessage());
         }
-        Response response = invocationBuilder.method("PUT", Entity.entity(body, "*/*"));
+        Response response = invocationBuilder.method("PUT", Entity.entity(body, mimeType));
         if (response.getStatusInfo().getFamily()!= Family.SUCCESSFUL) {
             Response.StatusType statusInfo = response.getStatusInfo();
             throw new SimpleApiException(statusInfo.getStatusCode(), statusInfo.getReasonPhrase(), response.getStringHeaders(), response);
