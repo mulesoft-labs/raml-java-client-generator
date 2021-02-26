@@ -38,7 +38,7 @@ public class FileName {
      * Creates or updates the given file
      * 
      */
-    public void put(Object body, FileNamePUTHeader headers, String mimeType) {
+    public void put(Object body, String mimeType, FileNamePUTHeader headers) {
         WebTarget target = this._client.target(getBaseUri());
         final javax.ws.rs.client.Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON_TYPE);
         if (headers.getXBaseCommitId()!= null) {

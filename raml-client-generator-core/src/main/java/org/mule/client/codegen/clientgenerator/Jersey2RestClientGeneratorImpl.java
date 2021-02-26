@@ -80,6 +80,14 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
             bodyParam = null;
         }
 
+        JVar mimeTypeParam = null;
+        if (bodyType != null) {
+            final MimeType type = bodyType.getMimeType();
+            if (MimeTypeHelper.isAnyType(type)) {
+                mimeTypeParam = actionMethod.param(String.class, MIME_TYPE_NAME);
+            }
+        }
+
         final JVar queryParameterParam;
         if (queryParameterType != null) {
             queryParameterParam = actionMethod.param(queryParameterType, QUERY_PARAMETERS_PARAM_NAME);
@@ -168,7 +176,7 @@ public class Jersey2RestClientGeneratorImpl implements RestClientGenerator {
                     }
                     methodInvocation.arg(cm.directClass(Entity.class.getName()).staticInvoke("entity").arg(multiValuedMapVar).arg(cm.directClass(MediaType.class.getName()).staticRef("APPLICATION_FORM_URLENCODED_TYPE")));
                 } else if (MimeTypeHelper.isAnyType(type)) {
-                    final JVar mimeTypeParam = actionMethod.param(String.class, MIME_TYPE_NAME);
+                    assert mimeTypeParam != null;
                     methodInvocation.arg((cm.ref(Entity.class).staticInvoke("entity").arg(bodyParam).arg(mimeTypeParam)));
                 } else {
                     methodInvocation.arg((cm.ref(Entity.class).staticInvoke("entity").arg(bodyParam).arg(type.getType())));
